@@ -58,6 +58,11 @@ fun ByteBuf.getUnsignedIntPDPE(index: Int) = (getUnsignedShortLE(index) shl 16) 
 
 fun ByteBuf.getUnsignedIntIPDPE(index: Int) = getUnsignedShort(index) or (getUnsignedShort(index + 1) shl 16)
 
+fun ByteBuf.getSmallLong(index: Int) = (getMedium(index).toLong() shl 24) or getUnsignedMedium(index + 1).toLong()
+
+fun ByteBuf.getUnsignedSmallLong(index: Int) = (getUnsignedMedium(index).toLong() shl 24) or
+        getUnsignedMedium(index + 1).toLong()
+
 
 
 fun ByteBuf.setByteNEG(index: Int, value: Int) = setByte(index, -value)
@@ -78,6 +83,11 @@ fun ByteBuf.setIntPDPE(index: Int, value: Int) {
 fun ByteBuf.setIntIPDPE(index: Int, value: Int) {
     setShort(index, value)
     setShort(index + 1, value shr 16)
+}
+
+fun ByteBuf.setSmallLong(index: Int, value: Int) {
+    setMedium(index, value shr 24)
+    setMedium(index + 1, value)
 }
 
 
@@ -110,6 +120,10 @@ fun ByteBuf.readUnsignedIntPDPE() = (readUnsignedShortLE() shl 16) or readUnsign
 
 fun ByteBuf.readUnsignedIntIPDPE() = readUnsignedShort() or (readUnsignedShort() shl 16)
 
+fun ByteBuf.readSmallLong() = (readMedium().toLong() shl 24) or readUnsignedMedium().toLong()
+
+fun ByteBuf.readUnsignedSmallLong() = (readUnsignedMedium().toLong() shl 24) or readUnsignedMedium().toLong()
+
 
 
 fun ByteBuf.writeByteNEG(value: Int) = writeByte(-value)
@@ -130,4 +144,9 @@ fun ByteBuf.writeIntPDPE(value: Int) {
 fun ByteBuf.writeIntIPDPE(value: Int) {
     writeShort(value)
     writeShort(value shr 16)
+}
+
+fun ByteBuf.writeSmallLong(value: Int) {
+    writeMedium(value shr 24)
+    writeMedium(value)
 }
