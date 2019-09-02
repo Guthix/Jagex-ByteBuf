@@ -18,6 +18,7 @@
 package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
+import java.lang.IllegalArgumentException
 import java.nio.charset.Charset
 
 private const val HALF_BYTE = 128.toByte()
@@ -63,6 +64,16 @@ fun ByteBuf.getSmallLong(index: Int) = (getMedium(index).toLong() shl 24) or get
 fun ByteBuf.getUnsignedSmallLong(index: Int) = (getUnsignedMedium(index).toLong() shl 24) or
         getUnsignedMedium(index + 1).toLong()
 
+fun ByteBuf.getSmallSmart(index: Int): Int {
+    val peak = getUnsignedByte(index)
+    return if(peak < 128) peak - 64 else getUnsignedShort(index) - 49152
+}
+
+fun ByteBuf.getUnsignedSmallSmart(index: Int): Int {
+    val peak = getUnsignedByte(index)
+    return if(peak < 128) peak.toInt() else getUnsignedShort(index) - 32768
+}
+
 fun ByteBuf.getVarInt(index: Int): Int {
     var temp = getByte(index).toInt()
     var prev = 0
@@ -93,6 +104,9 @@ fun ByteBuf.getString0CP1252(index: Int): String {
     return getStringCP1252(index + 1)
 }
 
+
+
+
 fun ByteBuf.setByteNEG(index: Int, value: Int) = setByte(index, -value)
 
 fun ByteBuf.setByteADD(index: Int, value: Int) = setByte(index, value + HALF_BYTE)
@@ -118,7 +132,13 @@ fun ByteBuf.setSmallLong(index: Int, value: Int) {
     setMedium(index + 1, value)
 }
 
-fun ByteBuf.setVarInt(index: Int, value: Int) {
+fun ByteBuf.setSmallSmart(index: Int, value: Int) = when (value) {
+    in 0 until 128 -> setByte(index, value)
+    in 0 until 32768 -> setShort(index, value + 32768)
+    else -> throw IllegalArgumentException("Can't write value bigger than 32767.")
+}
+
+fun ByteBuf.setVarInt(index: Int, value: Int): Int {
     var i = index
     if (value and -128 != 0) {
         if (value and -16384 != 0) {
@@ -132,7 +152,8 @@ fun ByteBuf.setVarInt(index: Int, value: Int) {
         }
         setByte(i++, value.ushr(7) or 128)
     }
-    setByte(i, value and 127)
+    setByte(i++, value and 127)
+    return i - index
 }
 
 fun ByteBuf.setStringCP1252(index: Int, value: String) {
@@ -143,6 +164,12 @@ fun ByteBuf.setStringCP1252(index: Int, value: String) {
 fun ByteBuf.setString0CP1252(index: Int, value: String) {
     writeByte(index)
     setStringCP1252(index + 1, value)
+}
+
+fun ByteBuf.setStringCESU8(index: Int, value: String) {
+    setByte(index, 0)
+    val byteWritten = setVarInt(index + 1, value.length)
+    setCharSequence(index + byteWritten, value, cesu8)
 }
 
 
@@ -180,6 +207,16 @@ fun ByteBuf.readSmallLong() = (readMedium().toLong() shl 24) or readUnsignedMedi
 
 fun ByteBuf.readUnsignedSmallLong() = (readUnsignedMedium().toLong() shl 24) or readUnsignedMedium().toLong()
 
+fun ByteBuf.readSmallSmart(): Int {
+    val peak = getUnsignedByte(readerIndex())
+    return if(peak < 128) peak - 64 else readUnsignedShort() - 49152
+}
+
+fun ByteBuf.readUnsignedSmallSmart(): Int {
+    val peak = getUnsignedByte(readerIndex())
+    return if(peak < 128) peak.toInt() else readUnsignedShort() - 32768
+}
+
 fun ByteBuf.readVarInt(): Int {
     var temp = readByte().toInt()
     var prev = 0
@@ -211,6 +248,11 @@ fun ByteBuf.readString0CP1252(): String {
     return readStringCP1252()
 }
 
+fun ByteBuf.readStringCESU8(): String {
+    if(readByte().toInt() != 0) throw IllegalStateException("First byte is not 0.")
+    val length = readVarInt()
+    return readCharSequence(length, cesu8).toString()
+}
 
 
 
@@ -239,6 +281,12 @@ fun ByteBuf.writeSmallLong(value: Int) {
     writeMedium(value)
 }
 
+fun ByteBuf.writeSmallSmart(value: Int) = when (value) {
+    in 0 until 128 -> writeByte(value)
+    in 0 until 32768 -> writeShort(value + 32768)
+    else -> throw IllegalArgumentException("Can't write value bigger than 32767.")
+}
+
 fun ByteBuf.writeVarInt(value: Int) {
     if (value and -128 != 0) {
         if (value and -16384 != 0) {
@@ -263,4 +311,10 @@ fun ByteBuf.writeStringCP1252(value: String) {
 fun ByteBuf.writeString0CP1252(value: String) {
     writeByte(0)
     writeStringCP1252(value)
+}
+
+fun ByteBuf.writeStringCESU8(value: String) {
+    writeByte(0)
+    writeVarInt(value.length)
+    writeCharSequence(value, cesu8)
 }
