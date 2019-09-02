@@ -74,6 +74,12 @@ fun ByteBuf.getUnsignedSmallSmart(index: Int): Int {
     return if(peak < 128) peak.toInt() else getUnsignedShort(index) - 32768
 }
 
+fun ByteBuf.getLargeSmart(index: Int) = if (getByte(readerIndex()) < 0) {
+    getUnsignedInt(index)
+} else {
+    getUnsignedShort(index)
+}
+
 fun ByteBuf.getVarInt(index: Int): Int {
     var temp = getByte(index).toInt()
     var prev = 0
@@ -133,9 +139,23 @@ fun ByteBuf.setSmallLong(index: Int, value: Int) {
 }
 
 fun ByteBuf.setSmallSmart(index: Int, value: Int) = when (value) {
-    in 0 until 128 -> setByte(index, value)
-    in 0 until 32768 -> setShort(index, value + 32768)
-    else -> throw IllegalArgumentException("Can't write value bigger than 32767.")
+    in 0 until 128 -> {
+        setByte(index, value)
+        Byte.SIZE_BYTES
+    }
+    in 0 until 32768 -> {
+        setShort(index, value + 32768)
+        Short.SIZE_BYTES
+    }
+    else -> throw IllegalArgumentException("Can't set value bigger than 32767.")
+}
+
+fun ByteBuf.setLargeSmart(index: Int, value: Int) = if(value <= Short.MAX_VALUE) {
+    setShort(index, value)
+    Short.SIZE_BYTES
+} else {
+    setInt(index, value)
+    Int.SIZE_BYTES
 }
 
 fun ByteBuf.setVarInt(index: Int, value: Int): Int {
@@ -217,6 +237,12 @@ fun ByteBuf.readUnsignedSmallSmart(): Int {
     return if(peak < 128) peak.toInt() else readUnsignedShort() - 32768
 }
 
+fun ByteBuf.readLargeSmart() = if (getByte(readerIndex()) < 0) {
+    readUnsignedInt()
+} else {
+    readUnsignedShort()
+}
+
 fun ByteBuf.readVarInt(): Int {
     var temp = readByte().toInt()
     var prev = 0
@@ -285,6 +311,12 @@ fun ByteBuf.writeSmallSmart(value: Int) = when (value) {
     in 0 until 128 -> writeByte(value)
     in 0 until 32768 -> writeShort(value + 32768)
     else -> throw IllegalArgumentException("Can't write value bigger than 32767.")
+}
+
+fun ByteBuf.writeLargeSmart(value: Int) = if(value <= Short.MAX_VALUE) {
+    writeShort(value)
+} else {
+    writeInt(value)
 }
 
 fun ByteBuf.writeVarInt(value: Int) {
