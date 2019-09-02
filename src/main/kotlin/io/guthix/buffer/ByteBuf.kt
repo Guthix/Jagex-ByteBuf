@@ -63,23 +63,34 @@ fun ByteBuf.getSmallLong(index: Int) = (getMedium(index).toLong() shl 24) or get
 fun ByteBuf.getUnsignedSmallLong(index: Int) = (getUnsignedMedium(index).toLong() shl 24) or
         getUnsignedMedium(index + 1).toLong()
 
-fun ByteBuf.getStringCp1252(index: Int): String {
+fun ByteBuf.getVarInt(index: Int): Int {
+    var temp = getByte(index).toInt()
+    var prev = 0
+    var i = index + 1
+    while (temp < 0) {
+        prev = prev or (temp and 127) shl 7
+        temp = getByte(i++).toInt()
+    }
+    return prev or temp
+}
+
+fun ByteBuf.getStringCP1252(index: Int): String {
     var i = index
     while(getByte(i++).toInt() != 0) { }
     val size = i - index - 1
     return getCharSequence(index, size, cp1252).toString()
 }
 
-fun ByteBuf.getStringCp1252Nullable(index: Int): String? {
+fun ByteBuf.getStringCP1252Nullable(index: Int): String? {
     if(getByte(index).toInt() == 0) {
         return null
     }
-    return getStringCp1252(index)
+    return getStringCP1252(index)
 }
 
-fun ByteBuf.getString0Cp1252(index: Int): String {
+fun ByteBuf.getString0CP1252(index: Int): String {
     if(getByte(index).toInt() != 0) throw IllegalStateException("First byte is not 0.")
-    return getStringCp1252(index + 1)
+    return getStringCP1252(index + 1)
 }
 
 fun ByteBuf.setByteNEG(index: Int, value: Int) = setByte(index, -value)
@@ -107,14 +118,31 @@ fun ByteBuf.setSmallLong(index: Int, value: Int) {
     setMedium(index + 1, value)
 }
 
-fun ByteBuf.setStringCp1252(index: Int, value: String) {
+fun ByteBuf.setVarInt(index: Int, value: Int) {
+    var i = index
+    if (value and -128 != 0) {
+        if (value and -16384 != 0) {
+            if (value and -2097152 != 0) {
+                if (value and -268435456 != 0) {
+                    setByte(i++, value.ushr(28) or 128)
+                }
+                setByte(i++, value.ushr(21) or 128)
+            }
+            setByte(i++, value.ushr(14) or 128)
+        }
+        setByte(i++, value.ushr(7) or 128)
+    }
+    setByte(i, value and 127)
+}
+
+fun ByteBuf.setStringCP1252(index: Int, value: String) {
     setCharSequence(index, value, cp1252)
     setByte(index + value.length + 1, 0)
 }
 
-fun ByteBuf.setString0Cp1252(index: Int, value: String) {
+fun ByteBuf.setString0CP1252(index: Int, value: String) {
     writeByte(index)
-    setStringCp1252(index + 1, value)
+    setStringCP1252(index + 1, value)
 }
 
 
@@ -152,7 +180,17 @@ fun ByteBuf.readSmallLong() = (readMedium().toLong() shl 24) or readUnsignedMedi
 
 fun ByteBuf.readUnsignedSmallLong() = (readUnsignedMedium().toLong() shl 24) or readUnsignedMedium().toLong()
 
-fun ByteBuf.readStringCp1252(): String {
+fun ByteBuf.readVarInt(): Int {
+    var temp = readByte().toInt()
+    var prev = 0
+    while (temp < 0) {
+        prev = prev or (temp and 127) shl 7
+        temp = readByte().toInt()
+    }
+    return prev or temp
+}
+
+fun ByteBuf.readStringCP1252(): String {
     val current = readerIndex()
     while(readByte().toInt() != 0) { }
     val size = readerIndex() - current - 1
@@ -160,17 +198,17 @@ fun ByteBuf.readStringCp1252(): String {
     return readCharSequence(size, cp1252).toString()
 }
 
-fun ByteBuf.readStringCp1252Nullable(): String? {
+fun ByteBuf.readStringCP1252Nullable(): String? {
     if(getByte(readerIndex()).toInt() == 0) {
         readerIndex(readerIndex() + 1)
         return null
     }
-    return readStringCp1252()
+    return readStringCP1252()
 }
 
-fun ByteBuf.readString0Cp1252(): String {
+fun ByteBuf.readString0CP1252(): String {
     if(readByte().toInt() != 0) throw IllegalStateException("First byte is not 0.")
-    return readStringCp1252()
+    return readStringCP1252()
 }
 
 
@@ -201,12 +239,28 @@ fun ByteBuf.writeSmallLong(value: Int) {
     writeMedium(value)
 }
 
-fun ByteBuf.writeStringCp1252(value: String) {
+fun ByteBuf.writeVarInt(value: Int) {
+    if (value and -128 != 0) {
+        if (value and -16384 != 0) {
+            if (value and -2097152 != 0) {
+                if (value and -268435456 != 0) {
+                    writeByte(value.ushr(28) or 128)
+                }
+                writeByte(value.ushr(21) or 128)
+            }
+            writeByte(value.ushr(14) or 128)
+        }
+        writeByte(value.ushr(7) or 128)
+    }
+    writeByte(value and 127)
+}
+
+fun ByteBuf.writeStringCP1252(value: String) {
     writeCharSequence(value, cp1252)
     writeByte(0)
 }
 
-fun ByteBuf.writeString0Cp1252(value: String) {
+fun ByteBuf.writeString0CP1252(value: String) {
     writeByte(0)
-    writeStringCp1252(value)
+    writeStringCP1252(value)
 }
