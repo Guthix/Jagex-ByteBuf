@@ -74,10 +74,10 @@ fun ByteBuf.getUnsignedSmallSmart(index: Int): Int {
     return if(peak < 128) peak.toInt() else getUnsignedShort(index) - 32768
 }
 
-fun ByteBuf.getUnsignedLargeSmart(index: Int) = if (getByte(readerIndex()) < 0) {
-    getUnsignedInt(index)
+fun ByteBuf.getLargeSmart(index: Int) = if (getByte(readerIndex()) < 0) {
+    getInt(index)
 } else {
-    getUnsignedShort(index).toLong()
+    getUnsignedShort(index)
 }
 
 fun ByteBuf.getVarInt(index: Int): Int {
@@ -243,10 +243,10 @@ fun ByteBuf.readUnsignedSmallSmart(): Int {
     return if(peak < 128) peak.toInt() else readUnsignedShort() - 32768
 }
 
-fun ByteBuf.readUnsignedLargeSmart() = if (getByte(readerIndex()) < 0) {
-    readUnsignedInt()
+fun ByteBuf.readLargeSmart() = if (getByte(readerIndex()) < 0) {
+    readInt()
 } else {
-    readUnsignedShort().toLong()
+    readUnsignedShort()
 }
 
 fun ByteBuf.readVarInt(): Int {
