@@ -74,10 +74,10 @@ fun ByteBuf.getUnsignedSmallSmart(index: Int): Int {
     return if(peak < 128) peak.toInt() else getUnsignedShort(index) - 32768
 }
 
-fun ByteBuf.getLargeSmart(index: Int) = if (getByte(readerIndex()) < 0) {
+fun ByteBuf.getUnsignedLargeSmart(index: Int) = if (getByte(readerIndex()) < 0) {
     getUnsignedInt(index)
 } else {
-    getUnsignedShort(index)
+    getUnsignedShort(index).toLong()
 }
 
 fun ByteBuf.getVarInt(index: Int): Int {
@@ -106,12 +106,9 @@ fun ByteBuf.getStringCP1252Nullable(index: Int): String? {
 }
 
 fun ByteBuf.getString0CP1252(index: Int): String {
-    if(getByte(index).toInt() != 0) throw IllegalStateException("First byte is not 0.")
+    check(getByte(index).toInt() == 0) { "First byte is not 0." }
     return getStringCP1252(index + 1)
 }
-
-
-
 
 fun ByteBuf.setByteNEG(index: Int, value: Int) = setByte(index, -value)
 
@@ -176,6 +173,18 @@ fun ByteBuf.setVarInt(index: Int, value: Int): Int {
     return i - index
 }
 
+fun ByteBuf.getIncrSmallSmart(index: Int): Int {
+    var total = 0
+    var i = index
+    var cur = getUnsignedSmallSmart(i++)
+    while (cur == 32767) {
+        total += 32767
+        cur = getUnsignedSmallSmart(i++)
+    }
+    total += cur
+    return total
+}
+
 fun ByteBuf.setStringCP1252(index: Int, value: String) {
     setCharSequence(index, value, cp1252)
     setByte(index + value.length + 1, 0)
@@ -191,9 +200,6 @@ fun ByteBuf.setStringCESU8(index: Int, value: String) {
     val byteWritten = setVarInt(index + 1, value.length)
     setCharSequence(index + byteWritten, value, cesu8)
 }
-
-
-
 
 fun ByteBuf.readByteNEG() = (-readByte()).toByte()
 
@@ -237,20 +243,31 @@ fun ByteBuf.readUnsignedSmallSmart(): Int {
     return if(peak < 128) peak.toInt() else readUnsignedShort() - 32768
 }
 
-fun ByteBuf.readLargeSmart() = if (getByte(readerIndex()) < 0) {
+fun ByteBuf.readUnsignedLargeSmart() = if (getByte(readerIndex()) < 0) {
     readUnsignedInt()
 } else {
-    readUnsignedShort()
+    readUnsignedShort().toLong()
 }
 
 fun ByteBuf.readVarInt(): Int {
-    var temp = readByte().toInt()
     var prev = 0
+    var temp = readByte().toInt()
     while (temp < 0) {
         prev = prev or (temp and 127) shl 7
         temp = readByte().toInt()
     }
     return prev or temp
+}
+
+fun ByteBuf.readIncrSmallSmart(): Int {
+    var total = 0
+    var cur = readUnsignedSmallSmart()
+    while (cur == 32767) {
+        total += 32767
+        cur = readUnsignedSmallSmart()
+    }
+    total += cur
+    return total
 }
 
 fun ByteBuf.readStringCP1252(): String {
