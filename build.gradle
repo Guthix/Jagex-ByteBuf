@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
-    api group: 'io.netty', name: 'netty-buffer', version: '4.1.39.Final'
+    api group: 'io.netty', name: 'netty-buffer', version: nettyVersion
 }
 
 compileKotlin {

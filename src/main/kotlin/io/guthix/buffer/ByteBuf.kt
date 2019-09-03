@@ -287,12 +287,12 @@ fun ByteBuf.readStringCP1252Nullable(): String? {
 }
 
 fun ByteBuf.readString0CP1252(): String {
-    if(readByte().toInt() != 0) throw IllegalStateException("First byte is not 0.")
+    check(readByte().toInt() == 0) { "First byte is not 0." }
     return readStringCP1252()
 }
 
 fun ByteBuf.readStringCESU8(): String {
-    if(readByte().toInt() != 0) throw IllegalStateException("First byte is not 0.")
+    check(readByte().toInt() == 0) { "First byte is not 0." }
     val length = readVarInt()
     return readCharSequence(length, cesu8).toString()
 }
