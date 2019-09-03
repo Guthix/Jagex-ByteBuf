@@ -91,6 +91,18 @@ fun ByteBuf.getVarInt(index: Int): Int {
     return prev or temp
 }
 
+fun ByteBuf.getIncrSmallSmart(index: Int): Int {
+    var total = 0
+    var i = index
+    var cur = getUnsignedSmallSmart(i++)
+    while (cur == 32767) {
+        total += 32767
+        cur = getUnsignedSmallSmart(i++)
+    }
+    total += cur
+    return total
+}
+
 fun ByteBuf.getStringCP1252(index: Int): String {
     var i = index
     while(getByte(i++).toInt() != 0) { }
@@ -120,19 +132,22 @@ fun ByteBuf.setShortADD(index: Int, value: Int) = setShort(index, value + HALF_B
 
 fun ByteBuf.setShortLEADD(index: Int, value: Int) = setShortLE(index, value + HALF_BYTE)
 
-fun ByteBuf.setIntPDPE(index: Int, value: Int) {
+fun ByteBuf.setIntPDPE(index: Int, value: Int): ByteBuf {
     setShortLE(index, value shr 16)
     setShortLE(index + 1, value)
+    return this
 }
 
-fun ByteBuf.setIntIPDPE(index: Int, value: Int) {
+fun ByteBuf.setIntIPDPE(index: Int, value: Int): ByteBuf {
     setShort(index, value)
     setShort(index + 1, value shr 16)
+    return this
 }
 
-fun ByteBuf.setSmallLong(index: Int, value: Int) {
+fun ByteBuf.setSmallLong(index: Int, value: Int): ByteBuf {
     setMedium(index, value shr 24)
     setMedium(index + 1, value)
+    return this
 }
 
 fun ByteBuf.setSmallSmart(index: Int, value: Int) = when (value) {
@@ -173,32 +188,23 @@ fun ByteBuf.setVarInt(index: Int, value: Int): Int {
     return i - index
 }
 
-fun ByteBuf.getIncrSmallSmart(index: Int): Int {
-    var total = 0
-    var i = index
-    var cur = getUnsignedSmallSmart(i++)
-    while (cur == 32767) {
-        total += 32767
-        cur = getUnsignedSmallSmart(i++)
-    }
-    total += cur
-    return total
-}
-
-fun ByteBuf.setStringCP1252(index: Int, value: String) {
+fun ByteBuf.setStringCP1252(index: Int, value: String): ByteBuf {
     setCharSequence(index, value, cp1252)
     setByte(index + value.length + 1, 0)
+    return this
 }
 
-fun ByteBuf.setString0CP1252(index: Int, value: String) {
+fun ByteBuf.setString0CP1252(index: Int, value: String): ByteBuf {
     writeByte(index)
     setStringCP1252(index + 1, value)
+    return this
 }
 
-fun ByteBuf.setStringCESU8(index: Int, value: String) {
+fun ByteBuf.setStringCESU8(index: Int, value: String): ByteBuf {
     setByte(index, 0)
     val byteWritten = setVarInt(index + 1, value.length)
     setCharSequence(index + byteWritten, value, cesu8)
+    return this
 }
 
 fun ByteBuf.readByteNEG() = (-readByte()).toByte()
@@ -297,8 +303,6 @@ fun ByteBuf.readStringCESU8(): String {
     return readCharSequence(length, cesu8).toString()
 }
 
-
-
 fun ByteBuf.writeByteNEG(value: Int) = writeByte(-value)
 
 fun ByteBuf.writeByteADD(value: Int) = writeByte(value + HALF_BYTE)
@@ -309,34 +313,43 @@ fun ByteBuf.writeShortADD(value: Int) = writeShort(value + HALF_BYTE)
 
 fun ByteBuf.writeShortLEADD(value: Int) = writeShortLE(value + HALF_BYTE)
 
-fun ByteBuf.writeIntPDPE(value: Int) {
+fun ByteBuf.writeIntPDPE(value: Int): ByteBuf {
     writeShortLE(value shr 16)
     writeShortLE(value)
+    return this
 }
 
-fun ByteBuf.writeIntIPDPE(value: Int) {
+fun ByteBuf.writeIntIPDPE(value: Int): ByteBuf {
     writeShort(value)
     writeShort(value shr 16)
+    return this
 }
 
-fun ByteBuf.writeSmallLong(value: Int) {
+fun ByteBuf.writeSmallLong(value: Int): ByteBuf {
     writeMedium(value shr 24)
     writeMedium(value)
+    return this
 }
 
-fun ByteBuf.writeSmallSmart(value: Int) = when (value) {
-    in 0 until 128 -> writeByte(value)
-    in 0 until 32768 -> writeShort(value + 32768)
-    else -> throw IllegalArgumentException("Can't write value bigger than 32767.")
+fun ByteBuf.writeSmallSmart(value: Int): ByteBuf {
+    when (value) {
+        in 0 until 128 -> writeByte(value)
+        in 0 until 32768 -> writeShort(value + 32768)
+        else -> throw IllegalArgumentException("Can't write value bigger than 32767.")
+    }
+    return this
 }
 
-fun ByteBuf.writeLargeSmart(value: Int) = if(value <= Short.MAX_VALUE) {
-    writeShort(value)
-} else {
-    writeInt(value)
+fun ByteBuf.writeLargeSmart(value: Int): ByteBuf {
+    if(value <= Short.MAX_VALUE) {
+        writeShort(value)
+    } else {
+        writeInt(value)
+    }
+    return this
 }
 
-fun ByteBuf.writeVarInt(value: Int) {
+fun ByteBuf.writeVarInt(value: Int): ByteBuf {
     if (value and -128 != 0) {
         if (value and -16384 != 0) {
             if (value and -2097152 != 0) {
@@ -350,20 +363,24 @@ fun ByteBuf.writeVarInt(value: Int) {
         writeByte(value.ushr(7) or 128)
     }
     writeByte(value and 127)
+    return this
 }
 
-fun ByteBuf.writeStringCP1252(value: String) {
+fun ByteBuf.writeStringCP1252(value: String): ByteBuf {
     writeCharSequence(value, cp1252)
     writeByte(0)
+    return this
 }
 
-fun ByteBuf.writeString0CP1252(value: String) {
+fun ByteBuf.writeString0CP1252(value: String): ByteBuf {
     writeByte(0)
     writeStringCP1252(value)
+    return this
 }
 
-fun ByteBuf.writeStringCESU8(value: String) {
+fun ByteBuf.writeStringCESU8(value: String): ByteBuf {
     writeByte(0)
     writeVarInt(value.length)
     writeCharSequence(value, cesu8)
+    return this
 }
