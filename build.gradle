@@ -17,6 +17,7 @@
  */
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.41'
+    id 'java-library'
 }
 
 group 'io.guthix.buffer'
