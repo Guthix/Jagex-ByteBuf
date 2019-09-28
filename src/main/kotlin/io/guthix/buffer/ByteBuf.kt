@@ -75,7 +75,7 @@ fun ByteBuf.getUnsignedSmallSmart(index: Int): Int {
 }
 
 fun ByteBuf.getLargeSmart(index: Int) = if (getByte(readerIndex()) < 0) {
-    getInt(index)
+    getInt(index) and Integer.MAX_VALUE
 } else {
     getUnsignedShort(index)
 }
@@ -250,7 +250,7 @@ fun ByteBuf.readUnsignedSmallSmart(): Int {
 }
 
 fun ByteBuf.readLargeSmart() = if (getByte(readerIndex()) < 0) {
-    readInt()
+    readInt() and Integer.MAX_VALUE
 } else {
     readUnsignedShort()
 }
