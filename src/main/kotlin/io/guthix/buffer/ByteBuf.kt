@@ -18,6 +18,7 @@
 package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
+import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.nio.charset.Charset
 
@@ -78,6 +79,13 @@ fun ByteBuf.getLargeSmart(index: Int) = if (getByte(readerIndex()) < 0) {
     getInt(index) and Integer.MAX_VALUE
 } else {
     getUnsignedShort(index)
+}
+
+fun ByteBuf.getNullableLargeSmart(index: Int) = if (getByte(readerIndex()) < 0) {
+    getInt(index) and Integer.MAX_VALUE
+} else {
+    val result = getUnsignedShort(index)
+    if(result == 32767) null else result
 }
 
 fun ByteBuf.getVarInt(index: Int): Int {
@@ -170,6 +178,20 @@ fun ByteBuf.setLargeSmart(index: Int, value: Int) = if(value <= Short.MAX_VALUE)
     Int.SIZE_BYTES
 }
 
+fun ByteBuf.setNullableLargeSmart(index: Int, value: Int?) = if(value == null) {
+    setShort(index, 32767)
+    Short.SIZE_BYTES
+} else {
+    if(value == 32767) throw IOException("Can not set nullable large smart of value 32767.")
+    if(value <= Short.MAX_VALUE) {
+        setShort(index, value)
+        Short.SIZE_BYTES
+    } else {
+        setInt(index, value)
+        Int.SIZE_BYTES
+    }
+}
+
 fun ByteBuf.setVarInt(index: Int, value: Int): Int {
     var i = index
     if (value and -128 != 0) {
@@ -254,6 +276,14 @@ fun ByteBuf.readLargeSmart() = if (getByte(readerIndex()) < 0) {
 } else {
     readUnsignedShort()
 }
+
+fun ByteBuf.readNullableLargeSmart() = if (getByte(readerIndex()) < 0) {
+    readInt() and Integer.MAX_VALUE
+} else {
+    val result = readUnsignedShort()
+    if(result == 32767) null else result
+}
+
 
 fun ByteBuf.readVarInt(): Int {
     var prev = 0
@@ -345,6 +375,20 @@ fun ByteBuf.writeLargeSmart(value: Int): ByteBuf {
         writeShort(value)
     } else {
         writeInt(value)
+    }
+    return this
+}
+
+fun ByteBuf.writeNullableLargeSmart(value: Int?): ByteBuf {
+    if(value == null) {
+        writeShort(32767)
+    } else {
+        if(value == 32767) throw IOException("Can not write nullable large smart of value 32767.")
+        if(value <= Short.MAX_VALUE) {
+            writeShort(value)
+        } else {
+            writeInt(value)
+        }
     }
     return this
 }
