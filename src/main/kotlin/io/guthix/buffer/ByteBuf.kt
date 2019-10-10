@@ -32,6 +32,8 @@ private val cesu8 = Charset.availableCharsets()["CESU-8"] ?: throw IllegalStateE
     "Could not find CESU-8 character set"
 )
 
+fun ByteBuf.getCharCP1252(index: Int) = String(byteArrayOf(getByte(index)), cp1252).first()
+
 fun ByteBuf.getByteNEG(index: Int) = (-getByte(index)).toByte()
 
 fun ByteBuf.getByteADD(index: Int) = (getByte(index) - HALF_BYTE).toByte()
@@ -129,6 +131,8 @@ fun ByteBuf.getString0CP1252(index: Int): String {
     check(getByte(index).toInt() == 0) { "First byte is not 0." }
     return getStringCP1252(index + 1)
 }
+
+fun ByteBuf.setCharCP1252(index: Int, value: Char) = setByte(index, cp1252.encode(value.toString()).get().toInt())
 
 fun ByteBuf.setByteNEG(index: Int, value: Int) = setByte(index, -value)
 
@@ -228,6 +232,8 @@ fun ByteBuf.setStringCESU8(index: Int, value: String): ByteBuf {
     setCharSequence(index + byteWritten, value, cesu8)
     return this
 }
+
+fun ByteBuf.readCharCP1252() = String(byteArrayOf(readByte()), cp1252).first()
 
 fun ByteBuf.readByteNEG() = (-readByte()).toByte()
 
@@ -332,6 +338,8 @@ fun ByteBuf.readStringCESU8(): String {
     val length = readVarInt()
     return readCharSequence(length, cesu8).toString()
 }
+
+fun ByteBuf.writeCharCP1252(value: Char) = writeByte(cp1252.encode(value.toString()).get().toInt())
 
 fun ByteBuf.writeByteNEG(value: Int) = writeByte(-value)
 
