@@ -317,7 +317,9 @@ fun ByteBuf.readStringCP1252(): String {
     while(readByte().toInt() != 0) { }
     val size = readerIndex() - current - 1
     readerIndex(current)
-    return readCharSequence(size, cp1252).toString()
+    val str = readCharSequence(size, cp1252).toString()
+    readerIndex(readerIndex() + 1) // read the 0 value
+    return str
 }
 
 fun ByteBuf.readStringCP1252Nullable(): String? {
