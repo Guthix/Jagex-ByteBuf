@@ -15,6 +15,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@file:Suppress("unused")
 package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
@@ -54,13 +55,15 @@ fun ByteBuf.getUnsignedShortADD(index: Int) = getUnsignedShort(index) - HALF_BYT
 
 fun ByteBuf.getUnsignedShortLEADD(index: Int) = getUnsignedShortLE(index) - HALF_BYTE
 
-fun ByteBuf.getIntPDPE(index: Int) = (getShortLE(index).toInt() shl 16) or getUnsignedShortLE(index + 1)
+fun ByteBuf.getIntME(index: Int) = (getShortLE(index).toInt() shl 16) or getUnsignedShortLE(index + 1)
 
-fun ByteBuf.getIntIPDPE(index: Int) = getUnsignedShort(index) or (getShort(index + 1).toInt() shl 16)
+fun ByteBuf.getIntIME(index: Int) = getUnsignedShort(index) or (getShort(index + 1).toInt() shl 16)
 
-fun ByteBuf.getUnsignedIntPDPE(index: Int) = (getUnsignedShortLE(index) shl 16) or getUnsignedShortLE(index + 1)
+fun ByteBuf.getUnsignedIntME(index: Int) = ((getUnsignedShortLE(index) shl 16) or
+        getUnsignedShortLE(index + 1)).toLong()
 
-fun ByteBuf.getUnsignedIntIPDPE(index: Int) = getUnsignedShort(index) or (getUnsignedShort(index + 1) shl 16)
+fun ByteBuf.getUnsignedIntIME(index: Int) = (getUnsignedShort(index) or
+        (getUnsignedShort(index + 1) shl 16)).toLong()
 
 fun ByteBuf.getSmallLong(index: Int) = (getMedium(index).toLong() shl 24) or getUnsignedMedium(index + 1).toLong()
 
@@ -144,13 +147,13 @@ fun ByteBuf.setShortADD(index: Int, value: Int) = setShort(index, value + HALF_B
 
 fun ByteBuf.setShortLEADD(index: Int, value: Int) = setShortLE(index, value + HALF_BYTE)
 
-fun ByteBuf.setIntPDPE(index: Int, value: Int): ByteBuf {
+fun ByteBuf.setIntME(index: Int, value: Int): ByteBuf {
     setShortLE(index, value shr 16)
     setShortLE(index + 1, value)
     return this
 }
 
-fun ByteBuf.setIntIPDPE(index: Int, value: Int): ByteBuf {
+fun ByteBuf.setIntIME(index: Int, value: Int): ByteBuf {
     setShort(index, value)
     setShort(index + 1, value shr 16)
     return this
@@ -255,13 +258,13 @@ fun ByteBuf.readUnsignedShortADD() = readUnsignedShort() - HALF_BYTE
 
 fun ByteBuf.readUnsignedShortLEADD() = readUnsignedShortLE() - HALF_BYTE
 
-fun ByteBuf.readIntPDPE() = (readShortLE().toInt() shl 16) or readUnsignedShortLE()
+fun ByteBuf.readIntME() = (readShortLE().toInt() shl 16) or readUnsignedShortLE()
 
-fun ByteBuf.readIntIPDPE() = readUnsignedShort() or (readShort().toInt() shl 16)
+fun ByteBuf.readIntIME() = readUnsignedShort() or (readShort().toInt() shl 16)
 
-fun ByteBuf.readUnsignedIntPDPE() = (readUnsignedShortLE() shl 16) or readUnsignedShortLE()
+fun ByteBuf.readUnsignedIntME() = ((readUnsignedShortLE() shl 16) or readUnsignedShortLE()).toLong()
 
-fun ByteBuf.readUnsignedIntIPDPE() = readUnsignedShort() or (readUnsignedShort() shl 16)
+fun ByteBuf.readUnsignedIntIME() = (readUnsignedShort() or (readUnsignedShort() shl 16)).toLong()
 
 fun ByteBuf.readSmallLong() = (readMedium().toLong() shl 24) or readUnsignedMedium().toLong()
 
@@ -353,13 +356,13 @@ fun ByteBuf.writeShortADD(value: Int) = writeShort(value + HALF_BYTE)
 
 fun ByteBuf.writeShortLEADD(value: Int) = writeShortLE(value + HALF_BYTE)
 
-fun ByteBuf.writeIntPDPE(value: Int): ByteBuf {
+fun ByteBuf.writeIntIM(value: Int): ByteBuf {
     writeShortLE(value shr 16)
     writeShortLE(value)
     return this
 }
 
-fun ByteBuf.writeIntIPDPE(value: Int): ByteBuf {
+fun ByteBuf.writeIntIME(value: Int): ByteBuf {
     writeShort(value)
     writeShort(value shr 16)
     return this
