@@ -356,7 +356,7 @@ fun ByteBuf.writeShortADD(value: Int) = writeShort(value + HALF_BYTE)
 
 fun ByteBuf.writeShortLEADD(value: Int) = writeShortLE(value + HALF_BYTE)
 
-fun ByteBuf.writeIntIM(value: Int): ByteBuf {
+fun ByteBuf.writeIntME(value: Int): ByteBuf {
     writeShortLE(value shr 16)
     writeShortLE(value)
     return this
