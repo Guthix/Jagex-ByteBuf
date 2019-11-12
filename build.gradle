@@ -26,6 +26,8 @@ version '0.1'
 
 ext {
     nettyVersion = '4.1.39.Final'
+    kotlintestVersion = '3.4.2'
+    logbackVersion = '1.2.3'
 }
 
 repositories {
@@ -35,13 +37,20 @@ repositories {
 dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
     api group: 'io.netty', name: 'netty-buffer', version: nettyVersion
+    testImplementation group: 'io.kotlintest', name: 'kotlintest-runner-junit5', version: kotlintestVersion
+    testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: logbackVersion
 }
 
 compileKotlin {
     kotlinOptions.jvmTarget = "11"
 }
+
 compileTestKotlin {
     kotlinOptions.jvmTarget = "11"
+}
+
+test {
+    useJUnitPlatform()
 }
 
 task sourcesJar(type: Jar) {
@@ -72,5 +81,11 @@ publishing {
                 }
             }
         }
+    }
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }

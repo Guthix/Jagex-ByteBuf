@@ -26,11 +26,11 @@ import java.nio.charset.Charset
 private const val HALF_BYTE = 128.toByte()
 
 private val cp1252 = Charset.availableCharsets()["windows-1252"] ?: throw IllegalStateException(
-    "Could not find CP1252 character set"
+    "Could not find CP1252 character set."
 )
 
 private val cesu8 = Charset.availableCharsets()["CESU-8"] ?: throw IllegalStateException(
-    "Could not find CESU-8 character set"
+    "Could not find CESU-8 character set."
 )
 
 fun ByteBuf.getCharCP1252(index: Int) = String(byteArrayOf(getByte(index)), cp1252).first()
@@ -441,3 +441,5 @@ fun ByteBuf.writeStringCESU8(value: String): ByteBuf {
     writeCharSequence(value, cesu8)
     return this
 }
+
+fun ByteBuf.toBitMode() = BitBuf(this)
