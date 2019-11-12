@@ -25,7 +25,7 @@ group 'io.guthix.buffer'
 version '0.1'
 
 ext {
-    nettyVersion = '4.1.39.Final'
+    nettyVersion = '4.1.43.Final'
     kotlintestVersion = '3.4.2'
     logbackVersion = '1.2.3'
 }
