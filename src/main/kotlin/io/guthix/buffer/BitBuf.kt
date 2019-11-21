@@ -69,7 +69,6 @@ class BitBuf(private val byteBuf: ByteBuf) {
         require(value < 2.0.pow(amount)) {
             "Amount should be smaller than ${2.0.pow(amount).toInt()} to encode $value."
         }
-        println("bitwriterpos $bitWriterPos")
         var bitsToWrite = if (bitWriterPos != 0) { // write first byte
             val remainingBits = Byte.SIZE_BITS - bitWriterPos
             val curByteIndex = byteBuf.writerIndex() - 1
