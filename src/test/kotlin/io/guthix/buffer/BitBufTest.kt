@@ -16,6 +16,7 @@
  */
 package io.guthix.buffer
 
+import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import io.netty.buffer.Unpooled
@@ -55,5 +56,13 @@ class BitBufTest : StringSpec({
         bitBuf.bitWriterPos shouldBe 2
         bitBuf.readBits(amount = 2) shouldBe 1
         bitBuf.bitReaderPos shouldBe 2
+    }
+
+    "Write 2000 times 18 bits" {
+        val bitBuf = Unpooled.buffer(4500).toBitMode()
+        for(i in 0 until 2000) bitBuf.writeBits(3, 18)
+        for(i in 0 until 2000) bitBuf.readBits(18) shouldBe 3
+        bitBuf.toByteMode().readerIndex() shouldBe 4500
+        bitBuf.toByteMode().writerIndex() shouldBe 4500
     }
 })

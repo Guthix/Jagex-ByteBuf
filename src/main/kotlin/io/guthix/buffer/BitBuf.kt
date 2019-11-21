@@ -51,11 +51,11 @@ class BitBuf(private val byteBuf: ByteBuf) {
             amount - bitsRead
         } else amount
         if(bitsToRead == 0) return result
-        while(bitsToRead >= Byte.SIZE_BITS) {
+        while(bitsToRead > Byte.SIZE_BITS) {
             result = (result shl Byte.SIZE_BITS) or byteBuf.readUnsignedByte().toInt()
             bitsToRead -= Byte.SIZE_BITS
         }
-        bitReaderPos = bitsToRead
+        bitReaderPos = bitsToRead % Byte.SIZE_BITS
         val lastByte = (byteBuf.readByte().toInt() shr (Byte.SIZE_BITS - bitsToRead)) and MASK[bitsToRead]
         return (result shl bitsToRead) or lastByte
     }
@@ -69,6 +69,7 @@ class BitBuf(private val byteBuf: ByteBuf) {
         require(value < 2.0.pow(amount)) {
             "Amount should be smaller than ${2.0.pow(amount).toInt()} to encode $value."
         }
+        println("bitwriterpos $bitWriterPos")
         var bitsToWrite = if (bitWriterPos != 0) { // write first byte
             val remainingBits = Byte.SIZE_BITS - bitWriterPos
             val curByteIndex = byteBuf.writerIndex() - 1
@@ -88,24 +89,16 @@ class BitBuf(private val byteBuf: ByteBuf) {
             amount - bitsWritten
         } else amount
         if (bitsToWrite == 0) return this
-        while (bitsToWrite >= Byte.SIZE_BITS) { // write next full bytes
+        while (bitsToWrite > Byte.SIZE_BITS) { // write next full bytes
             bitsToWrite -= Byte.SIZE_BITS
             byteBuf.writeByte(value shr bitsToWrite)
         }
         byteBuf.writeByte(value shl (Byte.SIZE_BITS - bitsToWrite)) // write last non full byte
-        bitWriterPos = bitsToWrite
+        bitWriterPos = bitsToWrite % Byte.SIZE_BITS
         return this
     }
 
-    fun toByteMode(): ByteBuf {
-        if(bitWriterPos != 0) {
-            byteBuf.writerIndex() + 1
-        }
-        if(bitReaderPos != 0) {
-            byteBuf.readerIndex() + 1
-        }
-        return byteBuf
-    }
+    fun toByteMode() = byteBuf
 
     companion object {
         private val MASK = intArrayOf(0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f, 0x7f, 0xff)
