@@ -16,7 +16,6 @@
  */
 package io.guthix.buffer
 
-import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import io.netty.buffer.Unpooled

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Foobar. If not, see <https://www.gnu.org/licenses/>.
  */
-@file:Suppress("unused")
+@file:Suppress("unused", "ControlFlowWithEmptyBody")
 package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
@@ -22,7 +22,7 @@ import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.nio.charset.Charset
 
-private const val HALF_BYTE = 128.toByte()
+private const val HALF_BYTE = 128
 
 private val cp1252 = Charset.availableCharsets()["windows-1252"] ?: throw IllegalStateException(
     "Could not find CP1252 character set."
@@ -134,17 +134,17 @@ fun ByteBuf.getString0CP1252(index: Int): String {
     return getStringCP1252(index + 1)
 }
 
-fun ByteBuf.setCharCP1252(index: Int, value: Char) = setByte(index, cp1252.encode(value.toString()).get().toInt())
+fun ByteBuf.setCharCP1252(index: Int, value: Char): ByteBuf = setByte(index, cp1252.encode(value.toString()).get().toInt())
 
-fun ByteBuf.setByteNEG(index: Int, value: Int) = setByte(index, -value)
+fun ByteBuf.setByteNEG(index: Int, value: Int): ByteBuf = setByte(index, -value)
 
-fun ByteBuf.setByteADD(index: Int, value: Int) = setByte(index, value + HALF_BYTE)
+fun ByteBuf.setByteADD(index: Int, value: Int): ByteBuf = setByte(index, value + HALF_BYTE)
 
-fun ByteBuf.seteByteSUB(index: Int, value: Int) = setByte(index, HALF_BYTE - value)
+fun ByteBuf.seteByteSUB(index: Int, value: Int): ByteBuf = setByte(index, HALF_BYTE - value)
 
-fun ByteBuf.setShortADD(index: Int, value: Int) = setShort(index, value + HALF_BYTE)
+fun ByteBuf.setShortADD(index: Int, value: Int): ByteBuf = setShort(index, value + HALF_BYTE)
 
-fun ByteBuf.setShortLEADD(index: Int, value: Int) = setShortLE(index, value + HALF_BYTE)
+fun ByteBuf.setShortLEADD(index: Int, value: Int): ByteBuf = setShortLE(index, value + HALF_BYTE)
 
 fun ByteBuf.setIntME(index: Int, value: Int): ByteBuf {
     setShortLE(index, value shr 16)
@@ -343,17 +343,17 @@ fun ByteBuf.readStringCESU8(): String {
     return readCharSequence(length, cesu8).toString()
 }
 
-fun ByteBuf.writeCharCP1252(value: Char) = writeByte(cp1252.encode(value.toString()).get().toInt())
+fun ByteBuf.writeCharCP1252(value: Char): ByteBuf = writeByte(cp1252.encode(value.toString()).get().toInt())
 
-fun ByteBuf.writeByteNEG(value: Int) = writeByte(-value)
+fun ByteBuf.writeByteNEG(value: Int): ByteBuf = writeByte(-value)
 
-fun ByteBuf.writeByteADD(value: Int) = writeByte(value + HALF_BYTE)
+fun ByteBuf.writeByteADD(value: Int): ByteBuf = writeByte(value + HALF_BYTE)
 
-fun ByteBuf.writeByteSUB(value: Int) = writeByte(HALF_BYTE - value)
+fun ByteBuf.writeByteSUB(value: Int): ByteBuf = writeByte(HALF_BYTE - value)
 
-fun ByteBuf.writeShortADD(value: Int) = writeShort(value + HALF_BYTE)
+fun ByteBuf.writeShortADD(value: Int): ByteBuf = writeShort(value + HALF_BYTE)
 
-fun ByteBuf.writeShortLEADD(value: Int) = writeShortLE(value + HALF_BYTE)
+fun ByteBuf.writeShortLEADD(value: Int): ByteBuf = writeShortLE(value + HALF_BYTE)
 
 fun ByteBuf.writeIntME(value: Int): ByteBuf {
     writeShortLE(value shr 16)
