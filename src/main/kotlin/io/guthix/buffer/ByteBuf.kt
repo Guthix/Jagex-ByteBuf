@@ -46,13 +46,17 @@ fun ByteBuf.getUnsignedByteADD(index: Int) = (getUnsignedByte(index) - HALF_BYTE
 
 fun ByteBuf.getUnsignedByteSUB(index: Int) = (HALF_BYTE - getUnsignedByte(index)).toShort()
 
-fun ByteBuf.getShortADD(index: Int) = (getShort(index) - HALF_BYTE).toShort()
+fun ByteBuf.getShortADD(index: Int) =
+    ((getByte(index).toInt() shl Byte.SIZE_BITS) or (getUnsignedByte(index + 1) - HALF_BYTE)).toShort()
 
-fun ByteBuf.getShortLEADD(index: Int) = (getShortLE(index) - HALF_BYTE).toShort()
+fun ByteBuf.getShortLEADD(index: Int) =
+    ((getUnsignedByte(index) - HALF_BYTE) or (getByte(index + 1).toInt() shl Byte.SIZE_BITS)).toShort()
 
-fun ByteBuf.getUnsignedShortADD(index: Int) = getUnsignedShort(index) - HALF_BYTE
+fun ByteBuf.getUnsignedShortADD(index: Int) =
+    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or (getUnsignedByte(index + 1) - HALF_BYTE)
 
-fun ByteBuf.getUnsignedShortLEADD(index: Int) = getUnsignedShortLE(index) - HALF_BYTE
+fun ByteBuf.getUnsignedShortLEADD(index: Int) =
+    (getUnsignedByte(index) - HALF_BYTE) or (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
 
 fun ByteBuf.getIntME(index: Int) = (getShortLE(index).toInt() shl 16) or getUnsignedShortLE(index + 1)
 
@@ -142,19 +146,27 @@ fun ByteBuf.setByteADD(index: Int, value: Int): ByteBuf = setByte(index, value +
 
 fun ByteBuf.seteByteSUB(index: Int, value: Int): ByteBuf = setByte(index, HALF_BYTE - value)
 
-fun ByteBuf.setShortADD(index: Int, value: Int): ByteBuf = setShort(index, value + HALF_BYTE)
+fun ByteBuf.setShortADD(index: Int, value: Int): ByteBuf {
+    setByte(index, value shr Byte.SIZE_BITS)
+    setByte(index + 1, value + HALF_BYTE)
+    return this
+}
 
-fun ByteBuf.setShortLEADD(index: Int, value: Int): ByteBuf = setShortLE(index, value + HALF_BYTE)
+fun ByteBuf.setShortLEADD(index: Int, value: Int): ByteBuf {
+    setByte(index, value + HALF_BYTE)
+    setByte(index + 1, value shr Byte.SIZE_BITS)
+    return this
+}
 
 fun ByteBuf.setIntME(index: Int, value: Int): ByteBuf {
-    setShortLE(index, value shr 16)
+    setShortLE(index, value shr Short.SIZE_BITS)
     setShortLE(index + 1, value)
     return this
 }
 
 fun ByteBuf.setIntIME(index: Int, value: Int): ByteBuf {
     setShort(index, value)
-    setShort(index + 1, value shr 16)
+    setShort(index + 1, value shr Short.SIZE_BITS)
     return this
 }
 
@@ -249,13 +261,14 @@ fun ByteBuf.readUnsignedByteADD() = (readUnsignedByte() - HALF_BYTE).toShort()
 
 fun ByteBuf.readUnsignedByteSUB() = (HALF_BYTE - readUnsignedByte()).toShort()
 
-fun ByteBuf.readShortADD() = (readShort() - HALF_BYTE).toShort()
+fun ByteBuf.readShortADD() = ((readByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte() - HALF_BYTE)).toShort()
 
-fun ByteBuf.readShortLEADD() = (readShortLE() - HALF_BYTE).toShort()
+fun ByteBuf.readShortLEADD() = ((readUnsignedByte() - HALF_BYTE) or (readByte().toInt() shl Byte.SIZE_BITS)).toShort()
 
-fun ByteBuf.readUnsignedShortADD() = readUnsignedShort() - HALF_BYTE
+fun ByteBuf.readUnsignedShortADD() = (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte() - HALF_BYTE)
 
-fun ByteBuf.readUnsignedShortLEADD() = readUnsignedShortLE() - HALF_BYTE
+fun ByteBuf.readUnsignedShortLEADD() =
+    (readUnsignedByte() - HALF_BYTE) or (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
 
 fun ByteBuf.readIntME() = (readShortLE().toInt() shl 16) or readUnsignedShortLE()
 
@@ -351,9 +364,17 @@ fun ByteBuf.writeByteADD(value: Int): ByteBuf = writeByte(value + HALF_BYTE)
 
 fun ByteBuf.writeByteSUB(value: Int): ByteBuf = writeByte(HALF_BYTE - value)
 
-fun ByteBuf.writeShortADD(value: Int): ByteBuf = writeShort(value + HALF_BYTE)
+fun ByteBuf.writeShortADD(value: Int): ByteBuf {
+    writeByte(value shr Byte.SIZE_BITS)
+    writeByte(value + HALF_BYTE)
+    return this
+}
 
-fun ByteBuf.writeShortLEADD(value: Int): ByteBuf = writeShortLE(value + HALF_BYTE)
+fun ByteBuf.writeShortLEADD(value: Int): ByteBuf {
+    writeByte(value + HALF_BYTE)
+    writeByte(value shr Byte.SIZE_BITS)
+    return this
+}
 
 fun ByteBuf.writeIntME(value: Int): ByteBuf {
     writeShortLE(value shr 16)
