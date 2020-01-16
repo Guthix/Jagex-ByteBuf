@@ -284,12 +284,12 @@ fun ByteBuf.readUnsignedSmallLong() = (readUnsignedMedium().toLong() shl 24) or 
 
 fun ByteBuf.readSmallSmart(): Int {
     val peak = getUnsignedByte(readerIndex())
-    return if(peak < 128) peak - 64 else readUnsignedShort() - 49152
+    return if(peak < 128) readByte() - 64 else readUnsignedShort() - 49152
 }
 
 fun ByteBuf.readUnsignedSmallSmart(): Int {
     val peak = getUnsignedByte(readerIndex())
-    return if(peak < 128) peak.toInt() else readUnsignedShort() - 32768
+    return if(peak < 128) readUnsignedByte().toInt() else readUnsignedShort() - 32768
 }
 
 fun ByteBuf.readLargeSmart() = if (getByte(readerIndex()) < 0) {
