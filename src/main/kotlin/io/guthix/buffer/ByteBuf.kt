@@ -53,10 +53,10 @@ fun ByteBuf.getShortLEADD(index: Int) =
     ((getUnsignedByte(index) - HALF_BYTE) or (getByte(index + 1).toInt() shl Byte.SIZE_BITS)).toShort()
 
 fun ByteBuf.getUnsignedShortADD(index: Int) =
-    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or (getUnsignedByte(index + 1) - HALF_BYTE)
+    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or ((getUnsignedByte(index + 1) - HALF_BYTE) and 0xFF)
 
 fun ByteBuf.getUnsignedShortLEADD(index: Int) =
-    (getUnsignedByte(index) - HALF_BYTE) or (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
+    ((getUnsignedByte(index) - HALF_BYTE) and 0xFF) or (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
 
 fun ByteBuf.getIntME(index: Int) = (getShortLE(index).toInt() shl 16) or getUnsignedShortLE(index + 1)
 
@@ -265,10 +265,11 @@ fun ByteBuf.readShortADD() = ((readByte().toInt() shl Byte.SIZE_BITS) or (readUn
 
 fun ByteBuf.readShortLEADD() = ((readUnsignedByte() - HALF_BYTE) or (readByte().toInt() shl Byte.SIZE_BITS)).toShort()
 
-fun ByteBuf.readUnsignedShortADD() = (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte() - HALF_BYTE)
+fun ByteBuf.readUnsignedShortADD() =
+    (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or ((readUnsignedByte() - HALF_BYTE) and 0xFF)
 
 fun ByteBuf.readUnsignedShortLEADD() =
-    (readUnsignedByte() - HALF_BYTE) or (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
+    ((readUnsignedByte() - HALF_BYTE) and 0xFF) or (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
 
 fun ByteBuf.readIntME() = (readShortLE().toInt() shl 16) or readUnsignedShortLE()
 
