@@ -138,9 +138,9 @@ fun ByteBuf.getString0CP1252(index: Int): String {
     return getStringCP1252(index + 1)
 }
 
-fun ByteBuf.getBytesADD(index: Int, length: Int): ByteArray = ByteArray(length).apply {
+fun ByteBuf.getBytesReversedADD(index: Int, length: Int): ByteArray = ByteArray(length).apply {
     getBytes(index, this)
-}.map { (it - HALF_BYTE).toByte() }.toByteArray()
+}.map { (it - HALF_BYTE).toByte() }.reversed().toByteArray()
 
 fun ByteBuf.setCharCP1252(index: Int, value: Char): ByteBuf = setByte(index, cp1252.encode(value.toString()).get().toInt())
 
@@ -251,9 +251,9 @@ fun ByteBuf.setStringCESU8(index: Int, value: String): ByteBuf {
     return this
 }
 
-fun ByteBuf.setBytesADD(index: Int, src: ByteArray): ByteBuf = setBytes(index, src.map {
+fun ByteBuf.setBytesReversedADD(index: Int, src: ByteArray): ByteBuf = setBytes(index, src.map {
     (it + HALF_BYTE).toByte()
-}.toByteArray())
+}.reversed().toByteArray())
 
 fun ByteBuf.readCharCP1252() = String(byteArrayOf(readByte()), cp1252).first()
 
@@ -365,9 +365,9 @@ fun ByteBuf.readStringCESU8(): String {
     return readCharSequence(length, cesu8).toString()
 }
 
-fun ByteBuf.readBytesADD(length: Int): ByteArray = ByteArray(length).apply {
+fun ByteBuf.readBytesReversedADD(length: Int): ByteArray = ByteArray(length).apply {
     readBytes(this)
-}.map { (it - HALF_BYTE).toByte() }.toByteArray()
+}.map { (it - HALF_BYTE).toByte() }.reversed().toByteArray()
 
 fun ByteBuf.writeCharCP1252(value: Char): ByteBuf = writeByte(cp1252.encode(value.toString()).get().toInt())
 
@@ -475,6 +475,8 @@ fun ByteBuf.writeStringCESU8(value: String): ByteBuf {
     return this
 }
 
-fun ByteBuf.writeBytesADD(src: ByteArray): ByteBuf = writeBytes(src.map { (it + HALF_BYTE).toByte() }.toByteArray())
+fun ByteBuf.writeBytesReversedADD(src: ByteArray): ByteBuf = writeBytes(src.map {
+    (it + HALF_BYTE).toByte()
+}.reversed().toByteArray())
 
 fun ByteBuf.toBitMode() = BitBuf(this)
