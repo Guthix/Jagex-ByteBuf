@@ -185,7 +185,7 @@ fun ByteBuf.setSmallSmart(index: Int, value: Int) = when (value) {
         setByte(index, value)
         Byte.SIZE_BYTES
     }
-    in 0 until 32768 -> {
+    in 128 until 32768 -> {
         setShort(index, value + 32768)
         Short.SIZE_BYTES
     }
@@ -410,7 +410,7 @@ fun ByteBuf.writeSmallLong(value: Int): ByteBuf {
 fun ByteBuf.writeSmallSmart(value: Int): ByteBuf {
     when (value) {
         in 0 until 128 -> writeByte(value)
-        in 0 until 32768 -> writeShort(value + 32768)
+        in 128 until 32768 -> writeShort(value + 32768)
         else -> throw IllegalArgumentException("Can't write value bigger than 32767.")
     }
     return this
