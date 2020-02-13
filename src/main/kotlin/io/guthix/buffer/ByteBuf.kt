@@ -259,7 +259,7 @@ fun ByteBuf.setBytesReversedADD(index: Int, src: ByteArray): ByteBuf = setBytes(
 
 fun ByteBuf.setBytesReversedADD(index: Int, src: ByteBuf): ByteBuf {
     var j = index
-    for(i in src.writerIndex()..src.readerIndex()) {
+    for(i in src.writerIndex() - 1 downTo src.readerIndex()) {
         setByte(j, src.getByte(i) + HALF_BYTE)
         j++
     }
@@ -493,7 +493,7 @@ fun ByteBuf.writeBytesReversedADD(src: ByteArray): ByteBuf = writeBytes(src.map 
 }.reversed().toByteArray())
 
 fun ByteBuf.writeBytesReversedADD(src: ByteBuf): ByteBuf {
-    for(i in src.writerIndex()..src.readerIndex()) {
+    for(i in src.writerIndex() - 1 downTo src.readerIndex()) {
         writeByte(src.getByte(i) + HALF_BYTE)
     }
     return this
