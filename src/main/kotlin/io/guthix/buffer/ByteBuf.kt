@@ -18,7 +18,6 @@
 package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
-import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.nio.charset.Charset
 
@@ -202,15 +201,16 @@ fun ByteBuf.setLargeSmart(index: Int, value: Int) = if(value <= Short.MAX_VALUE)
     Int.SIZE_BYTES
 }
 
-fun ByteBuf.setNullableLargeSmart(index: Int, value: Int?) = if(value == null) {
-    setShort(index, 32767)
-    Short.SIZE_BYTES
-} else {
-    if(value == 32767) throw IOException("Can not set nullable large smart of value 32767.")
-    if(value <= Short.MAX_VALUE) {
+fun ByteBuf.setNullableLargeSmart(index: Int, value: Int?): Int = when {
+    value == null -> {
+        setShort(index, 32767)
+        Short.SIZE_BYTES
+    }
+    value < Short.MAX_VALUE  -> {
         setShort(index, value)
         Short.SIZE_BYTES
-    } else {
+    }
+    else -> {
         setInt(index, value)
         Int.SIZE_BYTES
     }
@@ -438,18 +438,16 @@ fun ByteBuf.writeLargeSmart(value: Int): ByteBuf {
     return this
 }
 
-fun ByteBuf.writeNullableLargeSmart(value: Int?): ByteBuf {
-    if(value == null) {
+fun ByteBuf.writeNullableLargeSmart(value: Int?): ByteBuf = when {
+    value == null -> {
         writeShort(32767)
-    } else {
-        if(value == 32767) throw IOException("Can not write nullable large smart of value 32767.")
-        if(value <= Short.MAX_VALUE) {
-            writeShort(value)
-        } else {
-            writeInt(value)
-        }
     }
-    return this
+    value < Short.MAX_VALUE  -> {
+        writeShort(value)
+    }
+    else -> {
+        writeInt(value)
+    }
 }
 
 fun ByteBuf.writeVarInt(value: Int): ByteBuf {
