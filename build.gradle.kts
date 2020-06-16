@@ -12,7 +12,7 @@ group = "io.guthix"
 version = "0.1-SNAPSHOT"
 description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers."
 
-val licenseHeader: File by extra(file("LGPLV3.txt"))
+val licenseHeader: File by extra(file("gradle/LICENSE_HEADER"))
 
 val licensePluginVersion: String by extra("0.15.0")
 val logbackVersion: String by extra("1.2.3")
