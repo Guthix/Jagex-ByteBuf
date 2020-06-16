@@ -5,17 +5,17 @@ import io.kotlintest.specs.StringSpec
 import io.netty.buffer.Unpooled
 
 class ByteBufTest : StringSpec({
-    "ShortADD" {
+    "Short with add transformation" {
         val value = 4930
         val buf = Unpooled.buffer(2)
-        buf.writeShortADD(value)
-        buf.readShortADD().toInt() shouldBe value
+        buf.writeShortAdd(value)
+        buf.readShortAdd().toInt() shouldBe value
     }
 
-    "ShortLEADD" {
+    "Little endian short with add transformation " {
         val value = 5439
         val buf = Unpooled.buffer(2)
-        buf.writeShortLEADD(value)
-        buf.readShortLEADD().toInt() shouldBe value
+        buf.writeShortAddLE(value)
+        buf.readShortAddLE().toInt() shouldBe value
     }
 })
