@@ -5,16 +5,12 @@ plugins {
     `maven-publish`
     kotlin("jvm")
     id("org.jetbrains.dokka")
-    id("com.github.hierynomus.license")
 }
 
 group = "io.guthix"
 version = "0.1-SNAPSHOT"
 description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers."
 
-val licenseHeader: File by extra(file("gradle/LICENSE_HEADER"))
-
-val licensePluginVersion: String by extra("0.15.0")
 val logbackVersion: String by extra("1.2.3")
 val nettyVersion: String by extra("4.1.50.Final")
 val kotlinTestVersion: String by extra("3.4.2")
@@ -34,11 +30,6 @@ dependencies {
 }
 
 kotlin { explicitApi() }
-
-license {
-    header = licenseHeader
-    exclude("**/*.xml")
-}
 
 tasks {
     compileKotlin {
