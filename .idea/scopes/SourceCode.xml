@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="SourceCode" pattern="src[Jagex-ByteBuf.main]:*..*||test[Jagex-ByteBuf.test]:io.guthix.buffer..*" />
+</component>
