@@ -8,12 +8,12 @@ plugins {
 }
 
 group = "io.guthix"
-version = "0.1-SNAPSHOT"
-description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers."
+version = "0.1"
+description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers"
 
 val logbackVersion: String by extra("1.2.3")
-val nettyVersion: String by extra("4.1.50.Final")
-val kotlinTestVersion: String by extra("3.4.2")
+val nettyVersion: String by extra("4.1.51.Final")
+val kotestVersion: String by extra("4.1.3")
 val kotlinVersion: String by extra(project.getKotlinPluginVersion()!!)
 
 repositories {
@@ -25,13 +25,18 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     api(group = "io.netty", name = "netty-buffer", version = nettyVersion)
-    testImplementation(group = "io.kotlintest", name = "kotlintest-runner-junit5", version = kotlinTestVersion)
     testImplementation(group = "ch.qos.logback", name = "logback-classic", version = logbackVersion)
+    testImplementation(group = "io.kotest", name = "kotest-runner-junit5-jvm", version = kotestVersion)
+    testImplementation(group = "io.kotest", name = "kotest-assertions-core-jvm", version = kotestVersion)
 }
 
-kotlin { explicitApi() }
+// kotlin { explicitApi() }
 
 tasks {
+    withType<Test> {
+        useJUnitPlatform()
+    }
+
     compileKotlin {
         kotlinOptions.jvmTarget = "11"
     }

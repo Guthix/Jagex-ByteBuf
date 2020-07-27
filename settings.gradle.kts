@@ -1,5 +1,5 @@
 pluginManagement {
-    val kotlinVersion by extra("1.4-M2")
+    val kotlinVersion by extra("1.3.71")
     val dokkaVersion by extra("0.10.0")
 
     plugins {
@@ -8,10 +8,10 @@ pluginManagement {
     }
 
     repositories {
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
         mavenCentral()
-        maven("https://plugins.gradle.org/m2/")
+        gradlePluginPortal()
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
 }
 
-rootProject.name = "Jagex-ByteBuf"
+rootProject.name = "jagex-bytebuf"

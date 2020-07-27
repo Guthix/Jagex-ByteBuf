@@ -15,8 +15,8 @@
  */
 package io.guthix.buffer
 
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 import io.netty.buffer.Unpooled
 
 class ByteBufTest : StringSpec({
@@ -27,7 +27,7 @@ class ByteBufTest : StringSpec({
         buf.readShortAdd().toInt() shouldBe value
     }
 
-    "Little endian short with add transformation " {
+    "Little endian short with add transformation" {
         val value = 5439
         val buf = Unpooled.buffer(2)
         buf.writeShortAddLE(value)
