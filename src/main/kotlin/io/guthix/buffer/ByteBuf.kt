@@ -118,8 +118,7 @@ public fun ByteBuf.getIncrSmallSmart(index: Int): Int {
 
 public fun ByteBuf.getStringCP1252(index: Int): String {
     var i = index
-    while (getByte(i++).toInt() != 0) {
-    }
+    while (getByte(i++).toInt() != 0) { }
     val size = i - index - 1
     return getCharSequence(index, size, cp1252).toString()
 }
@@ -353,8 +352,7 @@ public fun ByteBuf.readIncrSmallSmart(): Int {
 
 public fun ByteBuf.readStringCP1252(): String {
     val current = readerIndex()
-    while (readByte().toInt() != 0) {
-    }
+    while (readByte().toInt() != 0) { }
     val size = readerIndex() - current - 1
     readerIndex(current)
     val str = readCharSequence(size, cp1252).toString()

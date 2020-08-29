@@ -13,13 +13,11 @@ description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers"
 
 val logbackVersion: String by extra("1.2.3")
 val nettyVersion: String by extra("4.1.51.Final")
-val kotestVersion: String by extra("4.1.3")
+val kotestVersion: String by extra("4.2.2")
 val kotlinVersion: String by extra(project.getKotlinPluginVersion()!!)
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven("https://dl.bintray.com/kotlin/kotlin-eap")
 }
 
 dependencies {
@@ -30,7 +28,7 @@ dependencies {
     testImplementation(group = "io.kotest", name = "kotest-assertions-core-jvm", version = kotestVersion)
 }
 
-// kotlin { explicitApi() }
+kotlin { explicitApi() }
 
 tasks {
     withType<Test> {
@@ -44,25 +42,12 @@ tasks {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "11"
     }
-
-    dokka {
-        outputFormat = "html"
-        outputDirectory = "$buildDir/javadoc"
-    }
-}
-
-val dokkaJar: Jar by tasks.creating(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles Kotlin docs with Dokka"
-    archiveClassifier.set("javadoc")
-    from(tasks.dokka)
 }
 
 publishing {
     publications {
         create<MavenPublication>("default") {
             from(components["java"])
-            artifact(dokkaJar)
             pom {
                 url.set("https://github.com/guthix/Jagex-ByteBuf")
                 licenses {
