@@ -13,6 +13,9 @@ group = "io.guthix"
 version = "0.1"
 description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers"
 
+val repoUrl = "https://github.com/guthix/Jagex-ByteBuf"
+val gitSuffix = "github.com/guthix/Jagex-ByteBuf.git"
+
 val logbackVersion: String by extra("1.2.3")
 val nettyVersion: String by extra("4.1.51.Final")
 val kotestVersion: String by extra("4.2.2")
@@ -77,7 +80,7 @@ publishing {
             pom {
                 name.set("Jagex ByteBuf")
                 description.set(rootProject.description)
-                url.set("https://github.com/guthix/Jagex-ByteBuf")
+                url.set(repoUrl)
                 licenses {
                     license {
                         name.set("APACHE LICENSE, VERSION 2.0")
@@ -85,9 +88,10 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/guthix/Jagex-ByteBuf.git")
-                    developerConnection.set("scm:git:ssh://github.com/guthix/Jagex-ByteBuf.git")
-                    url.set("https://github.com/guthix/Jagex-ByteBuf")
+                    connection.set("scm:git:git://$gitSuffix")
+                    developerConnection.set("scm:git:ssh://$gitSuffix")
+                    url.set(repoUrl
+                    )
                 }
                 developers {
                     developer {
