@@ -1,10 +1,12 @@
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
+import java.net.URI
 
 plugins {
     idea
     `maven-publish`
-    kotlin("jvm")
+    signing
     id("org.jetbrains.dokka")
+    kotlin("jvm")
 }
 
 group = "io.guthix"
@@ -18,14 +20,15 @@ val kotlinVersion: String by extra(project.getKotlinPluginVersion()!!)
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     api(group = "io.netty", name = "netty-buffer", version = nettyVersion)
     testImplementation(group = "ch.qos.logback", name = "logback-classic", version = logbackVersion)
     testImplementation(group = "io.kotest", name = "kotest-runner-junit5-jvm", version = kotestVersion)
     testImplementation(group = "io.kotest", name = "kotest-assertions-core-jvm", version = kotestVersion)
+    dokkaHtmlPlugin(group = "org.jetbrains.dokka", name = "kotlin-as-java-plugin", version = kotlinVersion)
 }
 
 kotlin { explicitApi() }
@@ -44,11 +47,36 @@ tasks {
     }
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 publishing {
+    repositories {
+        maven {
+            name = "MavenCentral"
+            url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = System.getenv("OSSRH_USERNAME")
+                password = System.getenv("OSSRH_PASSWORD")
+            }
+        }
+        maven {
+            name = "GitHubPackages"
+            url = URI("https://maven.pkg.github.com/guthix/Jagex-ByteBuf")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
     publications {
         create<MavenPublication>("default") {
             from(components["java"])
             pom {
+                name.set("Jagex ByteBuf")
+                description.set(rootProject.description)
                 url.set("https://github.com/guthix/Jagex-ByteBuf")
                 licenses {
                     license {
@@ -59,8 +87,14 @@ publishing {
                 scm {
                     connection.set("scm:git:git://github.com/guthix/Jagex-ByteBuf.git")
                     developerConnection.set("scm:git:ssh://github.com/guthix/Jagex-ByteBuf.git")
+                    url.set("https://github.com/guthix/Jagex-ByteBuf")
                 }
             }
         }
     }
+}
+
+signing {
+    useInMemoryPgpKeys(System.getenv("SIGNING_KEY"), System.getenv("SIGNING_PASSWORD"))
+    sign(publishing.publications["default"])
 }
