@@ -89,6 +89,12 @@ publishing {
                     developerConnection.set("scm:git:ssh://github.com/guthix/Jagex-ByteBuf.git")
                     url.set("https://github.com/guthix/Jagex-ByteBuf")
                 }
+                developers {
+                    developer {
+                        id.set("bart")
+                        name.set("Bart van Helvert")
+                    }
+                }
             }
         }
     }
