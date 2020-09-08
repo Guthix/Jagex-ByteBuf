@@ -8,3 +8,8 @@ and writing RuneTek engine data type encoding. Jagex-ByteBuf uses Kotlin
 extension functions to add RuneTek engine ByteBuf read and write methods
 to the Netty ByteBuf interface. It also adds a bit buffer implementation that
 provides reading and writing with bit granularity.
+
+### Gradle
+```Kotlin
+implementation(group = "io.guthix", name = "jagex-bytebuf", version = "0.1")
+```
