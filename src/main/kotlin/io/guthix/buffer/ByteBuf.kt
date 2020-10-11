@@ -142,6 +142,13 @@ public fun ByteBuf.getBytesReversedAdd(index: Int, dest: ByteArray): ByteArray =
     getBytes(index, this)
 }.map { (it - HALF_BYTE).toByte() }.reversed().toByteArray()
 
+public fun ByteBuf.getBytesReversed(index: Int, length: Int): ByteArray =
+    getBytesReversed(index, ByteArray(length))
+
+public fun ByteBuf.getBytesReversed(index: Int, dest: ByteArray): ByteArray = dest.apply {
+    getBytes(index, this)
+}.reversed().toByteArray()
+
 public fun ByteBuf.setCharCP1252(index: Int, value: Char): ByteBuf =
     setByte(index, cp1252.encode(value.toString()).get().toInt())
 
@@ -266,6 +273,19 @@ public fun ByteBuf.setBytesReversedAdd(index: Int, src: ByteBuf): ByteBuf {
     return this
 }
 
+public fun ByteBuf.setBytesReversed(index: Int, src: ByteArray): ByteBuf = setBytes(
+        index, src.reversed().toByteArray()
+)
+
+public fun ByteBuf.setBytesReversed(index: Int, src: ByteBuf): ByteBuf {
+    var j = index
+    for (i in src.writerIndex() - 1 downTo src.readerIndex()) {
+        setByte(j, src.getByte(i).toInt())
+        j++
+    }
+    return this
+}
+
 public fun ByteBuf.readCharCP1252(): Char = String(byteArrayOf(readByte()), cp1252).first()
 
 public fun ByteBuf.readByteNeg(): Byte = (-readByte()).toByte()
@@ -385,6 +405,12 @@ public fun ByteBuf.readBytesReversedAdd(dest: ByteArray): ByteArray = dest.apply
     readBytes(this)
 }.map { (it - HALF_BYTE).toByte() }.reversed().toByteArray()
 
+public fun ByteBuf.readBytesReversed(length: Int): ByteArray = readBytesReversed(ByteArray(length))
+
+public fun ByteBuf.readBytesReversed(dest: ByteArray): ByteArray = dest.apply {
+    readBytes(this)
+}.reversed().toByteArray()
+
 public fun ByteBuf.writeCharCP1252(value: Char): ByteBuf = writeByte(cp1252.encode(value.toString()).get().toInt())
 
 public fun ByteBuf.writeByteNeg(value: Int): ByteBuf = writeByte(-value)
@@ -496,6 +522,13 @@ public fun ByteBuf.writeBytesReversedAdd(src: ByteArray): ByteBuf = writeBytes(s
 public fun ByteBuf.writeBytesReversedAdd(src: ByteBuf): ByteBuf {
     for (i in src.writerIndex() - 1 downTo src.readerIndex()) {
         writeByte(src.getByte(i) + HALF_BYTE)
+    }
+    return this
+}
+
+public fun ByteBuf.writeBytesReversed(src: ByteBuf): ByteBuf {
+    for (i in src.writerIndex() - 1 downTo src.readerIndex()) {
+        writeByte(src.getByte(i).toInt())
     }
     return this
 }
