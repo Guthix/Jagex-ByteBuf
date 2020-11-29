@@ -65,14 +65,6 @@ publishing {
                 password = System.getenv("OSSRH_PASSWORD")
             }
         }
-        maven {
-            name = "GitHubPackages"
-            url = URI("https://maven.pkg.github.com/guthix/Jagex-ByteBuf")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
     }
     publications {
         create<MavenPublication>("default") {
