@@ -54,6 +54,14 @@ public fun ByteBuf.getUnsignedShortAdd(index: Int): Int =
 public fun ByteBuf.getUnsignedShortAddLE(index: Int): Int =
     ((getUnsignedByte(index) - HALF_BYTE) and 0xFF) or (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
 
+public fun ByteBuf.getUnsignedMediumLME(index: Int): Int =
+    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or (getUnsignedByte(index + 1).toInt() shl Short.SIZE_BITS) or
+        (getUnsignedByte(index + 2).toInt() and 0xFF)
+
+public fun ByteBuf.getUnsignedMediumRME(index: Int): Int =
+    (getUnsignedByte(index).toInt() shl Short.SIZE_BITS) or (getUnsignedByte(index + 1).toInt() and 0xFF) or
+        (getUnsignedByte(index + 2).toInt() shl Byte.SIZE_BITS)
+
 public fun ByteBuf.getIntME(index: Int): Int = (getShortLE(index).toInt() shl 16) or getUnsignedShortLE(index + 1)
 
 public fun ByteBuf.getIntIME(index: Int): Int = getUnsignedShort(index) or (getShort(index + 1).toInt() shl 16)
@@ -167,6 +175,20 @@ public fun ByteBuf.setShortAdd(index: Int, value: Int): ByteBuf {
 public fun ByteBuf.setShortAddLE(index: Int, value: Int): ByteBuf {
     setByte(index, value + HALF_BYTE)
     setByte(index + 1, value shr Byte.SIZE_BITS)
+    return this
+}
+
+public fun ByteBuf.setMediumLME(index: Int, value: Int): ByteBuf {
+    setByte(index, value shr Byte.SIZE_BITS)
+    setByte(index + 1, value shr Short.SIZE_BITS)
+    setByte(index + 2, value)
+    return this
+}
+
+public fun ByteBuf.setMediumRME(index: Int, value: Int): ByteBuf {
+    setByte(index, value shr Short.SIZE_BITS)
+    setByte(index + 1, value)
+    setByte(index + 2, value shr Byte.SIZE_BITS)
     return this
 }
 
@@ -324,6 +346,14 @@ public fun ByteBuf.readUnsignedShortAdd(): Int =
 public fun ByteBuf.readUnsignedShortAddLE(): Int =
     ((readUnsignedByte() - HALF_BYTE) and 0xFF) or (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
 
+public fun ByteBuf.readUnsignedMediumLME(): Int =
+    (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte().toInt() shl Short.SIZE_BITS) or
+        (readUnsignedByte().toInt() and 0xFF)
+
+public fun ByteBuf.readUnsignedMediumRME(): Int =
+     (readUnsignedByte().toInt() shl Short.SIZE_BITS) or (readUnsignedByte().toInt() and 0xFF) or
+         (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
+
 public fun ByteBuf.readIntME(): Int = (readShortLE().toInt() shl 16) or readUnsignedShortLE()
 
 public fun ByteBuf.readIntIME(): Int = readUnsignedShort() or (readShort().toInt() shl 16)
@@ -439,6 +469,20 @@ public fun ByteBuf.writeShortAdd(value: Int): ByteBuf {
 
 public fun ByteBuf.writeShortAddLE(value: Int): ByteBuf {
     writeByte(value + HALF_BYTE)
+    writeByte(value shr Byte.SIZE_BITS)
+    return this
+}
+
+public fun ByteBuf.writeMediumLME(value: Int): ByteBuf {
+    writeByte(value shr Byte.SIZE_BITS)
+    writeByte(value shr Short.SIZE_BITS)
+    writeByte(value)
+    return this
+}
+
+public fun ByteBuf.writeMediumRME(value: Int): ByteBuf {
+    writeByte(value shr Short.SIZE_BITS)
+    writeByte(value)
     writeByte(value shr Byte.SIZE_BITS)
     return this
 }

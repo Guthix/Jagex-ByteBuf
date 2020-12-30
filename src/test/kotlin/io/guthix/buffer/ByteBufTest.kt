@@ -34,6 +34,20 @@ class ByteBufTest : StringSpec({
         buf.readShortAddLE().toInt() shouldBe value
     }
 
+    "MediumLME WR" {
+        val value = 17593
+        val buf = Unpooled.buffer(3)
+        buf.writeMediumLME(value)
+        buf.readUnsignedMediumLME() shouldBe value
+    }
+
+    "MediumRME WR" {
+        val value = 362
+        val buf = Unpooled.buffer(3)
+        buf.writeMediumRME(value)
+        buf.readUnsignedMediumRME() shouldBe value
+    }
+
     "IncrSmallSmart Byte WR" {
         val value = 30
         val buf = Unpooled.buffer(2)
