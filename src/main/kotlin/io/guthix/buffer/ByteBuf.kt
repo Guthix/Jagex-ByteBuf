@@ -241,6 +241,18 @@ public fun ByteBuf.setVarInt(index: Int, value: Int): Int {
     return i - index
 }
 
+public fun ByteBuf.setIncrSmallSmart(index: Int, value: Int): ByteBuf {
+    var remaining = value
+    var curIndex = index
+    while (remaining > 32767) {
+        setSmallSmart(curIndex,32767)
+        curIndex += 2
+        remaining -= 32767
+    }
+    setSmallSmart(curIndex, remaining)
+    return this
+}
+
 public fun ByteBuf.setStringCP1252(index: Int, value: String): ByteBuf {
     setCharSequence(index, value, cp1252)
     setByte(index + value.length + 1, 0)
@@ -493,6 +505,16 @@ public fun ByteBuf.writeVarInt(value: Int): ByteBuf {
         writeByte(value.ushr(7) or 128)
     }
     writeByte(value and 127)
+    return this
+}
+
+public fun ByteBuf.writeIncrSmallSmart(value: Int): ByteBuf {
+    var remaining = value
+    while (remaining > 32767) {
+        writeSmallSmart(32767)
+        remaining -= 32767
+    }
+    writeSmallSmart(remaining)
     return this
 }
 

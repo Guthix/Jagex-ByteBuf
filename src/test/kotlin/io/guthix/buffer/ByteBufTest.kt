@@ -20,17 +20,38 @@ import io.kotest.matchers.shouldBe
 import io.netty.buffer.Unpooled
 
 class ByteBufTest : StringSpec({
-    "Short with add transformation" {
+    "ShortAdd WR" {
         val value = 4930
         val buf = Unpooled.buffer(2)
         buf.writeShortAdd(value)
         buf.readShortAdd().toInt() shouldBe value
     }
 
-    "Little endian short with add transformation" {
+    "ShortAddLE WR" {
         val value = 5439
         val buf = Unpooled.buffer(2)
         buf.writeShortAddLE(value)
         buf.readShortAddLE().toInt() shouldBe value
+    }
+
+    "IncrSmallSmart Byte WR" {
+        val value = 30
+        val buf = Unpooled.buffer(2)
+        buf.writeIncrSmallSmart(value)
+        buf.readIncrSmallSmart() shouldBe value
+    }
+
+    "IncrSmallSmart Short WR" {
+        val value = 12643
+        val buf = Unpooled.buffer(2)
+        buf.writeIncrSmallSmart(value)
+        buf.readIncrSmallSmart() shouldBe value
+    }
+
+    "IncrSmallSmart Multi WR" {
+        val value = 123843
+        val buf = Unpooled.buffer(10)
+        buf.writeIncrSmallSmart(value)
+        buf.readIncrSmallSmart() shouldBe value
     }
 })
