@@ -17,8 +17,8 @@ val repoUrl = "https://github.com/guthix/Jagex-ByteBuf"
 val gitSuffix = "github.com/guthix/Jagex-ByteBuf.git"
 
 val logbackVersion: String by extra("1.2.3")
-val nettyVersion: String by extra("4.1.51.Final")
-val kotestVersion: String by extra("4.2.2")
+val nettyVersion: String by extra("4.1.56.Final")
+val kotestVersion: String by extra("4.3.2")
 val kotlinVersion: String by extra(project.getKotlinPluginVersion()!!)
 
 repositories {
