@@ -143,6 +143,13 @@ public fun ByteBuf.getString0CP1252(index: Int): String {
     return getStringCP1252(index + 1)
 }
 
+public fun ByteBuf.getBytesAdd(index: Int, length: Int): ByteArray =
+    getBytesAdd(index, ByteArray(length))
+
+public fun ByteBuf.getBytesAdd(index: Int, dest: ByteArray): ByteArray = dest.apply {
+    getBytes(index, this)
+}.map { (it - HALF_BYTE).toByte() }.toByteArray()
+
 public fun ByteBuf.getBytesReversedAdd(index: Int, length: Int): ByteArray =
     getBytesReversedAdd(index, ByteArray(length))
 
@@ -294,6 +301,19 @@ public fun ByteBuf.setStringCESU8(index: Int, value: String): ByteBuf {
     return this
 }
 
+public fun ByteBuf.setBytesAdd(index: Int, src: ByteArray): ByteBuf = setBytes(index, src.map {
+    (it + HALF_BYTE).toByte()
+}.toByteArray())
+
+public fun ByteBuf.setBytesAdd(index: Int, src: ByteBuf): ByteBuf {
+    var j = index
+    for (i in src.readerIndex() until src.writerIndex()) {
+        setByte(j, src.getByte(i) + HALF_BYTE)
+        j++
+    }
+    return this
+}
+
 public fun ByteBuf.setBytesReversedAdd(index: Int, src: ByteArray): ByteBuf = setBytes(index, src.map {
     (it + HALF_BYTE).toByte()
 }.reversed().toByteArray())
@@ -441,6 +461,12 @@ public fun ByteBuf.readStringCESU8(): String {
     return readCharSequence(length, cesu8).toString()
 }
 
+public fun ByteBuf.readBytesAdd(length: Int): ByteArray = readBytesAdd(ByteArray(length))
+
+public fun ByteBuf.readBytesAdd(dest: ByteArray): ByteArray = dest.apply {
+    readBytes(this)
+}.map { (it - HALF_BYTE).toByte() }.toByteArray()
+
 public fun ByteBuf.readBytesReversedAdd(length: Int): ByteArray = readBytesReversedAdd(ByteArray(length))
 
 public fun ByteBuf.readBytesReversedAdd(dest: ByteArray): ByteArray = dest.apply {
@@ -578,6 +604,17 @@ public fun ByteBuf.writeStringCESU8(value: String): ByteBuf {
     writeByte(0)
     writeVarInt(value.length)
     writeCharSequence(value, cesu8)
+    return this
+}
+
+public fun ByteBuf.writeBytesAdd(src: ByteArray): ByteBuf = writeBytes(src.map {
+    (it + HALF_BYTE).toByte()
+}.toByteArray())
+
+public fun ByteBuf.writeBytesAdd(src: ByteBuf): ByteBuf {
+    for (i in src.readerIndex() until src.writerIndex()) {
+        writeByte(src.getByte(i) + HALF_BYTE)
+    }
     return this
 }
 
