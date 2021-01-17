@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.guthix"
-version = "0.1.2"
+version = "0.1.3"
 description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers"
 
 val repoUrl = "https://github.com/guthix/Jagex-ByteBuf"
