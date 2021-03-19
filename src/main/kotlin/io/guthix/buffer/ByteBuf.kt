@@ -36,7 +36,7 @@ public fun ByteBuf.getByteAdd(index: Int): Byte = (getByte(index) - HALF_BYTE).t
 
 public fun ByteBuf.getByteSub(index: Int): Byte = (HALF_BYTE - getByte(index)).toByte()
 
-public fun ByteBuf.getUnsignedByteNeg(index: Int): Short = (-getUnsignedByte(index)).toShort()
+public fun ByteBuf.getUnsignedByteNeg(index: Int): Short = (-getByte(index) and 0xFF).toShort()
 
 public fun ByteBuf.getUnsignedByteAdd(index: Int): Short = (getUnsignedByte(index) - HALF_BYTE).toShort()
 
@@ -348,7 +348,7 @@ public fun ByteBuf.readByteAdd(): Byte = (readByte() - HALF_BYTE).toByte()
 
 public fun ByteBuf.readByteSub(): Byte = (HALF_BYTE - readByte()).toByte()
 
-public fun ByteBuf.readUnsignedByteNeg(): Short = (-readUnsignedByte()).toShort()
+public fun ByteBuf.readUnsignedByteNeg(): Short = (-readByte() and 0xFF).toShort()
 
 public fun ByteBuf.readUnsignedByteAdd(): Short = (readUnsignedByte() - HALF_BYTE).toShort()
 
