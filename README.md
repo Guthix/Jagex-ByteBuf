@@ -11,5 +11,5 @@ provides reading and writing with bit granularity.
 
 ### Gradle
 ```Kotlin
-implementation(group = "io.guthix", name = "jagex-bytebuf", version = "0.1.3")
+implementation(group = "io.guthix", name = "jagex-bytebuf", version = "0.1.4")
 ```
