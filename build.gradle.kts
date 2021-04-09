@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import io.guthix.buffer.registerPublication
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 
@@ -48,6 +50,11 @@ tasks {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "11"
     }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 registerPublication(
