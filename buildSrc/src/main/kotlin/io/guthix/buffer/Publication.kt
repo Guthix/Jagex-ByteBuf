@@ -26,7 +26,6 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
 
-@Suppress("ConvertLambdaToReference")
 fun Project.registerPublication(publicationName: String, pomName: String) {
     configure<PublishingExtension> {
         repositories {
@@ -81,7 +80,6 @@ private fun MavenPublication.configurePom(projectName: String, desc: String?, co
     }
 }
 
-@Suppress("UnstableApiUsage")
 private fun Project.signPublication(publicationProvider: Provider<MavenPublication>) {
     val signingKey = System.getenv("SIGNING_KEY")
     val signingKeyPassphrase = System.getenv("SIGNING_PASSWORD")

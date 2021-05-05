@@ -1,7 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
 import io.guthix.buffer.registerPublication
-import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 
 plugins {
     idea
@@ -12,11 +11,8 @@ plugins {
 }
 
 group = "io.guthix"
-version = "0.1.4"
+version = "0.2.0-snapshot"
 description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers"
-
-val repoUrl = "https://github.com/guthix/Jagex-ByteBuf"
-val gitSuffix = "github.com/guthix/Jagex-ByteBuf.git"
 
 repositories {
     mavenCentral()
@@ -35,14 +31,6 @@ kotlin { explicitApi() }
 tasks {
     withType<Test> {
         useJUnitPlatform()
-    }
-
-    compileKotlin {
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "11"
     }
 }
 
