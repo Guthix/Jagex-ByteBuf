@@ -1,3 +1,5 @@
+enableFeaturePreview("VERSION_CATALOGS")
+
 pluginManagement {
     val kotlinVersion by extra("1.4.30")
     val dokkaVersion by extra(kotlinVersion)
@@ -9,7 +11,6 @@ pluginManagement {
 
     repositories {
         gradlePluginPortal()
-        jcenter()
     }
 }
 
