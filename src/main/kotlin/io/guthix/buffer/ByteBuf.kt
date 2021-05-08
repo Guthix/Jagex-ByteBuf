@@ -525,9 +525,9 @@ public fun ByteBuf.writeIntIME(value: Int): ByteBuf {
     return this
 }
 
-public fun ByteBuf.writeSmallLong(value: Int): ByteBuf {
-    writeMedium(value shr 24)
-    writeMedium(value)
+public fun ByteBuf.writeSmallLong(value: Long): ByteBuf {
+    writeMedium((value shr 24).toInt())
+    writeMedium(value.toInt())
     return this
 }
 
