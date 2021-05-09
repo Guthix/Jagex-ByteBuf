@@ -17,6 +17,7 @@ package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
 import java.nio.charset.Charset
+import kotlin.Long
 
 private const val HALF_BYTE = 128
 
@@ -211,22 +212,22 @@ public fun ByteBuf.setIntIME(index: Int, value: Int): ByteBuf {
     return this
 }
 
-public fun ByteBuf.setSmallLong(index: Int, value: Int): ByteBuf {
-    setMedium(index, value shr 24)
-    setMedium(index + 1, value)
+public fun ByteBuf.setSmallLong(index: Int, value: Long): ByteBuf {
+    setMedium(index, (value shr 24).toInt())
+    setMedium(index + 1, value.toInt())
     return this
 }
 
-public fun ByteBuf.setSmallSmart(index: Int, value: Int): Int = when (value) {
+public fun ByteBuf.setSmallSmart(index: Int, value: Short): Int = when (value) {
     in 0 until 128 -> {
-        setByte(index, value)
+        setByte(index, value.toInt())
         Byte.SIZE_BYTES
     }
     in 128 until 32768 -> {
         setShort(index, value + 32768)
         Short.SIZE_BYTES
     }
-    else -> throw IllegalArgumentException("Can't set value bigger than 32767.")
+    else -> throw IllegalArgumentException("Can't set negative value.")
 }
 
 public fun ByteBuf.setLargeSmart(index: Int, value: Int): Int = if (value <= Short.MAX_VALUE) {
@@ -278,7 +279,7 @@ public fun ByteBuf.setIncrSmallSmart(index: Int, value: Int): ByteBuf {
         curIndex += 2
         remaining -= 32767
     }
-    setSmallSmart(curIndex, remaining)
+    setSmallSmart(curIndex, remaining.toShort())
     return this
 }
 
@@ -531,11 +532,11 @@ public fun ByteBuf.writeSmallLong(value: Long): ByteBuf {
     return this
 }
 
-public fun ByteBuf.writeSmallSmart(value: Int): ByteBuf {
+public fun ByteBuf.writeSmallSmart(value: Short): ByteBuf {
     when (value) {
-        in 0 until 128 -> writeByte(value)
+        in 0 until 128 -> writeByte(value.toInt())
         in 128 until 32768 -> writeShort(value + 32768)
-        else -> throw IllegalArgumentException("Can't write value bigger than 32767.")
+        else -> throw IllegalArgumentException("Can't write negative value.")
     }
     return this
 }
@@ -584,7 +585,7 @@ public fun ByteBuf.writeIncrSmallSmart(value: Int): ByteBuf {
         writeSmallSmart(32767)
         remaining -= 32767
     }
-    writeSmallSmart(remaining)
+    writeSmallSmart(remaining.toShort())
     return this
 }
 
