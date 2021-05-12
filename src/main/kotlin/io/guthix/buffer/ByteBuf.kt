@@ -29,8 +29,6 @@ private val cesu8 = Charset.availableCharsets()["CESU-8"] ?: throw IllegalStateE
     "Could not find CESU-8 character set."
 )
 
-public fun ByteBuf.getCharCP1252(index: Int): Char = String(byteArrayOf(getByte(index)), cp1252).first()
-
 public fun ByteBuf.getByteNeg(index: Int): Byte = (-getByte(index)).toByte()
 
 public fun ByteBuf.getByteAdd(index: Int): Byte = (getByte(index) - HALF_BYTE).toByte()
@@ -55,23 +53,34 @@ public fun ByteBuf.getUnsignedShortAdd(index: Int): Int =
 public fun ByteBuf.getUnsignedShortAddLE(index: Int): Int =
     ((getUnsignedByte(index) - HALF_BYTE) and 0xFF) or (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
 
+public fun ByteBuf.getMediumLME(index: Int): Int =
+    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or
+            (getUnsignedByte(index + 1).toInt() shl Short.SIZE_BITS) or getUnsignedByte(index + 2).toInt()
+
+public fun ByteBuf.getMediumRME(index: Int): Int =
+    (getUnsignedByte(index).toInt() shl Short.SIZE_BITS) or getUnsignedByte(index + 1).toInt() or
+            (getUnsignedByte(index + 2).toInt() shl Byte.SIZE_BITS)
+
 public fun ByteBuf.getUnsignedMediumLME(index: Int): Int =
-    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or (getUnsignedByte(index + 1).toInt() shl Short.SIZE_BITS) or
-        (getUnsignedByte(index + 2).toInt() and 0xFF)
+    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or
+            (getUnsignedByte(index + 1).toInt() shl Short.SIZE_BITS) or
+            (getUnsignedByte(index + 2).toInt() and 0xFF)
 
 public fun ByteBuf.getUnsignedMediumRME(index: Int): Int =
     (getUnsignedByte(index).toInt() shl Short.SIZE_BITS) or (getUnsignedByte(index + 1).toInt() and 0xFF) or
         (getUnsignedByte(index + 2).toInt() shl Byte.SIZE_BITS)
 
-public fun ByteBuf.getIntME(index: Int): Int = (getShortLE(index).toInt() shl 16) or getUnsignedShortLE(index + 1)
+public fun ByteBuf.getIntME(index: Int): Int = (getShortLE(index).toInt() shl Short.SIZE_BITS) or
+        getUnsignedShortLE(index + 1)
 
-public fun ByteBuf.getIntIME(index: Int): Int = getUnsignedShort(index) or (getShort(index + 1).toInt() shl 16)
+public fun ByteBuf.getIntIME(index: Int): Int = getUnsignedShort(index) or
+        (getShort(index + 1).toInt() shl Short.SIZE_BITS)
 
-public fun ByteBuf.getUnsignedIntME(index: Int): Long = ((getUnsignedShortLE(index) shl 16) or
+public fun ByteBuf.getUnsignedIntME(index: Int): Long = ((getUnsignedShortLE(index) shl Short.SIZE_BITS) or
     getUnsignedShortLE(index + 1)).toLong()
 
 public fun ByteBuf.getUnsignedIntIME(index: Int): Long = (getUnsignedShort(index) or
-    (getUnsignedShort(index + 1) shl 16)).toLong()
+    (getUnsignedShort(index + 1) shl Short.SIZE_BITS)).toLong()
 
 public fun ByteBuf.getSmallLong(index: Int): Long =
     (getMedium(index).toLong() shl 24) or getUnsignedMedium(index + 1).toLong()
@@ -164,9 +173,6 @@ public fun ByteBuf.getBytesReversed(index: Int, length: Int): ByteArray =
 public fun ByteBuf.getBytesReversed(index: Int, dest: ByteArray): ByteArray = dest.apply {
     getBytes(index, this)
 }.reversed().toByteArray()
-
-public fun ByteBuf.setCharCP1252(index: Int, value: Char): ByteBuf =
-    setByte(index, cp1252.encode(value.toString()).get().toInt())
 
 public fun ByteBuf.setByteNeg(index: Int, value: Int): ByteBuf = setByte(index, -value)
 
@@ -341,8 +347,6 @@ public fun ByteBuf.setBytesReversed(index: Int, src: ByteBuf): ByteBuf {
     return this
 }
 
-public fun ByteBuf.readCharCP1252(): Char = String(byteArrayOf(readByte()), cp1252).first()
-
 public fun ByteBuf.readByteNeg(): Byte = (-readByte()).toByte()
 
 public fun ByteBuf.readByteAdd(): Byte = (readByte() - HALF_BYTE).toByte()
@@ -361,6 +365,14 @@ public fun ByteBuf.readShortAdd(): Short =
 public fun ByteBuf.readShortAddLE(): Short =
     ((readUnsignedByte() - HALF_BYTE) or (readByte().toInt() shl Byte.SIZE_BITS)).toShort()
 
+public fun ByteBuf.readMediumLME(): Int =
+    (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte().toInt() shl Short.SIZE_BITS) or
+            readUnsignedByte().toInt()
+
+public fun ByteBuf.readMediumRME(): Int =
+    (readUnsignedByte().toInt() shl Short.SIZE_BITS) or readUnsignedByte().toInt() or
+            (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
+
 public fun ByteBuf.readUnsignedShortAdd(): Int =
     (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or ((readUnsignedByte() - HALF_BYTE) and 0xFF)
 
@@ -377,11 +389,13 @@ public fun ByteBuf.readUnsignedMediumRME(): Int =
 
 public fun ByteBuf.readIntME(): Int = (readShortLE().toInt() shl 16) or readUnsignedShortLE()
 
-public fun ByteBuf.readIntIME(): Int = readUnsignedShort() or (readShort().toInt() shl 16)
+public fun ByteBuf.readIntIME(): Int = readUnsignedShort() or (readShort().toInt() shl Short.SIZE_BITS)
 
-public fun ByteBuf.readUnsignedIntME(): Long = ((readUnsignedShortLE() shl 16) or readUnsignedShortLE()).toLong()
+public fun ByteBuf.readUnsignedIntME(): Long = ((readUnsignedShortLE() shl Short.SIZE_BITS) or
+        readUnsignedShortLE()).toLong()
 
-public fun ByteBuf.readUnsignedIntIME(): Long = (readUnsignedShort() or (readUnsignedShort() shl 16)).toLong()
+public fun ByteBuf.readUnsignedIntIME(): Long = (readUnsignedShort() or
+        (readUnsignedShort() shl Short.SIZE_BITS)).toLong()
 
 public fun ByteBuf.readSmallLong(): Long = (readMedium().toLong() shl 24) or readUnsignedMedium().toLong()
 
@@ -480,8 +494,6 @@ public fun ByteBuf.readBytesReversed(dest: ByteArray): ByteArray = dest.apply {
     readBytes(this)
 }.reversed().toByteArray()
 
-public fun ByteBuf.writeCharCP1252(value: Char): ByteBuf = writeByte(cp1252.encode(value.toString()).get().toInt())
-
 public fun ByteBuf.writeByteNeg(value: Int): ByteBuf = writeByte(-value)
 
 public fun ByteBuf.writeByteAdd(value: Int): ByteBuf = writeByte(value + HALF_BYTE)
@@ -515,14 +527,14 @@ public fun ByteBuf.writeMediumRME(value: Int): ByteBuf {
 }
 
 public fun ByteBuf.writeIntME(value: Int): ByteBuf {
-    writeShortLE(value shr 16)
+    writeShortLE(value shr Short.SIZE_BITS)
     writeShortLE(value)
     return this
 }
 
 public fun ByteBuf.writeIntIME(value: Int): ByteBuf {
     writeShort(value)
-    writeShort(value shr 16)
+    writeShort(value shr Short.SIZE_BITS)
     return this
 }
 
