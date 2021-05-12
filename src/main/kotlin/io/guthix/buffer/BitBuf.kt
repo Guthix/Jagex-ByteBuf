@@ -23,9 +23,9 @@ public class BitBuf(private val byteBuf: ByteBuf) {
 
     public var relativeBitWriterIndex: Int = 0
 
-    public fun readBoolean(): Boolean = readBits(1) == 1
+    public fun readBoolean(): Boolean = readUnsignedBits(1) == 1
 
-    public fun readBits(amount: Int): Int {
+    public fun readUnsignedBits(amount: Int): Int {
         require(amount > 0 && amount <= Int.SIZE_BITS) { "Invalid read amount: $amount." }
         var result = 0
         var bitsToRead = if(relativeBitReaderIndex != 0) { // read first byte
@@ -93,6 +93,10 @@ public class BitBuf(private val byteBuf: ByteBuf) {
     }
 
     public fun toByteMode(): ByteBuf = byteBuf
+
+    public fun release(): Boolean = byteBuf.release()
+
+    public fun release(decrement: Int): Boolean = byteBuf.release(decrement)
 
     public companion object {
         private val MASK = intArrayOf(0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f, 0x7f, 0xff)
