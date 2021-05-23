@@ -648,5 +648,3 @@ public fun ByteBuf.writeBytesReversed(src: ByteBuf): ByteBuf {
     }
     return this
 }
-
-public fun ByteBuf.toBitMode(): BitBuf = BitBuf(this)

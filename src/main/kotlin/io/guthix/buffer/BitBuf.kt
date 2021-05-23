@@ -16,89 +16,197 @@
 package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
-import kotlin.math.pow
+import io.netty.util.ReferenceCounted
+import kotlin.math.ceil
+import kotlin.math.min
 
-public class BitBuf(private val byteBuf: ByteBuf) {
-    public var relativeBitReaderIndex: Int = 0
+/** Wraps this [ByteBuf] into a [BitBuf]. */
+public fun ByteBuf.toBitBuf(): BitBuf = BitBuf(this)
 
-    public var relativeBitWriterIndex: Int = 0
+/**
+ * Wrapper around [ByteBuf] that allows for writing non byte-aligned bits. This implementation maintains the
+ * [ByteBuf.readerIndex] and [ByteBuf.writerIndex] of the underlying [ByteBuf]. When writing to the underlying [ByteBuf]
+ * however, the [readerIndex] and [writerIndex] will be automatically aligned to the next byte.
+ *
+ * To create a [BitBuf] use [ByteBuf.toBitBuf] factory method.
+ */
+public class BitBuf internal constructor(public val buf: ByteBuf) : ReferenceCounted {
+    /** The [ByteBuf.capacity] in terms of bits. */
+    public val capacity: Long get() = buf.capacity().toLong() * Byte.SIZE_BITS
 
-    public fun readBoolean(): Boolean = readUnsignedBits(1) == 1
+    /** The maximum [ByteBuf.capacity] in terms of bits. */
+    public val maxCapacity: Long get() = buf.maxCapacity().toLong() * Byte.SIZE_BITS
 
-    public fun readUnsignedBits(amount: Int): Int {
-        require(amount > 0 && amount <= Int.SIZE_BITS) { "Invalid read amount: $amount." }
-        var result = 0
-        var bitsToRead = if(relativeBitReaderIndex != 0) { // read first byte
-            val remainingBits = Byte.SIZE_BITS - relativeBitReaderIndex
-            val curByteIndex = byteBuf.readerIndex() - 1
-            val curByte = byteBuf.getByte(curByteIndex).toInt()
-            val readableCurByte = curByte and MASK[remainingBits] // remove non-readable bits
-            val shiftAmount = amount - remainingBits
-            val bitsRead = if(shiftAmount >= 0) {
-                result = result or readableCurByte
-                remainingBits
-            } else {
-                result = result or (readableCurByte shr -shiftAmount)
-                amount
+    /**
+     * Reader index in terms of bits. Modifying this reader index also modifies the underlying [ByteBuf.readerIndex].
+     */
+    public var readerIndex: Long = buf.readerIndex().toLong() * Byte.SIZE_BITS
+        get() {
+            if (buf.readerIndex() != ceil(field / Byte.SIZE_BITS.toDouble()).toInt()) {
+                field = buf.readerIndex().toLong() * Byte.SIZE_BITS
             }
-            relativeBitReaderIndex += bitsRead
-            if(relativeBitReaderIndex == Byte.SIZE_BITS) {
-                relativeBitReaderIndex = 0
-            }
-            amount - bitsRead
-        } else amount
-        if(bitsToRead == 0) return result
-        while(bitsToRead > Byte.SIZE_BITS) {
-            result = (result shl Byte.SIZE_BITS) or byteBuf.readUnsignedByte().toInt()
-            bitsToRead -= Byte.SIZE_BITS
+            return field
         }
-        relativeBitReaderIndex = bitsToRead % Byte.SIZE_BITS
-        val lastByte = (byteBuf.readByte().toInt() shr (Byte.SIZE_BITS - bitsToRead)) and MASK[bitsToRead]
-        return (result shl bitsToRead) or lastByte
+        set(value) {
+            field = value
+            buf.readerIndex(ceil(field / Byte.SIZE_BITS.toDouble()).toInt())
+        }
+
+    /** Returns the number of readable bits. */
+    public fun readableBits(): Long = writerIndex - readerIndex
+
+    /**
+     * Writer index in terms of bits. Modifying this writer index also modifies the underlying [ByteBuf.writerIndex].
+     */
+    public var writerIndex: Long = buf.writerIndex().toLong() * Byte.SIZE_BITS
+        get() {
+            if (buf.writerIndex() != ceil(field / Byte.SIZE_BITS.toDouble()).toInt()) {
+                field = buf.writerIndex().toLong() * Byte.SIZE_BITS
+            }
+            return field
+        }
+         set(value) {
+            field = value
+            buf.writerIndex(ceil(field.toDouble() / Byte.SIZE_BITS).toInt())
+        }
+
+    /** Returns the number of writable bits. */
+    public fun writableBits(): Long = capacity - writerIndex
+
+    /**
+     * Gets a [Boolean] at the specified absolute bit [index] in this buffer. This method does not modify [readerIndex]
+     * or [writerIndex] of this buffer or the underlying [ByteBuf]. Unlike [ByteBuf.getBoolean], this method only reads
+     * from a single bit, instead of a single [Byte].
+     *
+     * @throws IndexOutOfBoundsException if the [index] is less than 0 or index + 1 is greater than [capacity]
+     */
+    public fun getBoolean(index: Long): Boolean = getUnsignedBits(index, 1) == 1u
+
+    /**
+     * Gets a [UInt] at the specified absolute bit [index] in this buffer. This method does not modify [readerIndex]
+     * or [writerIndex] of this buffer or the underlying [ByteBuf].
+     *
+     * @throws IllegalArgumentException if the [amount] is less than 0 or greater than [Int.SIZE_BITS]
+     * @throws IndexOutOfBoundsException if the [index] is less than 0 or index + 1 is greater than [capacity]
+     */
+    public fun getUnsignedBits(index: Long, amount: Int): UInt {
+        require(amount > 0 && amount <= Int.SIZE_BITS) { "Amount should be between 0 and ${Int.SIZE_BITS} bits." }
+        if (index < 0 || (index + amount) > capacity) throw IndexOutOfBoundsException(
+            "index: $index, length: $capacity (expected: range(0, $capacity))"
+        )
+        var byteIndex = (index / Byte.SIZE_BITS).toInt()
+        var relBitIndex = index.toInt() and (Byte.SIZE_BITS - 1)
+        var value = 0u
+        var remBits = amount
+        while (remBits > 0) {
+            val bitsToGet = min(Byte.SIZE_BITS - relBitIndex, remBits)
+            val shift = (Byte.SIZE_BITS - (relBitIndex + bitsToGet)) and (Byte.SIZE_BITS - 1)
+            val mask = (1u shl bitsToGet) - 1u
+            value = (value shl bitsToGet) or ((buf.getUnsignedByte(byteIndex).toUInt() shr shift) and mask)
+            remBits -= bitsToGet
+            relBitIndex = 0
+            byteIndex++
+        }
+        return value
     }
 
-    public fun writeBoolean(value: Boolean): BitBuf = writeBits(if(value) 1 else 0, 1)
+    /**
+     * Sets the [value] at the specified absolute bit [index] in this buffer. This method does not modify [readerIndex]
+     * or [writerIndex] of this buffer or the underlying [ByteBuf]. Unlike [ByteBuf.setBoolean], this method only sets a
+     * single bit, instead of a single byte.
+     *
+     * @throws IndexOutOfBoundsException if the specified [index] is less than 0 or index + 1 is greater than [capacity]
+     */
+    public fun setBoolean(index: Long, value: Boolean): BitBuf = setBits(index, 1, if (value) 1 else 0)
 
-    public fun writeBits(value: Int, amount: Int): BitBuf {
-        require(amount > 0 && amount <= Int.SIZE_BITS) { "Invalid write amount: $amount." }
-        require(value < 2.0.pow(amount)) {
-            "Amount should be smaller than ${2.0.pow(amount).toInt()} to encode $value."
+    /**
+     * Sets the [value] at the specified absolute bit [index] in this buffer encoded in [amount] of bits. This method
+     * does not modify [readerIndex] or [writerIndex] of this buffer or the underlying [ByteBuf].
+     *
+     * @throws IllegalArgumentException if the [amount] is less than 0 or greater than [Int.SIZE_BITS]
+     * @throws IndexOutOfBoundsException if the specified [index] is less than 0 or index + 1 is greater than [capacity]
+     */
+    public fun setBits(index: Long, amount: Int, value: Int): BitBuf {
+        require(amount > 0 && amount <= Int.SIZE_BITS) { "Amount should be between 0 and ${Int.SIZE_BITS} bits." }
+        if (index < 0 || (index + amount) > capacity) throw IndexOutOfBoundsException(
+            "index: $index, length: $capacity (expected: range(0, $capacity))"
+        )
+        var byteIndex = (index / Byte.SIZE_BITS).toInt()
+        var relBitIndex = index.toInt() and (Byte.SIZE_BITS - 1)
+        var remBits = amount
+        while (remBits > 0) {
+            val bitsToSet = min(Byte.SIZE_BITS - relBitIndex, remBits)
+            val shift = (Byte.SIZE_BITS - (relBitIndex + bitsToSet)) and (Byte.SIZE_BITS - 1)
+            val mask = (1 shl bitsToSet) - 1
+            val iValue = (buf.getUnsignedByte(byteIndex).toInt() and (mask shl shift).inv()) or
+                    (((value shr (remBits - bitsToSet)) and mask) shl shift)
+            buf.setByte(byteIndex, iValue)
+            remBits -= bitsToSet
+            relBitIndex = 0
+            byteIndex++
         }
-        var bitsToWrite = if (relativeBitWriterIndex != 0) { // write first byte
-            val remainingBits = Byte.SIZE_BITS - relativeBitWriterIndex
-            val curByteIndex = byteBuf.writerIndex() - 1
-            val curByte = byteBuf.getByte(curByteIndex).toInt()
-            val shiftAmount = amount - remainingBits
-            val bitsWritten = if (shiftAmount >= 0) {
-                byteBuf.setByte(curByteIndex, curByte or (value shr shiftAmount))
-                remainingBits
-            } else {
-                byteBuf.setByte(curByteIndex, curByte or (value shl -shiftAmount))
-                amount
-            }
-            relativeBitWriterIndex += bitsWritten
-            if (relativeBitWriterIndex == Byte.SIZE_BITS) {
-                relativeBitWriterIndex = 0
-            }
-            amount - bitsWritten
-        } else amount
-        if (bitsToWrite == 0) return this
-        while (bitsToWrite > Byte.SIZE_BITS) { // write next full bytes
-            bitsToWrite -= Byte.SIZE_BITS
-            byteBuf.writeByte(value shr bitsToWrite)
-        }
-        byteBuf.writeByte(value shl (Byte.SIZE_BITS - bitsToWrite)) // write last non full byte
-        relativeBitWriterIndex = bitsToWrite % Byte.SIZE_BITS
         return this
     }
 
-    public fun toByteMode(): ByteBuf = byteBuf
 
-    public fun release(): Boolean = byteBuf.release()
+    /**
+     * Gets a [Boolean] at the current [readerIndex] and increases the [readerIndex] by 1 in this buffer. This method
+     * also increases the [ByteBuf.readerIndex] in the underlying [ByteBuf], if required.
+     *
+     * @throws IndexOutOfBoundsException if [readableBits] is less than 1
+     */
+    public fun readBoolean(): Boolean = readUnsignedBits(1) == 1u
 
-    public fun release(decrement: Int): Boolean = byteBuf.release(decrement)
-
-    public companion object {
-        private val MASK = intArrayOf(0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f, 0x7f, 0xff)
+    /**
+     * Gets [amount] of bits as an unsigned value at the current [readerIndex] and increases the [readerIndex] by
+     * [amount] in this buffer. This method also increases the [ByteBuf.readerIndex] in the underlying [ByteBuf], if
+     * required.
+     *
+     * @throws IndexOutOfBoundsException if [readableBits] is less than [amount]
+     */
+    public fun readUnsignedBits(amount: Int): UInt {
+        if (readableBits() < amount) throw IndexOutOfBoundsException(
+            "readerIndex($readerIndex) + length($amount) exceeds writerIndex($writerIndex): $this"
+        )
+        val value = getUnsignedBits(readerIndex, amount)
+        readerIndex += amount
+        return value
     }
+
+    /**
+     * Writes a [Boolean] at the current [writerIndex] and increases the [writerIndex] by 1 in this buffer. This method
+     * also increases the [ByteBuf.writerIndex] in the underlying [ByteBuf], if required.
+     *
+     * @throws IndexOutOfBoundsException if [writableBits] is less than 1
+     */
+    public fun writeBoolean(value: Boolean): BitBuf = writeBits(if (value) 1 else 0, 1)
+
+    /**
+     * Writes a [value] in [amount] of bits at the current [writerIndex] and increases the [writerIndex] by [amount] in
+     * this buffer. This method also increases the [ByteBuf.writerIndex] in the underlying [ByteBuf], if required.
+     *
+     * @throws IndexOutOfBoundsException if [writableBits] is less than [amount]
+     */
+    public fun writeBits(value: Int, amount: Int): BitBuf {
+        if (writableBits() < amount) throw IndexOutOfBoundsException(
+            "writerIndex($writerIndex) + minWritableBits($amount) exceeds maxCapacity($maxCapacity): $this"
+        )
+        setBits(writerIndex, amount, value)
+        writerIndex += amount
+        return this
+    }
+
+    override fun refCnt(): Int = buf.refCnt()
+
+    override fun retain(): ReferenceCounted = buf.retain()
+
+    override fun retain(increment: Int): ReferenceCounted = buf.retain()
+
+    override fun touch(): ReferenceCounted = buf.touch()
+
+    override fun touch(hint: Any): ReferenceCounted = buf.touch(hint)
+
+    override fun release(): Boolean = buf.release()
+
+    override fun release(decrement: Int): Boolean = buf.release(decrement)
 }
