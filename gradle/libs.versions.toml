@@ -4,8 +4,8 @@ kotlin = "1.5.0"
 [libraries]
 netty-buf = { group = "io.netty", name = "netty-buffer", version = "4.1.63.Final" }
 logback = { group = "ch.qos.logback", name = "logback-classic", version = "1.2.3" }
-kotest-junit = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version = "4.5.0" }
-kotest-assert = { group = "io.kotest", name = "kotest-assertions-core-jvm", version = "4.5.0" }
-kotest-property = { group = "io.kotest", name = "kotest-property", version = "4.5.0" }
 dokka = { group = "org.jetbrains.dokka", name = "kotlin-as-java-plugin", version = "1.4.32" }
 serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core-jvm", version = "1.2.0" }
+kotest-junit = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version = "5.0.0.327-SNAPSHOT" }
+kotest-assert = { group = "io.kotest", name = "kotest-assertions-core-jvm", version = "5.0.0.327-SNAPSHOT" }
+kotest-property = { group = "io.kotest", name = "kotest-property", version = "5.0.0.327-SNAPSHOT" }
