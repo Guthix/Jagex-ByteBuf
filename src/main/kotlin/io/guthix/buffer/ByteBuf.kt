@@ -37,9 +37,9 @@ public fun ByteBuf.getByteSub(index: Int): Byte = (HALF_BYTE - getByte(index)).t
 
 public fun ByteBuf.getUnsignedByteNeg(index: Int): Short = (-getByte(index) and 0xFF).toShort()
 
-public fun ByteBuf.getUnsignedByteAdd(index: Int): Short = (getUnsignedByte(index) - HALF_BYTE).toShort()
+public fun ByteBuf.getUnsignedByteAdd(index: Int): Short = ((getByte(index) - HALF_BYTE) and 0xFF).toShort()
 
-public fun ByteBuf.getUnsignedByteSub(index: Int): Short = (HALF_BYTE - getUnsignedByte(index)).toShort()
+public fun ByteBuf.getUnsignedByteSub(index: Int): Short = ((HALF_BYTE - getByte(index)) and 0xFf).toShort()
 
 public fun ByteBuf.getShortAdd(index: Int): Short =
     ((getByte(index).toInt() shl Byte.SIZE_BITS) or (getUnsignedByte(index + 1) - HALF_BYTE)).toShort()
@@ -178,7 +178,7 @@ public fun ByteBuf.setByteNeg(index: Int, value: Int): ByteBuf = setByte(index, 
 
 public fun ByteBuf.setByteAdd(index: Int, value: Int): ByteBuf = setByte(index, value + HALF_BYTE)
 
-public fun ByteBuf.seteByteSub(index: Int, value: Int): ByteBuf = setByte(index, HALF_BYTE - value)
+public fun ByteBuf.setByteSub(index: Int, value: Int): ByteBuf = setByte(index, HALF_BYTE - value)
 
 public fun ByteBuf.setShortAdd(index: Int, value: Int): ByteBuf {
     setByte(index, value shr Byte.SIZE_BITS)
@@ -355,9 +355,9 @@ public fun ByteBuf.readByteSub(): Byte = (HALF_BYTE - readByte()).toByte()
 
 public fun ByteBuf.readUnsignedByteNeg(): Short = (-readByte() and 0xFF).toShort()
 
-public fun ByteBuf.readUnsignedByteAdd(): Short = (readUnsignedByte() - HALF_BYTE).toShort()
+public fun ByteBuf.readUnsignedByteAdd(): Short = ((readByte() - HALF_BYTE) and 0xFF).toShort()
 
-public fun ByteBuf.readUnsignedByteSub(): Short = (HALF_BYTE - readUnsignedByte()).toShort()
+public fun ByteBuf.readUnsignedByteSub(): Short = ((HALF_BYTE - readByte()) and 0xFF).toShort()
 
 public fun ByteBuf.readShortAdd(): Short =
     ((readByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte() - HALF_BYTE)).toShort()
