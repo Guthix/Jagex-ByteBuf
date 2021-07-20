@@ -64,7 +64,7 @@ private suspend fun doUByteGSTest(
     setter: ByteBuf.(Int, Int) -> ByteBuf,
     getter: ByteBuf.(Int) -> Short
 ) = checkAll(Arb.uByteArray(arraySizeRange, Arb.uByte())) { testData ->
-    val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Byte.SIZE_BYTES)
+    val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * UByte.SIZE_BYTES)
     try {
         testData.forEachIndexed { i, expected -> buf.setter(i, expected.toInt()) }
         testData.forEachIndexed { i, expected ->
@@ -81,7 +81,7 @@ private suspend fun doUByteRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Short
 ) = checkAll(Arb.uByteArray(arraySizeRange, Arb.uByte())) { testData ->
-    val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Byte.SIZE_BYTES)
+    val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * UByte.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected.toInt()) }
         testData.forEach { expected ->
@@ -95,18 +95,18 @@ private suspend fun doUByteRWTest(
 
 @ExperimentalUnsignedTypes
 class ByteBufByteTest : StringSpec({
-    "Get/Set ByteBuf neg" { doByteGSTest(ByteBuf::setByteNeg, ByteBuf::getByteNeg) }
-    "Read/Write ByteBuf neg" { doByteRWTest(ByteBuf::writeByteNeg, ByteBuf::readByteNeg) }
-    "Unsigned Get/Set ByteBuf neg" { doUByteGSTest(ByteBuf::setByteNeg, ByteBuf::getUnsignedByteNeg) }
-    "Unsigned Read/Write ByteBuf neg" { doUByteRWTest(ByteBuf::writeByteNeg, ByteBuf::readUnsignedByteNeg) }
+    "Get/Set Byte neg" { doByteGSTest(ByteBuf::setByteNeg, ByteBuf::getByteNeg) }
+    "Read/Write Byte neg" { doByteRWTest(ByteBuf::writeByteNeg, ByteBuf::readByteNeg) }
+    "Unsigned Get/Set Byte neg" { doUByteGSTest(ByteBuf::setByteNeg, ByteBuf::getUnsignedByteNeg) }
+    "Unsigned Read/Write Byte neg" { doUByteRWTest(ByteBuf::writeByteNeg, ByteBuf::readUnsignedByteNeg) }
 
-    "Get/Set ByteBuf add" { doByteGSTest(ByteBuf::setByteAdd, ByteBuf::getByteAdd) }
-    "Read/Write ByteBuf add" { doByteRWTest(ByteBuf::writeByteAdd, ByteBuf::readByteAdd) }
-    "Unsigned Get/Set ByteBuf add" { doUByteGSTest(ByteBuf::setByteAdd, ByteBuf::getUnsignedByteAdd) }
-    "Unsigned Read/Write ByteBuf add" { doUByteRWTest(ByteBuf::writeByteAdd, ByteBuf::readUnsignedByteAdd) }
+    "Get/Set Byte add" { doByteGSTest(ByteBuf::setByteAdd, ByteBuf::getByteAdd) }
+    "Read/Write Byte add" { doByteRWTest(ByteBuf::writeByteAdd, ByteBuf::readByteAdd) }
+    "Unsigned Get/Set Byte add" { doUByteGSTest(ByteBuf::setByteAdd, ByteBuf::getUnsignedByteAdd) }
+    "Unsigned Read/Write Byte add" { doUByteRWTest(ByteBuf::writeByteAdd, ByteBuf::readUnsignedByteAdd) }
 
-    "Get/Set ByteBuf sub" { doByteGSTest(ByteBuf::setByteSub, ByteBuf::getByteSub) }
-    "Read/Write ByteBuf sub" { doByteRWTest(ByteBuf::writeByteSub, ByteBuf::readByteSub) }
-    "Unsigned Get/Set ByteBuf sub" { doUByteGSTest(ByteBuf::setByteSub, ByteBuf::getUnsignedByteSub) }
-    "Unsigned Read/Write ByteBuf sub" { doUByteRWTest(ByteBuf::writeByteSub, ByteBuf::readUnsignedByteSub) }
+    "Get/Set Byte sub" { doByteGSTest(ByteBuf::setByteSub, ByteBuf::getByteSub) }
+    "Read/Write Byte sub" { doByteRWTest(ByteBuf::writeByteSub, ByteBuf::readByteSub) }
+    "Unsigned Get/Set Byte sub" { doUByteGSTest(ByteBuf::setByteSub, ByteBuf::getUnsignedByteSub) }
+    "Unsigned Read/Write Byte sub" { doUByteRWTest(ByteBuf::writeByteSub, ByteBuf::readUnsignedByteSub) }
 })

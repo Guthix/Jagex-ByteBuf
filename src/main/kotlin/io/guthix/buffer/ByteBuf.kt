@@ -42,16 +42,16 @@ public fun ByteBuf.getUnsignedByteAdd(index: Int): Short = ((getByte(index) - HA
 public fun ByteBuf.getUnsignedByteSub(index: Int): Short = ((HALF_BYTE - getByte(index)) and 0xFf).toShort()
 
 public fun ByteBuf.getShortAdd(index: Int): Short =
-    ((getByte(index).toInt() shl Byte.SIZE_BITS) or (getUnsignedByte(index + 1) - HALF_BYTE)).toShort()
+    ((getByte(index).toInt() shl Byte.SIZE_BITS) or ((getByte(index + 1) - HALF_BYTE) and 0xFF)).toShort()
 
-public fun ByteBuf.getShortAddLE(index: Int): Short =
-    ((getUnsignedByte(index) - HALF_BYTE) or (getByte(index + 1).toInt() shl Byte.SIZE_BITS)).toShort()
+public fun ByteBuf.getShortLEAdd(index: Int): Short =
+    (((getByte(index) - HALF_BYTE) and 0xFF) or (getByte(index + 1).toInt() shl Byte.SIZE_BITS)).toShort()
 
 public fun ByteBuf.getUnsignedShortAdd(index: Int): Int =
-    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or ((getUnsignedByte(index + 1) - HALF_BYTE) and 0xFF)
+    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or ((getByte(index + 1) - HALF_BYTE) and 0xFF)
 
-public fun ByteBuf.getUnsignedShortAddLE(index: Int): Int =
-    ((getUnsignedByte(index) - HALF_BYTE) and 0xFF) or (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
+public fun ByteBuf.getUnsignedShortLEAdd(index: Int): Int =
+    ((getByte(index) - HALF_BYTE) and 0xFF) or (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
 
 public fun ByteBuf.getMediumLME(index: Int): Int =
     (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or
@@ -186,7 +186,7 @@ public fun ByteBuf.setShortAdd(index: Int, value: Int): ByteBuf {
     return this
 }
 
-public fun ByteBuf.setShortAddLE(index: Int, value: Int): ByteBuf {
+public fun ByteBuf.setShortLEAdd(index: Int, value: Int): ByteBuf {
     setByte(index, value + HALF_BYTE)
     setByte(index + 1, value shr Byte.SIZE_BITS)
     return this
@@ -360,10 +360,10 @@ public fun ByteBuf.readUnsignedByteAdd(): Short = ((readByte() - HALF_BYTE) and 
 public fun ByteBuf.readUnsignedByteSub(): Short = ((HALF_BYTE - readByte()) and 0xFF).toShort()
 
 public fun ByteBuf.readShortAdd(): Short =
-    ((readByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte() - HALF_BYTE)).toShort()
+    ((readByte().toInt() shl Byte.SIZE_BITS) or ((readByte() - HALF_BYTE) and 0xFF)).toShort()
 
-public fun ByteBuf.readShortAddLE(): Short =
-    ((readUnsignedByte() - HALF_BYTE) or (readByte().toInt() shl Byte.SIZE_BITS)).toShort()
+public fun ByteBuf.readShortLEAdd(): Short =
+    (((readByte() - HALF_BYTE) and 0xFF) or (readByte().toInt() shl Byte.SIZE_BITS)).toShort()
 
 public fun ByteBuf.readMediumLME(): Int =
     (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte().toInt() shl Short.SIZE_BITS) or
@@ -374,10 +374,10 @@ public fun ByteBuf.readMediumRME(): Int =
             (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
 
 public fun ByteBuf.readUnsignedShortAdd(): Int =
-    (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or ((readUnsignedByte() - HALF_BYTE) and 0xFF)
+    (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or ((readByte() - HALF_BYTE) and 0xFF)
 
-public fun ByteBuf.readUnsignedShortAddLE(): Int =
-    ((readUnsignedByte() - HALF_BYTE) and 0xFF) or (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
+public fun ByteBuf.readUnsignedShortLEAdd(): Int =
+    ((readByte() - HALF_BYTE) and 0xFF) or (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
 
 public fun ByteBuf.readUnsignedMediumLME(): Int =
     (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or (readUnsignedByte().toInt() shl Short.SIZE_BITS) or
@@ -506,7 +506,7 @@ public fun ByteBuf.writeShortAdd(value: Int): ByteBuf {
     return this
 }
 
-public fun ByteBuf.writeShortAddLE(value: Int): ByteBuf {
+public fun ByteBuf.writeShortLEAdd(value: Int): ByteBuf {
     writeByte(value + HALF_BYTE)
     writeByte(value shr Byte.SIZE_BITS)
     return this
