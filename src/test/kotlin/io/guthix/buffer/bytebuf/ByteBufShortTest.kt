@@ -96,6 +96,7 @@ class ByteBufShortTest : StringSpec({
     "Read/Write Short add" { doShortRWTest(ByteBuf::writeShortAdd, ByteBuf::readShortAdd) }
     "Unsigned Get/Set Short add" { doUShortGSTest(ByteBuf::setShortAdd, ByteBuf::getUnsignedShortAdd) }
     "Unsigned Read/Write Short add" { doUShortRWTest(ByteBuf::writeShortAdd, ByteBuf::readUnsignedShortAdd) }
+
     "Get/Set Short LE add" { doShortGSTest(ByteBuf::setShortLEAdd, ByteBuf::getShortLEAdd) }
     "Read/Write Short LE add" { doShortRWTest(ByteBuf::writeShortLEAdd, ByteBuf::readShortLEAdd) }
     "Unsigned Get/Set Short LE add" { doUShortGSTest(ByteBuf::setShortLEAdd, ByteBuf::getUnsignedShortLEAdd) }
