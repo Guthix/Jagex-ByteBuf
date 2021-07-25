@@ -17,6 +17,7 @@ package io.guthix.buffer.bytebuf
 
 import io.guthix.buffer.*
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.ints.shouldBeNonNegative
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.byte
@@ -69,6 +70,7 @@ private suspend fun doUByteGSTest(
         testData.forEachIndexed { i, expected -> buf.setter(i, expected.toInt()) }
         testData.forEachIndexed { i, expected ->
             val get = buf.getter(i)
+            get.toInt().shouldBeNonNegative()
             get shouldBe expected.toShort()
         }
     } finally {
@@ -86,6 +88,7 @@ private suspend fun doUByteRWTest(
         testData.forEach { expected -> buf.writer(expected.toInt()) }
         testData.forEach { expected ->
             val read = buf.reader()
+            read.toInt().shouldBeNonNegative()
             read shouldBe expected.toShort()
         }
     } finally {

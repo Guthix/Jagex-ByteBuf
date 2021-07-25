@@ -17,6 +17,7 @@ package io.guthix.buffer.bytebuf
 
 import io.guthix.buffer.*
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.ints.shouldBeNonNegative
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.*
@@ -80,6 +81,7 @@ private suspend fun doUMediumGSTest(
         testData.forEachIndexed { i, expected -> buf.setter(i * UMedium.SIZE_BYTES, expected.toInt()) }
         testData.forEachIndexed { i, expected ->
             val get = buf.getter(i * UMedium.SIZE_BYTES)
+            get.shouldBeNonNegative()
             get shouldBe expected.toInt()
         }
     } finally {
@@ -97,6 +99,7 @@ private suspend fun doUMediumRWTest(
         testData.forEach { expected -> buf.writer(expected.toInt()) }
         testData.forEach { expected ->
             val read = buf.reader()
+            read.shouldBeNonNegative()
             read shouldBe expected.toInt()
         }
     } finally {

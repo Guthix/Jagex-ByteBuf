@@ -15,7 +15,19 @@
  */
 package io.guthix.buffer.bytebuf
 
+import io.kotest.matchers.Matcher
+import io.kotest.matchers.MatcherResult
+import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 
 internal val arraySizeRange = Arb.int(0, 10)
+
+fun Long.shouldBeNonNegative(): Long {
+    this shouldBe nonNegative()
+    return this
+}
+
+fun nonNegative() = object : Matcher<Long> {
+    override fun test(value: Long) = MatcherResult(value >= 0, "$value should be >= 0", "$value should not be >= 0")
+}
