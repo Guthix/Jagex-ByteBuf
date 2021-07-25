@@ -17,9 +17,6 @@ package io.guthix.buffer.bytebuf
 
 import io.guthix.buffer.*
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.ints.shouldBeNonNegative
-import io.kotest.matchers.ints.shouldBePositive
-import io.kotest.matchers.longs.shouldBePositive
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.*

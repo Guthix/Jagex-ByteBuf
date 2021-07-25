@@ -177,25 +177,25 @@ public fun ByteBuf.setByteSub(index: Int, value: Int): ByteBuf = setByte(index, 
 
 public fun ByteBuf.setShortAdd(index: Int, value: Int): ByteBuf {
     setByte(index, value shr Byte.SIZE_BITS)
-    setByte(index + 1, value + HALF_BYTE)
+    setByte(index + Byte.SIZE_BYTES, value + HALF_BYTE)
     return this
 }
 
 public fun ByteBuf.setShortLEAdd(index: Int, value: Int): ByteBuf {
     setByte(index, value + HALF_BYTE)
-    setByte(index + 1, value shr Byte.SIZE_BITS)
+    setByte(index + Byte.SIZE_BYTES, value shr Byte.SIZE_BITS)
     return this
 }
 
 public fun ByteBuf.setMediumLME(index: Int, value: Int): ByteBuf {
     setShortLE(index, value shr Byte.SIZE_BITS)
-    setByte(index + 2, value)
+    setByte(index + Short.SIZE_BYTES, value)
     return this
 }
 
 public fun ByteBuf.setMediumRME(index: Int, value: Int): ByteBuf {
     setByte(index, value shr Short.SIZE_BITS)
-    setShortLE(index + 1, value)
+    setShortLE(index + Byte.SIZE_BYTES, value)
     return this
 }
 
@@ -524,7 +524,7 @@ public fun ByteBuf.writeIntIME(value: Int): ByteBuf {
 }
 
 public fun ByteBuf.writeSmallLong(value: Long): ByteBuf {
-    writeMedium((value shr 24).toInt())
+    writeMedium((value shr Medium.SIZE_BITS).toInt())
     writeMedium(value.toInt())
     return this
 }
