@@ -25,20 +25,6 @@ import io.kotest.property.checkAll
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 
-object Medium {
-    const val SIZE_BYTES: Int = 3
-    const val SIZE_BITS: Int = SIZE_BYTES * Byte.SIZE_BITS
-    const val MAX_VALUE: Int = 8_388_607
-    const val MIN_VALUE: Int = -8_388_608
-}
-
-object UMedium {
-    const val SIZE_BYTES: Int = Medium.SIZE_BYTES
-    const val SIZE_BITS: Int = Medium.SIZE_BITS
-    const val MAX_VALUE: UInt = 16_777_215u
-    const val MIN_VALUE: UInt = 0u
-}
-
 private suspend fun doMediumGSTest(
     setter: ByteBuf.(Int, Int) -> ByteBuf,
     getter: ByteBuf.(Int) -> Int

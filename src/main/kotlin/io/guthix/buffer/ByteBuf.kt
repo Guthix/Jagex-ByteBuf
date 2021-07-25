@@ -41,32 +41,32 @@ public fun ByteBuf.getUnsignedByteAdd(index: Int): Short = ((getByte(index) - HA
 
 public fun ByteBuf.getUnsignedByteSub(index: Int): Short = ((HALF_BYTE - getByte(index)) and 0xFf).toShort()
 
-public fun ByteBuf.getShortAdd(index: Int): Short =
-    ((getByte(index).toInt() shl Byte.SIZE_BITS) or ((getByte(index + 1) - HALF_BYTE) and 0xFF)).toShort()
+public fun ByteBuf.getShortAdd(index: Int): Short = ((getByte(index).toInt() shl Byte.SIZE_BITS) or
+    ((getByte(index + 1) - HALF_BYTE) and 0xFF)).toShort()
 
-public fun ByteBuf.getShortLEAdd(index: Int): Short =
-    (((getByte(index) - HALF_BYTE) and 0xFF) or (getByte(index + 1).toInt() shl Byte.SIZE_BITS)).toShort()
+public fun ByteBuf.getShortLEAdd(index: Int): Short = (((getByte(index) - HALF_BYTE) and 0xFF) or
+    (getByte(index + 1).toInt() shl Byte.SIZE_BITS)).toShort()
 
-public fun ByteBuf.getUnsignedShortAdd(index: Int): Int =
-    (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or ((getByte(index + 1) - HALF_BYTE) and 0xFF)
+public fun ByteBuf.getUnsignedShortAdd(index: Int): Int = (getUnsignedByte(index).toInt() shl Byte.SIZE_BITS) or
+    ((getByte(index + 1) - HALF_BYTE) and 0xFF)
 
-public fun ByteBuf.getUnsignedShortLEAdd(index: Int): Int =
-    ((getByte(index) - HALF_BYTE) and 0xFF) or (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
+public fun ByteBuf.getUnsignedShortLEAdd(index: Int): Int = ((getByte(index) - HALF_BYTE) and 0xFF) or
+    (getUnsignedByte(index + 1).toInt() shl Byte.SIZE_BITS)
 
-public fun ByteBuf.getMediumLME(index: Int): Int =
-    (getShortLE(index).toInt() shl Byte.SIZE_BITS) or getUnsignedByte(index + Short.SIZE_BYTES).toInt()
+public fun ByteBuf.getMediumLME(index: Int): Int = (getShortLE(index).toInt() shl Byte.SIZE_BITS) or
+    getUnsignedByte(index + Short.SIZE_BYTES).toInt()
 
-public fun ByteBuf.getMediumRME(index: Int): Int =
-    (getByte(index).toInt() shl Short.SIZE_BITS) or getUnsignedShortLE(index + Byte.SIZE_BYTES)
+public fun ByteBuf.getMediumRME(index: Int): Int = (getByte(index).toInt() shl Short.SIZE_BITS) or
+    getUnsignedShortLE(index + Byte.SIZE_BYTES)
 
-public fun ByteBuf.getUnsignedMediumLME(index: Int): Int =
-    (getUnsignedShortLE(index) shl Byte.SIZE_BITS) or getUnsignedByte(index + Short.SIZE_BYTES).toInt()
+public fun ByteBuf.getUnsignedMediumLME(index: Int): Int = (getUnsignedShortLE(index) shl Byte.SIZE_BITS) or
+    getUnsignedByte(index + Short.SIZE_BYTES).toInt()
 
-public fun ByteBuf.getUnsignedMediumRME(index: Int): Int =
-    (getUnsignedByte(index).toInt() shl Short.SIZE_BITS) or getUnsignedShortLE(index + Byte.SIZE_BYTES)
+public fun ByteBuf.getUnsignedMediumRME(index: Int): Int = (getUnsignedByte(index).toInt() shl Short.SIZE_BITS) or
+    getUnsignedShortLE(index + Byte.SIZE_BYTES)
 
-public fun ByteBuf.getIntME(index: Int): Int =
-    (getShortLE(index).toInt() shl Short.SIZE_BITS) or getUnsignedShortLE(index + Short.SIZE_BYTES)
+public fun ByteBuf.getIntME(index: Int): Int = (getShortLE(index).toInt() shl Short.SIZE_BITS) or
+    getUnsignedShortLE(index + Short.SIZE_BYTES)
 
 public fun ByteBuf.getIntIME(index: Int): Int =
     getUnsignedShort(index) or (getShort(index + Short.SIZE_BYTES).toInt() shl Short.SIZE_BITS)
@@ -77,11 +77,11 @@ public fun ByteBuf.getUnsignedIntME(index: Int): Long = (getUnsignedShortLE(inde
 public fun ByteBuf.getUnsignedIntIME(index: Int): Long = getUnsignedShort(index).toLong() or
     (getUnsignedShort(index + Short.SIZE_BYTES).toLong() shl Short.SIZE_BITS)
 
-public fun ByteBuf.getSmallLong(index: Int): Long =
-    (getMedium(index).toLong() shl 24) or getUnsignedMedium(index + 1).toLong()
+public fun ByteBuf.getSmallLong(index: Int): Long = (getMedium(index).toLong() shl Medium.SIZE_BITS) or
+    getUnsignedMedium(index + Medium.SIZE_BYTES).toLong()
 
-public fun ByteBuf.getUnsignedSmallLong(index: Int): Long = (getUnsignedMedium(index).toLong() shl 24) or
-    getUnsignedMedium(index + 1).toLong()
+public fun ByteBuf.getUnsignedSmallLong(index: Int): Long = (getUnsignedMedium(index).toLong() shl Medium.SIZE_BITS) or
+    getUnsignedMedium(index + Medium.SIZE_BYTES).toLong()
 
 public fun ByteBuf.getSmallSmart(index: Int): Int {
     val peak = getUnsignedByte(index)
@@ -212,8 +212,8 @@ public fun ByteBuf.setIntIME(index: Int, value: Int): ByteBuf {
 }
 
 public fun ByteBuf.setSmallLong(index: Int, value: Long): ByteBuf {
-    setMedium(index, (value shr 24).toInt())
-    setMedium(index + 1, value.toInt())
+    setMedium(index, (value shr Medium.SIZE_BITS).toInt())
+    setMedium(index + Medium.SIZE_BYTES, value.toInt())
     return this
 }
 
@@ -352,44 +352,43 @@ public fun ByteBuf.readUnsignedByteAdd(): Short = ((readByte() - HALF_BYTE) and 
 
 public fun ByteBuf.readUnsignedByteSub(): Short = ((HALF_BYTE - readByte()) and 0xFF).toShort()
 
-public fun ByteBuf.readShortAdd(): Short =
-    ((readByte().toInt() shl Byte.SIZE_BITS) or ((readByte() - HALF_BYTE) and 0xFF)).toShort()
+public fun ByteBuf.readShortAdd(): Short = ((readByte().toInt() shl Byte.SIZE_BITS) or
+    ((readByte() - HALF_BYTE) and 0xFF)).toShort()
 
-public fun ByteBuf.readShortLEAdd(): Short =
-    (((readByte() - HALF_BYTE) and 0xFF) or (readByte().toInt() shl Byte.SIZE_BITS)).toShort()
+public fun ByteBuf.readShortLEAdd(): Short = (((readByte() - HALF_BYTE) and 0xFF) or
+    (readByte().toInt() shl Byte.SIZE_BITS)).toShort()
 
-public fun ByteBuf.readUnsignedShortAdd(): Int =
-    (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or ((readByte() - HALF_BYTE) and 0xFF)
+public fun ByteBuf.readUnsignedShortAdd(): Int = (readUnsignedByte().toInt() shl Byte.SIZE_BITS) or
+    ((readByte() - HALF_BYTE) and 0xFF)
 
-public fun ByteBuf.readUnsignedShortLEAdd(): Int =
-    ((readByte() - HALF_BYTE) and 0xFF) or (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
+public fun ByteBuf.readUnsignedShortLEAdd(): Int = ((readByte() - HALF_BYTE) and 0xFF) or
+    (readUnsignedByte().toInt() shl Byte.SIZE_BITS)
 
-public fun ByteBuf.readMediumLME(): Int =
-    (readShortLE().toInt() shl Byte.SIZE_BITS) or readUnsignedByte().toInt()
+public fun ByteBuf.readMediumLME(): Int = (readShortLE().toInt() shl Byte.SIZE_BITS) or
+    readUnsignedByte().toInt()
 
-public fun ByteBuf.readMediumRME(): Int =
-    (readByte().toInt() shl Short.SIZE_BITS) or readUnsignedShortLE()
+public fun ByteBuf.readMediumRME(): Int = (readByte().toInt() shl Short.SIZE_BITS) or readUnsignedShortLE()
 
-public fun ByteBuf.readUnsignedMediumLME(): Int =
-    (readUnsignedShortLE() shl Byte.SIZE_BITS) or readUnsignedByte().toInt()
+public fun ByteBuf.readUnsignedMediumLME(): Int = (readUnsignedShortLE() shl Byte.SIZE_BITS) or
+    readUnsignedByte().toInt()
 
-public fun ByteBuf.readUnsignedMediumRME(): Int =
-     (readUnsignedByte().toInt() shl Short.SIZE_BITS) or readUnsignedShortLE()
+public fun ByteBuf.readUnsignedMediumRME(): Int = (readUnsignedByte().toInt() shl Short.SIZE_BITS) or
+    readUnsignedShortLE()
 
 public fun ByteBuf.readIntME(): Int = (readShortLE().toInt() shl Short.SIZE_BITS) or readUnsignedShortLE()
 
 public fun ByteBuf.readIntIME(): Int = readUnsignedShort() or (readShort().toInt() shl Short.SIZE_BITS)
 
-public fun ByteBuf.readUnsignedIntME(): Long =
-    (readUnsignedShortLE().toLong() shl Short.SIZE_BITS) or readUnsignedShortLE().toLong()
+public fun ByteBuf.readUnsignedIntME(): Long = (readUnsignedShortLE().toLong() shl Short.SIZE_BITS) or
+    readUnsignedShortLE().toLong()
 
-public fun ByteBuf.readUnsignedIntIME(): Long =
-    readUnsignedShort().toLong() or (readUnsignedShort().toLong() shl Short.SIZE_BITS)
+public fun ByteBuf.readUnsignedIntIME(): Long = readUnsignedShort().toLong() or
+    (readUnsignedShort().toLong() shl Short.SIZE_BITS)
 
-public fun ByteBuf.readSmallLong(): Long = (readMedium().toLong() shl 24) or readUnsignedMedium().toLong()
+public fun ByteBuf.readSmallLong(): Long = (readMedium().toLong() shl Medium.SIZE_BITS) or readUnsignedMedium().toLong()
 
-public fun ByteBuf.readUnsignedSmallLong(): Long =
-    (readUnsignedMedium().toLong() shl 24) or readUnsignedMedium().toLong()
+public fun ByteBuf.readUnsignedSmallLong(): Long = (readUnsignedMedium().toLong() shl Medium.SIZE_BITS) or
+    readUnsignedMedium().toLong()
 
 public fun ByteBuf.readSmallSmart(): Int {
     val peak = getUnsignedByte(readerIndex())
@@ -413,7 +412,6 @@ public fun ByteBuf.readNullableLargeSmart(): Int? = if (getByte(readerIndex()) <
     val result = readUnsignedShort()
     if (result == 32767) null else result
 }
-
 
 public fun ByteBuf.readVarInt(): Int {
     var prev = 0
