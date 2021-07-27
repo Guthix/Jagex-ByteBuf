@@ -348,30 +348,37 @@ public fun ByteBuf.readUnsignedSmallLong(): Long = (readUnsignedMedium().toLong(
 public fun ByteBuf.readShortSmart(): Short {
     val peek = getUnsignedByte(readerIndex()).toInt()
     return if (peek < HALF_BYTE) {
-        (readUnsignedByte().toInt() - 64).toShort()
+        (readUnsignedByte().toInt() - Smart.BYTE_MOD).toShort()
     } else {
-        ((readUnsignedShort() and Short.MAX_VALUE.toInt()) - 16384).toShort()
+        ((readUnsignedShort() and Short.MAX_VALUE.toInt()) - Smart.SHORT_MOD).toShort()
     }
 }
 
-public fun ByteBuf.readUnsignedShortSmart(): Int {
+public fun ByteBuf.readUnsignedShortSmart(): Short {
     val peek = getUnsignedByte(readerIndex()).toInt()
     return if (peek < HALF_BYTE) {
-        readUnsignedByte().toInt()
+        readUnsignedByte()
     } else {
-        readUnsignedShort() and Short.MAX_VALUE.toInt()
+        (readUnsignedShort() and Short.MAX_VALUE.toInt()).toShort()
     }
 }
 
-public fun ByteBuf.readUnsignedSmallSmart(): Int {
-    val peak = getUnsignedByte(readerIndex())
-    return if (peak < 128) readUnsignedByte().toInt() else readUnsignedShort() - 32768
+public fun ByteBuf.readIntSmart(): Int {
+    val peek = getUnsignedByte(readerIndex()).toInt()
+    return if (peek < HALF_BYTE) {
+        readUnsignedShort() - Smart.SHORT_MOD
+    } else {
+        (readInt() and Int.MAX_VALUE) - Smart.INT_MOD
+    }
 }
 
-public fun ByteBuf.readLargeSmart(): Int = if (getByte(readerIndex()) < 0) {
-    readInt() and Integer.MAX_VALUE
-} else {
-    readUnsignedShort()
+public fun ByteBuf.readUnsignedIntSmart(): Int {
+    val peek = getUnsignedByte(readerIndex()).toInt()
+    return if (peek < HALF_BYTE) {
+        readUnsignedShort()
+    } else {
+        readInt() and Int.MAX_VALUE
+    }
 }
 
 public fun ByteBuf.readNullableLargeSmart(): Int? = if (getByte(readerIndex()) < 0) {
@@ -393,10 +400,10 @@ public fun ByteBuf.readVarInt(): Int {
 
 public fun ByteBuf.readIncrSmallSmart(): Int {
     var total = 0
-    var cur = readUnsignedSmallSmart()
-    while (cur == 32767) {
-        total += 32767
-        cur = readUnsignedSmallSmart()
+    var cur = readUnsignedShortSmart()
+    while (cur == Short.MAX_VALUE) {
+        total += Short.MIN_VALUE.toInt()
+        cur = readUnsignedShortSmart()
     }
     total += cur
     return total
@@ -498,16 +505,42 @@ public fun ByteBuf.writeSmallLong(value: Long): ByteBuf {
     return this
 }
 
-public fun ByteBuf.writeShortSmart(v: Int): ByteBuf = when (v) {
-    in ShortSmart.MIN_BYTE_VALUE..ShortSmart.MAX_BYTE_VALUE -> writeByte(v + 64)
-    in ShortSmart.MIN_SHORT_VALUE..ShortSmart.MAX_SHORT_VALUE -> writeShort(32768 or (v + 16384))
-    else -> throw IllegalArgumentException()
+public fun ByteBuf.writeShortSmart(value: Int): ByteBuf = when (value) {
+    in Smart.MIN_BYTE_VALUE..Smart.MAX_BYTE_VALUE -> writeByte(value + Smart.BYTE_MOD)
+    in Smart.MIN_SHORT_VALUE..Smart.MAX_SHORT_VALUE -> {
+        writeShort((Short.MAX_VALUE + 1) or (value + Smart.SHORT_MOD))
+    }
+    else -> throw IllegalArgumentException(
+        "Value should be between ${Smart.MIN_SHORT_VALUE} and ${Smart.MAX_SHORT_VALUE}, but was $value."
+    )
 }
 
-public fun ByteBuf.writeUnsignedShortSmart(v: Int): ByteBuf = when (v) {
-    in UShortSmart.MIN_BYTE_VALUE..UShortSmart.MAX_BYTE_VALUE -> writeByte(v)
-    in UShortSmart.MIN_SHORT_VALUE..UShortSmart.MAX_SHORT_VALUE -> writeShort(32768 or v)
-    else -> throw IllegalArgumentException()
+public fun ByteBuf.writeUnsignedShortSmart(value: Int): ByteBuf = when (value) {
+    in USmart.MIN_BYTE_VALUE..USmart.MAX_BYTE_VALUE -> writeByte(value)
+    in USmart.MIN_SHORT_VALUE..USmart.MAX_SHORT_VALUE -> writeShort((Short.MAX_VALUE + 1) or value)
+    else -> throw IllegalArgumentException(
+        "Value should be between ${USmart.MIN_SHORT_VALUE} and ${USmart.MAX_SHORT_VALUE}, but was $value."
+    )
+}
+
+@Suppress("INTEGER_OVERFLOW")
+public fun ByteBuf.writeIntSmart(value: Int): ByteBuf = when (value) {
+    in Smart.MIN_SHORT_VALUE..Smart.MAX_SHORT_VALUE -> writeShort(value + Smart.SHORT_MOD)
+    in Smart.MIN_INT_VALUE..Smart.MAX_INT_VALUE -> {
+        writeInt((Int.MAX_VALUE + 1) or (value + Smart.INT_MOD))
+    }
+    else -> throw IllegalArgumentException(
+        "Value should be between ${Smart.MIN_INT_VALUE} and ${Smart.MAX_INT_VALUE}, but was $value."
+    )
+}
+
+@Suppress("INTEGER_OVERFLOW")
+public fun ByteBuf.writeUnsignedIntSmart(value: Int): ByteBuf = when (value) {
+    in USmart.MIN_SHORT_VALUE..USmart.MAX_SHORT_VALUE -> writeShort(value)
+    in USmart.MIN_INT_VALUE..USmart.MAX_INT_VALUE -> writeInt((Int.MAX_VALUE + 1) or value)
+    else -> throw IllegalArgumentException(
+        "Value should be between ${USmart.MIN_INT_VALUE} and ${USmart.MAX_INT_VALUE}, but was $value."
+    )
 }
 
 public fun ByteBuf.writeLargeSmart(value: Int): ByteBuf {

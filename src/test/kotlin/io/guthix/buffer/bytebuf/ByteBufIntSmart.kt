@@ -25,15 +25,13 @@ import io.kotest.property.checkAll
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 
-private suspend fun doShortSmartRWTest(
+private suspend fun doIntSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
-    reader: ByteBuf.() -> Short
-) = checkAll(
-    Arb.shortArray(arraySizeRange, Arb.short(Smart.MIN_SHORT_VALUE.toShort(), Smart.MAX_SHORT_VALUE.toShort()))
-) { testData ->
+    reader: ByteBuf.() -> Int
+) = checkAll(Arb.intArray(arraySizeRange, Arb.int(Smart.MIN_INT_VALUE, Smart.MAX_INT_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Short.SIZE_BYTES)
     try {
-        testData.forEach { expected -> buf.writer(expected.toInt()) }
+        testData.forEach { expected -> buf.writer(expected) }
         testData.forEach { expected ->
             val read = buf.reader()
             read shouldBe expected
@@ -44,18 +42,18 @@ private suspend fun doShortSmartRWTest(
 }
 
 @ExperimentalUnsignedTypes
-private suspend fun doUShortSmartRWTest(
+private suspend fun doUIntSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
-    reader: ByteBuf.() -> Short
+    reader: ByteBuf.() -> Int
 ) = checkAll(
-    Arb.uShortArray(arraySizeRange, Arb.uShort(USmart.MIN_SHORT_VALUE.toUShort(), USmart.MAX_SHORT_VALUE.toUShort()))
+    Arb.uIntArray(arraySizeRange, Arb.uInt(USmart.MIN_INT_VALUE.toUInt(), USmart.MAX_INT_VALUE.toUInt()))
 ) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Short.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected.toInt()) }
         testData.forEach { expected ->
             val read = buf.reader()
-            read.toInt().shouldBeNonNegative()
+            read.shouldBeNonNegative()
             read shouldBe expected.toInt()
         }
     } finally {
@@ -64,9 +62,9 @@ private suspend fun doUShortSmartRWTest(
 }
 
 @ExperimentalUnsignedTypes
-class ByteBufShortSmartTest : StringSpec({
-    "Read/Write Short Smart" { doShortSmartRWTest(ByteBuf::writeShortSmart, ByteBuf::readShortSmart) }
+class ByteBufIntSmartTest : StringSpec({
+    "Read/Write Short Smart" { doIntSmartRWTest(ByteBuf::writeIntSmart, ByteBuf::readIntSmart) }
     "Unsigned Read/Write Short Smart" {
-        doUShortSmartRWTest(ByteBuf::writeUnsignedShortSmart, ByteBuf::readUnsignedShortSmart)
+        doUIntSmartRWTest(ByteBuf::writeUnsignedIntSmart, ByteBuf::readUnsignedIntSmart)
     }
 })
