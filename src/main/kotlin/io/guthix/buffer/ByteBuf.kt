@@ -83,16 +83,6 @@ public fun ByteBuf.getSmallLong(index: Int): Long = (getMedium(index).toLong() s
 public fun ByteBuf.getUnsignedSmallLong(index: Int): Long = (getUnsignedMedium(index).toLong() shl Medium.SIZE_BITS) or
     getUnsignedMedium(index + Medium.SIZE_BYTES).toLong()
 
-public fun ByteBuf.getSmallSmart(index: Int): Int {
-    val peak = getUnsignedByte(index)
-    return if (peak < 128) peak - 64 else getUnsignedShort(index) - 49152
-}
-
-public fun ByteBuf.getUnsignedSmallSmart(index: Int): Int {
-    val peak = getUnsignedByte(index)
-    return if (peak < 128) peak.toInt() else getUnsignedShort(index) - 32768
-}
-
 public fun ByteBuf.getLargeSmart(index: Int): Int = if (getByte(readerIndex()) < 0) {
     getInt(index) and Integer.MAX_VALUE
 } else {
@@ -117,21 +107,10 @@ public fun ByteBuf.getVarInt(index: Int): Int {
     return prev or temp
 }
 
-public fun ByteBuf.getIncrSmallSmart(index: Int): Int {
-    var total = 0
-    var i = index
-    var cur = getUnsignedSmallSmart(i++)
-    while (cur == 32767) {
-        total += 32767
-        cur = getUnsignedSmallSmart(i++)
-    }
-    total += cur
-    return total
-}
-
 public fun ByteBuf.getStringCP1252(index: Int): String {
     var i = index
-    while (getByte(i++).toInt() != 0) { }
+    while (getByte(i++).toInt() != 0) {
+    }
     val size = i - index - 1
     return getCharSequence(index, size, cp1252).toString()
 }
@@ -217,18 +196,6 @@ public fun ByteBuf.setSmallLong(index: Int, value: Long): ByteBuf {
     return this
 }
 
-public fun ByteBuf.setSmallSmart(index: Int, value: Short): Int = when (value) {
-    in 0 until 128 -> {
-        setByte(index, value.toInt())
-        Byte.SIZE_BYTES
-    }
-    in 128 until 32768 -> {
-        setShort(index, value + 32768)
-        Short.SIZE_BYTES
-    }
-    else -> throw IllegalArgumentException("Can't set negative value.")
-}
-
 public fun ByteBuf.setLargeSmart(index: Int, value: Int): Int = if (value <= Short.MAX_VALUE) {
     setShort(index, value)
     Short.SIZE_BYTES
@@ -268,18 +235,6 @@ public fun ByteBuf.setVarInt(index: Int, value: Int): Int {
     }
     setByte(i++, value and 127)
     return i - index
-}
-
-public fun ByteBuf.setIncrSmallSmart(index: Int, value: Int): ByteBuf {
-    var remaining = value
-    var curIndex = index
-    while (remaining > 32767) {
-        setSmallSmart(curIndex,32767)
-        curIndex += 2
-        remaining -= 32767
-    }
-    setSmallSmart(curIndex, remaining.toShort())
-    return this
 }
 
 public fun ByteBuf.setStringCP1252(index: Int, value: String): ByteBuf {
@@ -328,7 +283,7 @@ public fun ByteBuf.setBytesReversedAdd(index: Int, src: ByteBuf): ByteBuf {
 }
 
 public fun ByteBuf.setBytesReversed(index: Int, src: ByteArray): ByteBuf = setBytes(
-        index, src.reversed().toByteArray()
+    index, src.reversed().toByteArray()
 )
 
 public fun ByteBuf.setBytesReversed(index: Int, src: ByteBuf): ByteBuf {
@@ -390,9 +345,22 @@ public fun ByteBuf.readSmallLong(): Long = (readMedium().toLong() shl Medium.SIZ
 public fun ByteBuf.readUnsignedSmallLong(): Long = (readUnsignedMedium().toLong() shl Medium.SIZE_BITS) or
     readUnsignedMedium().toLong()
 
-public fun ByteBuf.readSmallSmart(): Int {
-    val peak = getUnsignedByte(readerIndex())
-    return if (peak < 128) readByte() - 64 else readUnsignedShort() - 49152
+public fun ByteBuf.readShortSmart(): Short {
+    val peek = getUnsignedByte(readerIndex()).toInt()
+    return if (peek < HALF_BYTE) {
+        (readUnsignedByte().toInt() - 64).toShort()
+    } else {
+        ((readUnsignedShort() and Short.MAX_VALUE.toInt()) - 16384).toShort()
+    }
+}
+
+public fun ByteBuf.readUnsignedShortSmart(): Int {
+    val peek = getUnsignedByte(readerIndex()).toInt()
+    return if (peek < HALF_BYTE) {
+        readUnsignedByte().toInt()
+    } else {
+        readUnsignedShort() and Short.MAX_VALUE.toInt()
+    }
 }
 
 public fun ByteBuf.readUnsignedSmallSmart(): Int {
@@ -436,7 +404,8 @@ public fun ByteBuf.readIncrSmallSmart(): Int {
 
 public fun ByteBuf.readStringCP1252(): String {
     val current = readerIndex()
-    while (readByte().toInt() != 0) { }
+    while (readByte().toInt() != 0) {
+    }
     val size = readerIndex() - current - 1
     readerIndex(current)
     val str = readCharSequence(size, cp1252).toString()
@@ -529,13 +498,16 @@ public fun ByteBuf.writeSmallLong(value: Long): ByteBuf {
     return this
 }
 
-public fun ByteBuf.writeSmallSmart(value: Short): ByteBuf {
-    when (value) {
-        in 0 until 128 -> writeByte(value.toInt())
-        in 128 until 32768 -> writeShort(value + 32768)
-        else -> throw IllegalArgumentException("Can't write negative value.")
-    }
-    return this
+public fun ByteBuf.writeShortSmart(v: Int): ByteBuf = when (v) {
+    in ShortSmart.MIN_BYTE_VALUE..ShortSmart.MAX_BYTE_VALUE -> writeByte(v + 64)
+    in ShortSmart.MIN_SHORT_VALUE..ShortSmart.MAX_SHORT_VALUE -> writeShort(32768 or (v + 16384))
+    else -> throw IllegalArgumentException()
+}
+
+public fun ByteBuf.writeUnsignedShortSmart(v: Int): ByteBuf = when (v) {
+    in UShortSmart.MIN_BYTE_VALUE..UShortSmart.MAX_BYTE_VALUE -> writeByte(v)
+    in UShortSmart.MIN_SHORT_VALUE..UShortSmart.MAX_SHORT_VALUE -> writeShort(32768 or v)
+    else -> throw IllegalArgumentException()
 }
 
 public fun ByteBuf.writeLargeSmart(value: Int): ByteBuf {
@@ -579,10 +551,10 @@ public fun ByteBuf.writeVarInt(value: Int): ByteBuf {
 public fun ByteBuf.writeIncrSmallSmart(value: Int): ByteBuf {
     var remaining = value
     while (remaining > 32767) {
-        writeSmallSmart(32767)
+        writeShortSmart(32767)
         remaining -= 32767
     }
-    writeSmallSmart(remaining.toShort())
+    writeShortSmart(remaining)
     return this
 }
 

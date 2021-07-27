@@ -94,8 +94,8 @@ private suspend fun doUSmallLongRWTest(
 
 @ExperimentalUnsignedTypes
 class ByteBufSmallLongTest : StringSpec({
-    "Get/Set SmallLong LME" { doSmallLongGSTest(ByteBuf::setSmallLong, ByteBuf::getSmallLong) }
-    "Read/Write SmallLong LME" { doSmallLongRWTest(ByteBuf::writeSmallLong, ByteBuf::readSmallLong) }
-    "Unsigned Get/Set SmallLong LME" { doUSmallLongGSTest(ByteBuf::setSmallLong, ByteBuf::getUnsignedSmallLong) }
-    "Unsigned Read/Write SmallLong LME" { doUSmallLongRWTest(ByteBuf::writeSmallLong, ByteBuf::readUnsignedSmallLong) }
+    "Get/Set SmallLong" { doSmallLongGSTest(ByteBuf::setSmallLong, ByteBuf::getSmallLong) }
+    "Read/Write SmallLong" { doSmallLongRWTest(ByteBuf::writeSmallLong, ByteBuf::readSmallLong) }
+    "Unsigned Get/Set SmallLong" { doUSmallLongGSTest(ByteBuf::setSmallLong, ByteBuf::getUnsignedSmallLong) }
+    "Unsigned Read/Write SmallLong" { doUSmallLongRWTest(ByteBuf::writeSmallLong, ByteBuf::readUnsignedSmallLong) }
 })
