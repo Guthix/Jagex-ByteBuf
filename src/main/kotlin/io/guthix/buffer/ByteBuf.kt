@@ -83,19 +83,6 @@ public fun ByteBuf.getSmallLong(index: Int): Long = (getMedium(index).toLong() s
 public fun ByteBuf.getUnsignedSmallLong(index: Int): Long = (getUnsignedMedium(index).toLong() shl Medium.SIZE_BITS) or
     getUnsignedMedium(index + Medium.SIZE_BYTES).toLong()
 
-public fun ByteBuf.getLargeSmart(index: Int): Int = if (getByte(readerIndex()) < 0) {
-    getInt(index) and Integer.MAX_VALUE
-} else {
-    getUnsignedShort(index)
-}
-
-public fun ByteBuf.getNullableLargeSmart(index: Int): Int? = if (getByte(readerIndex()) < 0) {
-    getInt(index) and Integer.MAX_VALUE
-} else {
-    val result = getUnsignedShort(index)
-    if (result == 32767) null else result
-}
-
 public fun ByteBuf.getVarInt(index: Int): Int {
     var temp = getByte(index).toInt()
     var prev = 0
@@ -194,29 +181,6 @@ public fun ByteBuf.setSmallLong(index: Int, value: Long): ByteBuf {
     setMedium(index, (value shr Medium.SIZE_BITS).toInt())
     setMedium(index + Medium.SIZE_BYTES, value.toInt())
     return this
-}
-
-public fun ByteBuf.setLargeSmart(index: Int, value: Int): Int = if (value <= Short.MAX_VALUE) {
-    setShort(index, value)
-    Short.SIZE_BYTES
-} else {
-    setInt(index, value)
-    Int.SIZE_BYTES
-}
-
-public fun ByteBuf.setNullableLargeSmart(index: Int, value: Int?): Int = when {
-    value == null -> {
-        setShort(index, 32767)
-        Short.SIZE_BYTES
-    }
-    value < Short.MAX_VALUE -> {
-        setShort(index, value)
-        Short.SIZE_BYTES
-    }
-    else -> {
-        setInt(index, value)
-        Int.SIZE_BYTES
-    }
 }
 
 public fun ByteBuf.setVarInt(index: Int, value: Int): Int {
@@ -346,8 +310,8 @@ public fun ByteBuf.readUnsignedSmallLong(): Long = (readUnsignedMedium().toLong(
     readUnsignedMedium().toLong()
 
 public fun ByteBuf.readShortSmart(): Short {
-    val peek = getUnsignedByte(readerIndex()).toInt()
-    return if (peek < HALF_BYTE) {
+    val peek = getByte(readerIndex()).toInt()
+    return if (peek >= 0) {
         (readUnsignedByte().toInt() - Smart.BYTE_MOD).toShort()
     } else {
         ((readUnsignedShort() and Short.MAX_VALUE.toInt()) - Smart.SHORT_MOD).toShort()
@@ -355,8 +319,8 @@ public fun ByteBuf.readShortSmart(): Short {
 }
 
 public fun ByteBuf.readUnsignedShortSmart(): Short {
-    val peek = getUnsignedByte(readerIndex()).toInt()
-    return if (peek < HALF_BYTE) {
+    val peek = getByte(readerIndex()).toInt()
+    return if (peek >= 0) {
         readUnsignedByte()
     } else {
         (readUnsignedShort() and Short.MAX_VALUE.toInt()).toShort()
@@ -364,8 +328,8 @@ public fun ByteBuf.readUnsignedShortSmart(): Short {
 }
 
 public fun ByteBuf.readIntSmart(): Int {
-    val peek = getUnsignedByte(readerIndex()).toInt()
-    return if (peek < HALF_BYTE) {
+    val peek = getByte(readerIndex()).toInt()
+    return if (peek >= 0) {
         readUnsignedShort() - Smart.SHORT_MOD
     } else {
         (readInt() and Int.MAX_VALUE) - Smart.INT_MOD
@@ -373,19 +337,12 @@ public fun ByteBuf.readIntSmart(): Int {
 }
 
 public fun ByteBuf.readUnsignedIntSmart(): Int {
-    val peek = getUnsignedByte(readerIndex()).toInt()
-    return if (peek < HALF_BYTE) {
+    val peek = getByte(readerIndex()).toInt()
+    return if (peek >= 0) {
         readUnsignedShort()
     } else {
         readInt() and Int.MAX_VALUE
     }
-}
-
-public fun ByteBuf.readNullableLargeSmart(): Int? = if (getByte(readerIndex()) < 0) {
-    readInt() and Integer.MAX_VALUE
-} else {
-    val result = readUnsignedShort()
-    if (result == 32767) null else result
 }
 
 public fun ByteBuf.readVarInt(): Int {
@@ -541,27 +498,6 @@ public fun ByteBuf.writeUnsignedIntSmart(value: Int): ByteBuf = when (value) {
     else -> throw IllegalArgumentException(
         "Value should be between ${USmart.MIN_INT_VALUE} and ${USmart.MAX_INT_VALUE}, but was $value."
     )
-}
-
-public fun ByteBuf.writeLargeSmart(value: Int): ByteBuf {
-    if (value <= Short.MAX_VALUE) {
-        writeShort(value)
-    } else {
-        writeInt(value)
-    }
-    return this
-}
-
-public fun ByteBuf.writeNullableLargeSmart(value: Int?): ByteBuf = when {
-    value == null -> {
-        writeShort(32767)
-    }
-    value < Short.MAX_VALUE -> {
-        writeShort(value)
-    }
-    else -> {
-        writeInt(value)
-    }
 }
 
 public fun ByteBuf.writeVarInt(value: Int): ByteBuf {
