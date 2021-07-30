@@ -83,17 +83,6 @@ public fun ByteBuf.getSmallLong(index: Int): Long = (getMedium(index).toLong() s
 public fun ByteBuf.getUnsignedSmallLong(index: Int): Long = (getUnsignedMedium(index).toLong() shl Medium.SIZE_BITS) or
     getUnsignedMedium(index + Medium.SIZE_BYTES).toLong()
 
-public fun ByteBuf.getVarInt(index: Int): Int {
-    var temp = getByte(index).toInt()
-    var prev = 0
-    var i = index + 1
-    while (temp < 0) {
-        prev = prev or (temp and 127) shl 7
-        temp = getByte(i++).toInt()
-    }
-    return prev or temp
-}
-
 public fun ByteBuf.getStringCP1252(index: Int): String {
     var i = index
     while (getByte(i++).toInt() != 0) {
@@ -183,24 +172,6 @@ public fun ByteBuf.setSmallLong(index: Int, value: Long): ByteBuf {
     return this
 }
 
-public fun ByteBuf.setVarInt(index: Int, value: Int): Int {
-    var i = index
-    if (value and -128 != 0) {
-        if (value and -16384 != 0) {
-            if (value and -2097152 != 0) {
-                if (value and -268435456 != 0) {
-                    setByte(i++, value.ushr(28) or 128)
-                }
-                setByte(i++, value.ushr(21) or 128)
-            }
-            setByte(i++, value.ushr(14) or 128)
-        }
-        setByte(i++, value.ushr(7) or 128)
-    }
-    setByte(i++, value and 127)
-    return i - index
-}
-
 public fun ByteBuf.setStringCP1252(index: Int, value: String): ByteBuf {
     setCharSequence(index, value, cp1252)
     setByte(index + value.length + 1, 0)
@@ -210,13 +181,6 @@ public fun ByteBuf.setStringCP1252(index: Int, value: String): ByteBuf {
 public fun ByteBuf.setString0CP1252(index: Int, value: String): ByteBuf {
     writeByte(index)
     setStringCP1252(index + 1, value)
-    return this
-}
-
-public fun ByteBuf.setStringCESU8(index: Int, value: String): ByteBuf {
-    setByte(index, 0)
-    val byteWritten = setVarInt(index + 1, value.length)
-    setCharSequence(index + byteWritten, value, cesu8)
     return this
 }
 
@@ -359,7 +323,7 @@ public fun ByteBuf.readVarInt(): Int {
     var prev = 0
     var temp = readByte().toInt()
     while (temp < 0) {
-        prev = prev or (temp and 127) shl 7
+        prev = prev or (temp and Byte.MAX_VALUE.toInt()) shl (Byte.SIZE_BITS - 1)
         temp = readByte().toInt()
     }
     return prev or temp
@@ -525,15 +489,15 @@ public fun ByteBuf.writeVarInt(value: Int): ByteBuf {
         if (value and -16384 != 0) {
             if (value and -2097152 != 0) {
                 if (value and -268435456 != 0) {
-                    writeByte(value.ushr(28) or 128)
+                    writeByte(value.ushr(4 * (Byte.SIZE_BITS - 1)) or (Byte.MAX_VALUE.toInt() + 1))
                 }
-                writeByte(value.ushr(21) or 128)
+                writeByte(value.ushr(3 * (Byte.SIZE_BITS - 1)) or (Byte.MAX_VALUE.toInt() + 1))
             }
-            writeByte(value.ushr(14) or 128)
+            writeByte(value.ushr(2 * (Byte.SIZE_BITS - 1)) or (Byte.MAX_VALUE.toInt() + 1))
         }
-        writeByte(value.ushr(7) or 128)
+        writeByte(value.ushr((Byte.SIZE_BITS - 1)) or (Byte.MAX_VALUE.toInt() + 1))
     }
-    writeByte(value and 127)
+    writeByte(value and Byte.MAX_VALUE.toInt())
     return this
 }
 

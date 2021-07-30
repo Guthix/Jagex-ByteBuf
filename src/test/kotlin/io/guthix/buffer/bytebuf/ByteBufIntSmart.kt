@@ -71,7 +71,7 @@ fun Arb.Companion.nullableUInt(range: UIntRange = UInt.MIN_VALUE..UInt.MAX_VALUE
         if (it.random.nextFloat() < 0.40) null else it.random.nextUInt(range)
     }
 }
-class NullableUIntShrinker(val range: UIntRange) : Shrinker<UInt?> {
+class NullableUIntShrinker(private val range: UIntRange) : Shrinker<UInt?> {
     override fun shrink(value: UInt?): List<UInt?> = when (value) {
         null -> emptyList()
         0u -> emptyList()
