@@ -20,10 +20,12 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeNonNegative
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.Shrinker
 import io.kotest.property.arbitrary.*
 import io.kotest.property.checkAll
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
+import kotlin.random.nextUInt
 
 private suspend fun doIntSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
@@ -61,10 +63,54 @@ private suspend fun doUIntSmartRWTest(
     }
 }
 
+fun Arb.Companion.nullableUInt(min: UInt = UInt.MIN_VALUE, max: UInt = UInt.MAX_VALUE) = nullableUInt(min..max)
+
+fun Arb.Companion.nullableUInt(range: UIntRange = UInt.MIN_VALUE..UInt.MAX_VALUE): Arb<UInt?> {
+    val edges = listOf(range.first, 1u, range.last).filter { it in range }.distinct()
+    return arbitrary(edges, NullableUIntShrinker(range)) {
+        if (it.random.nextFloat() < 0.40) null else it.random.nextUInt(range)
+    }
+}
+class NullableUIntShrinker(val range: UIntRange) : Shrinker<UInt?> {
+    override fun shrink(value: UInt?): List<UInt?> = when (value) {
+        null -> emptyList()
+        0u -> emptyList()
+        1u -> listOf(0u).filter { it in range }
+        else -> {
+            val a = listOf(0u, 1u, value / 3u, null, value / 2u, value * 2u / 3u)
+            val b = (1u..5u).map { value - it }.reversed().filter { it > 0u }
+            (a + b).distinct().filterNot { it == value }.filter { it in range }
+        }
+    }
+}
+
+@ExperimentalUnsignedTypes
+private suspend fun doNullableUIntSmartRWTest(
+    writer: ByteBuf.(Int?) -> ByteBuf,
+    reader: ByteBuf.() -> Int?
+) = checkAll(
+    Arb.list(Arb.nullableUInt(USmart.MIN_INT_VALUE.toUInt(), USmart.MAX_INT_VALUE.toUInt()))
+) { testData ->
+    val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Short.SIZE_BYTES)
+    try {
+        testData.forEach { expected -> buf.writer(expected?.toInt()) }
+        testData.forEach { expected ->
+            val read = buf.reader()
+            read?.shouldBeNonNegative()
+            read shouldBe expected?.toInt()
+        }
+    } finally {
+        buf.release()
+    }
+}
+
 @ExperimentalUnsignedTypes
 class ByteBufIntSmartTest : StringSpec({
-    "Read/Write Short Smart" { doIntSmartRWTest(ByteBuf::writeIntSmart, ByteBuf::readIntSmart) }
-    "Unsigned Read/Write Short Smart" {
+    "Read/Write Int Smart" { doIntSmartRWTest(ByteBuf::writeIntSmart, ByteBuf::readIntSmart) }
+    "Unsigned Read/Write Int Smart" {
         doUIntSmartRWTest(ByteBuf::writeUnsignedIntSmart, ByteBuf::readUnsignedIntSmart)
+    }
+    "Unsigned Read/Write Nullable Int Smart" {
+        doNullableUIntSmartRWTest(ByteBuf::writeNullableUnsignedIntSmart, ByteBuf::readNullableUnsignedIntSmart)
     }
 })

@@ -345,6 +345,16 @@ public fun ByteBuf.readUnsignedIntSmart(): Int {
     }
 }
 
+public fun ByteBuf.readNullableUnsignedIntSmart(): Int? {
+    val peek = getByte(readerIndex()).toInt()
+    return if (peek >= 0) {
+        val result = readUnsignedShort()
+        return if (result == Short.MAX_VALUE.toInt()) null else result
+    } else {
+        readInt() and Int.MAX_VALUE
+    }
+}
+
 public fun ByteBuf.readVarInt(): Int {
     var prev = 0
     var temp = readByte().toInt()
@@ -494,6 +504,16 @@ public fun ByteBuf.writeIntSmart(value: Int): ByteBuf = when (value) {
 @Suppress("INTEGER_OVERFLOW")
 public fun ByteBuf.writeUnsignedIntSmart(value: Int): ByteBuf = when (value) {
     in USmart.MIN_SHORT_VALUE..USmart.MAX_SHORT_VALUE -> writeShort(value)
+    in USmart.MIN_INT_VALUE..USmart.MAX_INT_VALUE -> writeInt((Int.MAX_VALUE + 1) or value)
+    else -> throw IllegalArgumentException(
+        "Value should be between ${USmart.MIN_INT_VALUE} and ${USmart.MAX_INT_VALUE}, but was $value."
+    )
+}
+
+@Suppress("INTEGER_OVERFLOW")
+public fun ByteBuf.writeNullableUnsignedIntSmart(value: Int?): ByteBuf = when (value) {
+    null -> writeShort(USmart.MAX_SHORT_VALUE)
+    in USmart.MIN_SHORT_VALUE until USmart.MAX_SHORT_VALUE -> writeShort(value)
     in USmart.MIN_INT_VALUE..USmart.MAX_INT_VALUE -> writeInt((Int.MAX_VALUE + 1) or value)
     else -> throw IllegalArgumentException(
         "Value should be between ${USmart.MIN_INT_VALUE} and ${USmart.MAX_INT_VALUE}, but was $value."
