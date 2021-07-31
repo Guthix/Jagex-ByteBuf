@@ -29,7 +29,7 @@ private suspend fun doShortSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Short
 ) = checkAll(
-    Arb.shortArray(arraySizeRange, Arb.short(Smart.MIN_SHORT_VALUE.toShort(), Smart.MAX_SHORT_VALUE.toShort()))
+    Arb.shortArray(collectionSizeArb, Arb.short(Smart.MIN_SHORT_VALUE.toShort(), Smart.MAX_SHORT_VALUE.toShort()))
 ) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Short.SIZE_BYTES)
     try {
@@ -48,7 +48,7 @@ private suspend fun doUShortSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Short
 ) = checkAll(
-    Arb.uShortArray(arraySizeRange, Arb.uShort(USmart.MIN_SHORT_VALUE.toUShort(), USmart.MAX_SHORT_VALUE.toUShort()))
+    Arb.uShortArray(collectionSizeArb, Arb.uShort(USmart.MIN_SHORT_VALUE.toUShort(), USmart.MAX_SHORT_VALUE.toUShort()))
 ) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Short.SIZE_BYTES)
     try {
@@ -67,7 +67,7 @@ private suspend fun doUShortSmartRWTest(
 private suspend fun doIncrShortSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Int
-) = checkAll(Arb.intArray(arraySizeRange, Arb.int(0, 100_000))) { testData ->
+) = checkAll(Arb.intArray(collectionSizeArb, Arb.int(0, 100_000))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer()
     try {
         testData.forEach { expected -> buf.writer(expected) }

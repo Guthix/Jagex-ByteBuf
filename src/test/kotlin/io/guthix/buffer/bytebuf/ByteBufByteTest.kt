@@ -31,7 +31,7 @@ import io.netty.buffer.ByteBufAllocator
 private suspend fun doByteGSTest(
     setter: ByteBuf.(Int, Int) -> ByteBuf,
     getter: ByteBuf.(Int) -> Byte
-) = checkAll(Arb.byteArray(arraySizeRange, Arb.byte())) { testData ->
+) = checkAll(Arb.byteArray(collectionSizeArb, Arb.byte())) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Byte.SIZE_BYTES)
     try {
         testData.forEachIndexed { i, expected -> buf.setter(i, expected.toInt()) }
@@ -47,7 +47,7 @@ private suspend fun doByteGSTest(
 private suspend fun doByteRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Byte
-) = checkAll(Arb.byteArray(arraySizeRange, Arb.byte())) { testData ->
+) = checkAll(Arb.byteArray(collectionSizeArb, Arb.byte())) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Byte.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected.toInt()) }
@@ -64,7 +64,7 @@ private suspend fun doByteRWTest(
 private suspend fun doUByteGSTest(
     setter: ByteBuf.(Int, Int) -> ByteBuf,
     getter: ByteBuf.(Int) -> Short
-) = checkAll(Arb.uByteArray(arraySizeRange, Arb.uByte())) { testData ->
+) = checkAll(Arb.uByteArray(collectionSizeArb, Arb.uByte())) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * UByte.SIZE_BYTES)
     try {
         testData.forEachIndexed { i, expected -> buf.setter(i, expected.toInt()) }
@@ -82,7 +82,7 @@ private suspend fun doUByteGSTest(
 private suspend fun doUByteRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Short
-) = checkAll(Arb.uByteArray(arraySizeRange, Arb.uByte())) { testData ->
+) = checkAll(Arb.uByteArray(collectionSizeArb, Arb.uByte())) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * UByte.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected.toInt()) }

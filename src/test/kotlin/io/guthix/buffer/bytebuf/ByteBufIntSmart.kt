@@ -30,7 +30,7 @@ import kotlin.random.nextUInt
 private suspend fun doIntSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Int
-) = checkAll(Arb.intArray(arraySizeRange, Arb.int(Smart.MIN_INT_VALUE, Smart.MAX_INT_VALUE))) { testData ->
+) = checkAll(Arb.intArray(collectionSizeArb, Arb.int(Smart.MIN_INT_VALUE, Smart.MAX_INT_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Short.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected) }
@@ -48,7 +48,7 @@ private suspend fun doUIntSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Int
 ) = checkAll(
-    Arb.uIntArray(arraySizeRange, Arb.uInt(USmart.MIN_INT_VALUE.toUInt(), USmart.MAX_INT_VALUE.toUInt()))
+    Arb.uIntArray(collectionSizeArb, Arb.uInt(USmart.MIN_INT_VALUE.toUInt(), USmart.MAX_INT_VALUE.toUInt()))
 ) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Short.SIZE_BYTES)
     try {

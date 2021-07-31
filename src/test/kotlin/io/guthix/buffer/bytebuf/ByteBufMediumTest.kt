@@ -28,7 +28,7 @@ import io.netty.buffer.ByteBufAllocator
 private suspend fun doMediumGSTest(
     setter: ByteBuf.(Int, Int) -> ByteBuf,
     getter: ByteBuf.(Int) -> Int
-) = checkAll(Arb.intArray(arraySizeRange, Arb.int(Medium.MIN_VALUE, Medium.MAX_VALUE))) { testData ->
+) = checkAll(Arb.intArray(collectionSizeArb, Arb.int(Medium.MIN_VALUE, Medium.MAX_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Medium.SIZE_BYTES)
     try {
         testData.forEachIndexed { i, expected -> buf.setter(i * Medium.SIZE_BYTES, expected) }
@@ -44,7 +44,7 @@ private suspend fun doMediumGSTest(
 private suspend fun doMediumRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Int
-) = checkAll(Arb.intArray(arraySizeRange, Arb.int(Medium.MIN_VALUE, Medium.MAX_VALUE))) { testData ->
+) = checkAll(Arb.intArray(collectionSizeArb, Arb.int(Medium.MIN_VALUE, Medium.MAX_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Medium.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected) }
@@ -61,7 +61,7 @@ private suspend fun doMediumRWTest(
 private suspend fun doUMediumGSTest(
     setter: ByteBuf.(Int, Int) -> ByteBuf,
     getter: ByteBuf.(Int) -> Int
-) = checkAll(Arb.uIntArray(arraySizeRange, Arb.uInt(UMedium.MIN_VALUE, UMedium.MAX_VALUE))) { testData ->
+) = checkAll(Arb.uIntArray(collectionSizeArb, Arb.uInt(UMedium.MIN_VALUE, UMedium.MAX_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * UMedium.SIZE_BYTES)
     try {
         testData.forEachIndexed { i, expected -> buf.setter(i * UMedium.SIZE_BYTES, expected.toInt()) }
@@ -79,7 +79,7 @@ private suspend fun doUMediumGSTest(
 private suspend fun doUMediumRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Int
-) = checkAll(Arb.uIntArray(arraySizeRange, Arb.uInt(UMedium.MIN_VALUE, UMedium.MAX_VALUE))) { testData ->
+) = checkAll(Arb.uIntArray(collectionSizeArb, Arb.uInt(UMedium.MIN_VALUE, UMedium.MAX_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * UMedium.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected.toInt()) }

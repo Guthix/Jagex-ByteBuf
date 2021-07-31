@@ -21,7 +21,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 
-internal val arraySizeRange = Arb.int(0, 10)
+internal val collectionSizeRange = 0..10
+
+internal val collectionSizeArb = Arb.int(collectionSizeRange)
 
 fun Long.shouldBeNonNegative(): Long {
     this shouldBe nonNegative()

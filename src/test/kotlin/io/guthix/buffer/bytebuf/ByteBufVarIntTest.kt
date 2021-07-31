@@ -27,7 +27,7 @@ import io.netty.buffer.ByteBufAllocator
 private suspend fun doIntRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
     reader: ByteBuf.() -> Int
-) = checkAll(Arb.intArray(arraySizeRange, Arb.int())) { testData ->
+) = checkAll(Arb.intArray(collectionSizeArb, Arb.int())) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * Int.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected) }
@@ -40,7 +40,6 @@ private suspend fun doIntRWTest(
     }
 }
 
-@ExperimentalUnsignedTypes
 class ByteBufVarIntTest : StringSpec({
     "Read/Write Var Int" { doIntRWTest(ByteBuf::writeVarInt, ByteBuf::readVarInt) }
 })

@@ -16,16 +16,19 @@
 package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
+import io.netty.util.ByteProcessor
+import java.io.IOException
 import java.nio.charset.Charset
 import kotlin.Long
 
 private const val HALF_BYTE = 128
 
-private val cp1252 = Charset.availableCharsets()["windows-1252"] ?: throw IllegalStateException(
+/** Cp1252 */
+public val windows1252: Charset = Charset.availableCharsets()["windows-1252"] ?: throw IllegalStateException(
     "Could not find CP1252 character set."
 )
 
-private val cesu8 = Charset.availableCharsets()["CESU-8"] ?: throw IllegalStateException(
+public val cesu8: Charset = Charset.availableCharsets()["CESU-8"] ?: throw IllegalStateException(
     "Could not find CESU-8 character set."
 )
 
@@ -82,26 +85,6 @@ public fun ByteBuf.getSmallLong(index: Int): Long = (getMedium(index).toLong() s
 
 public fun ByteBuf.getUnsignedSmallLong(index: Int): Long = (getUnsignedMedium(index).toLong() shl Medium.SIZE_BITS) or
     getUnsignedMedium(index + Medium.SIZE_BYTES).toLong()
-
-public fun ByteBuf.getStringCP1252(index: Int): String {
-    var i = index
-    while (getByte(i++).toInt() != 0) {
-    }
-    val size = i - index - 1
-    return getCharSequence(index, size, cp1252).toString()
-}
-
-public fun ByteBuf.getStringCP1252Nullable(index: Int): String? {
-    if (getByte(index).toInt() == 0) {
-        return null
-    }
-    return getStringCP1252(index)
-}
-
-public fun ByteBuf.getString0CP1252(index: Int): String {
-    check(getByte(index).toInt() == 0) { "First byte is not 0." }
-    return getStringCP1252(index + 1)
-}
 
 public fun ByteBuf.getBytesAdd(index: Int, length: Int): ByteArray =
     getBytesAdd(index, ByteArray(length))
@@ -169,18 +152,6 @@ public fun ByteBuf.setIntIME(index: Int, value: Int): ByteBuf {
 public fun ByteBuf.setSmallLong(index: Int, value: Long): ByteBuf {
     setMedium(index, (value shr Medium.SIZE_BITS).toInt())
     setMedium(index + Medium.SIZE_BYTES, value.toInt())
-    return this
-}
-
-public fun ByteBuf.setStringCP1252(index: Int, value: String): ByteBuf {
-    setCharSequence(index, value, cp1252)
-    setByte(index + value.length + 1, 0)
-    return this
-}
-
-public fun ByteBuf.setString0CP1252(index: Int, value: String): ByteBuf {
-    writeByte(index)
-    setStringCP1252(index + 1, value)
     return this
 }
 
@@ -340,34 +311,18 @@ public fun ByteBuf.readVarInt(): Int {
     return prev or temp
 }
 
-public fun ByteBuf.readStringCP1252(): String {
-    val current = readerIndex()
-    while (readByte().toInt() != 0) {
-    }
-    val size = readerIndex() - current - 1
-    readerIndex(current)
-    val str = readCharSequence(size, cp1252).toString()
-    readerIndex(readerIndex() + 1) // read the 0 value
-    return str
+public fun ByteBuf.readString(charset: Charset = windows1252): String {
+    val end = forEachByte(ByteProcessor.FIND_NUL)
+    if (end == -1) throw IOException("String does not terminate.")
+    val value = toString(readerIndex(), end - readerIndex(), charset)
+    readerIndex(end + 1)
+    return value
 }
 
-public fun ByteBuf.readStringCP1252Nullable(): String? {
-    if (getByte(readerIndex()).toInt() == 0) {
-        readerIndex(readerIndex() + 1)
-        return null
-    }
-    return readStringCP1252()
-}
-
-public fun ByteBuf.readString0CP1252(): String {
-    check(readByte().toInt() == 0) { "First byte is not 0." }
-    return readStringCP1252()
-}
-
-public fun ByteBuf.readStringCESU8(): String {
-    check(readByte().toInt() == 0) { "First byte is not 0." }
-    val length = readVarInt()
-    return readCharSequence(length, cesu8).toString()
+public fun ByteBuf.readVersionedString(charset: Charset = windows1252, expectedVersion: Int = 0): String {
+    val actualVersion = readUnsignedByte().toInt()
+    if (actualVersion != expectedVersion) throw IOException("Expected version number did not match actual version.")
+    return readString(charset)
 }
 
 public fun ByteBuf.readBytesAdd(length: Int): ByteArray = readBytesAdd(ByteArray(length))
@@ -464,31 +419,28 @@ public fun ByteBuf.writeUnsignedShortSmart(value: Int): ByteBuf = when (value) {
     )
 }
 
-@Suppress("INTEGER_OVERFLOW")
 public fun ByteBuf.writeIntSmart(value: Int): ByteBuf = when (value) {
     in Smart.MIN_SHORT_VALUE..Smart.MAX_SHORT_VALUE -> writeShort(value + Smart.SHORT_MOD)
     in Smart.MIN_INT_VALUE..Smart.MAX_INT_VALUE -> {
-        writeInt((Int.MAX_VALUE + 1) or (value + Smart.INT_MOD))
+        writeInt(Int.MIN_VALUE or (value + Smart.INT_MOD))
     }
     else -> throw IllegalArgumentException(
         "Value should be between ${Smart.MIN_INT_VALUE} and ${Smart.MAX_INT_VALUE}, but was $value."
     )
 }
 
-@Suppress("INTEGER_OVERFLOW")
 public fun ByteBuf.writeUnsignedIntSmart(value: Int): ByteBuf = when (value) {
     in USmart.MIN_SHORT_VALUE..USmart.MAX_SHORT_VALUE -> writeShort(value)
-    in USmart.MIN_INT_VALUE..USmart.MAX_INT_VALUE -> writeInt((Int.MAX_VALUE + 1) or value)
+    in USmart.MIN_INT_VALUE..USmart.MAX_INT_VALUE -> writeInt(Int.MIN_VALUE or value)
     else -> throw IllegalArgumentException(
         "Value should be between ${USmart.MIN_INT_VALUE} and ${USmart.MAX_INT_VALUE}, but was $value."
     )
 }
 
-@Suppress("INTEGER_OVERFLOW")
 public fun ByteBuf.writeNullableUnsignedIntSmart(value: Int?): ByteBuf = when (value) {
     null -> writeShort(USmart.MAX_SHORT_VALUE)
     in USmart.MIN_SHORT_VALUE until USmart.MAX_SHORT_VALUE -> writeShort(value)
-    in USmart.MIN_INT_VALUE..USmart.MAX_INT_VALUE -> writeInt((Int.MAX_VALUE + 1) or value)
+    in USmart.MIN_INT_VALUE..USmart.MAX_INT_VALUE -> writeInt(Int.MIN_VALUE or value)
     else -> throw IllegalArgumentException(
         "Value should be between ${USmart.MIN_INT_VALUE} and ${USmart.MAX_INT_VALUE}, but was $value."
     )
@@ -511,22 +463,15 @@ public fun ByteBuf.writeVarInt(value: Int): ByteBuf {
     return this
 }
 
-public fun ByteBuf.writeStringCP1252(value: String): ByteBuf {
-    writeCharSequence(value, cp1252)
+public fun ByteBuf.writeString(value: String, charset: Charset = windows1252): ByteBuf {
+    writeCharSequence(value, charset)
     writeByte(0)
     return this
 }
 
-public fun ByteBuf.writeString0CP1252(value: String): ByteBuf {
-    writeByte(0)
-    writeStringCP1252(value)
-    return this
-}
-
-public fun ByteBuf.writeStringCESU8(value: String): ByteBuf {
-    writeByte(0)
-    writeVarInt(value.length)
-    writeCharSequence(value, cesu8)
+public fun ByteBuf.writeVersionedString(value: String, charset: Charset = windows1252, version: Int = 0): ByteBuf {
+    writeByte(version)
+    writeString(value, charset)
     return this
 }
 

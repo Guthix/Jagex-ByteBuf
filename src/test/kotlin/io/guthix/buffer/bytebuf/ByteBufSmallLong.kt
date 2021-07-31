@@ -27,7 +27,7 @@ import io.netty.buffer.ByteBufAllocator
 private suspend fun doSmallLongGSTest(
     setter: ByteBuf.(Int, Long) -> ByteBuf,
     getter: ByteBuf.(Int) -> Long
-) = checkAll(Arb.longArray(arraySizeRange, Arb.long(SmallLong.MIN_VALUE, SmallLong.MAX_VALUE))) { testData ->
+) = checkAll(Arb.longArray(collectionSizeArb, Arb.long(SmallLong.MIN_VALUE, SmallLong.MAX_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * SmallLong.SIZE_BYTES)
     try {
         testData.forEachIndexed { i, expected -> buf.setter(i * SmallLong.SIZE_BYTES, expected) }
@@ -43,7 +43,7 @@ private suspend fun doSmallLongGSTest(
 private suspend fun doSmallLongRWTest(
     writer: ByteBuf.(Long) -> ByteBuf,
     reader: ByteBuf.() -> Long
-) = checkAll(Arb.longArray(arraySizeRange, Arb.long(SmallLong.MIN_VALUE, SmallLong.MAX_VALUE))) { testData ->
+) = checkAll(Arb.longArray(collectionSizeArb, Arb.long(SmallLong.MIN_VALUE, SmallLong.MAX_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * SmallLong.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected) }
@@ -60,7 +60,7 @@ private suspend fun doSmallLongRWTest(
 private suspend fun doUSmallLongGSTest(
     setter: ByteBuf.(Int, Long) -> ByteBuf,
     getter: ByteBuf.(Int) -> Long
-) = checkAll(Arb.uLongArray(arraySizeRange, Arb.uLong(USmallLong.MIN_VALUE, USmallLong.MAX_VALUE))) { testData ->
+) = checkAll(Arb.uLongArray(collectionSizeArb, Arb.uLong(USmallLong.MIN_VALUE, USmallLong.MAX_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * USmallLong.SIZE_BYTES)
     try {
         testData.forEachIndexed { i, expected -> buf.setter(i * USmallLong.SIZE_BYTES, expected.toLong()) }
@@ -78,7 +78,7 @@ private suspend fun doUSmallLongGSTest(
 private suspend fun doUSmallLongRWTest(
     writer: ByteBuf.(Long) -> ByteBuf,
     reader: ByteBuf.() -> Long
-) = checkAll(Arb.uLongArray(arraySizeRange, Arb.uLong(USmallLong.MIN_VALUE, USmallLong.MAX_VALUE))) { testData ->
+) = checkAll(Arb.uLongArray(collectionSizeArb, Arb.uLong(USmallLong.MIN_VALUE, USmallLong.MAX_VALUE))) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer(testData.size * USmallLong.SIZE_BYTES)
     try {
         testData.forEach { expected -> buf.writer(expected.toLong()) }
