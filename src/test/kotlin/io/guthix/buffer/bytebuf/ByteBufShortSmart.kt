@@ -64,9 +64,30 @@ private suspend fun doUShortSmartRWTest(
 }
 
 @ExperimentalUnsignedTypes
+private suspend fun doIncrShortSmartRWTest(
+    writer: ByteBuf.(Int) -> ByteBuf,
+    reader: ByteBuf.() -> Int
+) = checkAll(Arb.intArray(arraySizeRange, Arb.int(0, 100_000))) { testData ->
+    val buf = ByteBufAllocator.DEFAULT.buffer()
+    try {
+        testData.forEach { expected -> buf.writer(expected) }
+        testData.forEach { expected ->
+            val read = buf.reader()
+            read.shouldBeNonNegative()
+            read shouldBe expected
+        }
+    } finally {
+        buf.release()
+    }
+}
+
+@ExperimentalUnsignedTypes
 class ByteBufShortSmartTest : StringSpec({
     "Read/Write Short Smart" { doShortSmartRWTest(ByteBuf::writeShortSmart, ByteBuf::readShortSmart) }
     "Unsigned Read/Write Short Smart" {
         doUShortSmartRWTest(ByteBuf::writeUnsignedShortSmart, ByteBuf::readUnsignedShortSmart)
+    }
+    "Unsigned Read/Write Incr Short Smart" {
+        doIncrShortSmartRWTest(ByteBuf::writeIncrShortSmart, ByteBuf::readIncrShortSmart)
     }
 })

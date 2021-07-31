@@ -291,6 +291,17 @@ public fun ByteBuf.readUnsignedShortSmart(): Short {
     }
 }
 
+public fun ByteBuf.readIncrShortSmart(): Int {
+    var total = 0
+    var cur = readUnsignedShortSmart()
+    while (cur == Short.MAX_VALUE) {
+        total += Short.MAX_VALUE.toInt()
+        cur = readUnsignedShortSmart()
+    }
+    total += cur
+    return total
+}
+
 public fun ByteBuf.readIntSmart(): Int {
     val peek = getByte(readerIndex()).toInt()
     return if (peek >= 0) {
@@ -327,17 +338,6 @@ public fun ByteBuf.readVarInt(): Int {
         temp = readByte().toInt()
     }
     return prev or temp
-}
-
-public fun ByteBuf.readIncrSmallSmart(): Int {
-    var total = 0
-    var cur = readUnsignedShortSmart()
-    while (cur == Short.MAX_VALUE) {
-        total += Short.MIN_VALUE.toInt()
-        cur = readUnsignedShortSmart()
-    }
-    total += cur
-    return total
 }
 
 public fun ByteBuf.readStringCP1252(): String {
@@ -446,6 +446,16 @@ public fun ByteBuf.writeShortSmart(value: Int): ByteBuf = when (value) {
     )
 }
 
+public fun ByteBuf.writeIncrShortSmart(value: Int): ByteBuf {
+    var remaining = value
+    while (remaining >= Short.MAX_VALUE.toInt()) {
+        writeUnsignedShortSmart(Short.MAX_VALUE.toInt())
+        remaining -= Short.MAX_VALUE.toInt()
+    }
+    writeUnsignedShortSmart(remaining)
+    return this
+}
+
 public fun ByteBuf.writeUnsignedShortSmart(value: Int): ByteBuf = when (value) {
     in USmart.MIN_BYTE_VALUE..USmart.MAX_BYTE_VALUE -> writeByte(value)
     in USmart.MIN_SHORT_VALUE..USmart.MAX_SHORT_VALUE -> writeShort((Short.MAX_VALUE + 1) or value)
@@ -498,16 +508,6 @@ public fun ByteBuf.writeVarInt(value: Int): ByteBuf {
         writeByte(value.ushr((Byte.SIZE_BITS - 1)) or (Byte.MAX_VALUE.toInt() + 1))
     }
     writeByte(value and Byte.MAX_VALUE.toInt())
-    return this
-}
-
-public fun ByteBuf.writeIncrSmallSmart(value: Int): ByteBuf {
-    var remaining = value
-    while (remaining > 32767) {
-        writeShortSmart(32767)
-        remaining -= 32767
-    }
-    writeShortSmart(remaining)
     return this
 }
 
