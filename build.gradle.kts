@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-import io.guthix.buffer.registerPublication
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     idea
@@ -8,7 +8,6 @@ plugins {
     signing
     id("org.jetbrains.dokka") version "1.4.32"
     kotlin("jvm") version "1.5.0"
-    kotlin("plugin.serialization") version "1.5.0"
 }
 
 group = "io.guthix"
@@ -20,7 +19,6 @@ allprojects {
     apply(plugin = "signing")
     apply(plugin = "org.jetbrains.dokka")
     apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
     repositories {
         mavenCentral()
@@ -46,19 +44,10 @@ allprojects {
         withType<Test> {
             useJUnitPlatform()
         }
-        withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        withType<KotlinCompile> {
             kotlinOptions {
                 useOldBackend = true
             }
         }
     }
 }
-
-dependencies {
-    api(libs.netty.buf)
-}
-
-registerPublication(
-    publicationName = "jagexByteBuf",
-    pomName = "jagex-bytebuf"
-)
