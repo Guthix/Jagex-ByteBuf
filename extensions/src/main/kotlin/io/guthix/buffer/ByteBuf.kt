@@ -401,6 +401,14 @@ public fun ByteBuf.writeShortSmart(value: Int): ByteBuf = when (value) {
     )
 }
 
+public fun ByteBuf.writeUnsignedShortSmart(value: Int): ByteBuf = when (value) {
+    in USmart.MIN_BYTE_VALUE..USmart.MAX_BYTE_VALUE -> writeByte(value)
+    in USmart.MIN_SHORT_VALUE..USmart.MAX_SHORT_VALUE -> writeShort((Short.MAX_VALUE + 1) or value)
+    else -> throw IllegalArgumentException(
+        "Value should be between ${USmart.MIN_SHORT_VALUE} and ${USmart.MAX_SHORT_VALUE}, but was $value."
+    )
+}
+
 public fun ByteBuf.writeIncrShortSmart(value: Int): ByteBuf {
     var remaining = value
     while (remaining >= Short.MAX_VALUE.toInt()) {
@@ -409,14 +417,6 @@ public fun ByteBuf.writeIncrShortSmart(value: Int): ByteBuf {
     }
     writeUnsignedShortSmart(remaining)
     return this
-}
-
-public fun ByteBuf.writeUnsignedShortSmart(value: Int): ByteBuf = when (value) {
-    in USmart.MIN_BYTE_VALUE..USmart.MAX_BYTE_VALUE -> writeByte(value)
-    in USmart.MIN_SHORT_VALUE..USmart.MAX_SHORT_VALUE -> writeShort((Short.MAX_VALUE + 1) or value)
-    else -> throw IllegalArgumentException(
-        "Value should be between ${USmart.MIN_SHORT_VALUE} and ${USmart.MAX_SHORT_VALUE}, but was $value."
-    )
 }
 
 public fun ByteBuf.writeIntSmart(value: Int): ByteBuf = when (value) {
