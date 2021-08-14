@@ -12,7 +12,6 @@ plugins {
 
 group = "io.guthix"
 version = "0.2.0-snapshot"
-description = "A Netty ByteBuf extension library for RuneTek obfuscated buffers"
 
 allprojects {
     apply(plugin = "maven-publish")
