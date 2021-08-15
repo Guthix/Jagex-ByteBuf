@@ -17,6 +17,7 @@ package io.guthix.buffer
 
 import io.netty.buffer.ByteBuf
 import io.netty.util.ReferenceCounted
+import java.nio.charset.Charset
 
 @JvmInline
 public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
@@ -261,6 +262,9 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
     override fun readUIntSmart(): UInt = byteBuf.readUnsignedIntSmart().toUInt()
     override fun readNullableIntSmart(): UInt? = byteBuf.readNullableUnsignedIntSmart()?.toUInt()
     override fun readVarInt(): Int = byteBuf.readVarInt()
+    override fun readString(charset: Charset): String = byteBuf.readString(charset)
+    override fun readVersionedString(charset: Charset, expectedVersion: Int): String =
+        byteBuf.readVersionedString(charset, expectedVersion)
     override fun readBytes(dst: ByteArray): JByteBuf {
         byteBuf.readBytes(dst)
         return this
@@ -372,6 +376,14 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
     }
     override fun writeVarInt(value: Int): JByteBuf {
         byteBuf.writeVarInt(value)
+        return this
+    }
+    override fun writeString(value: String, charset: Charset): JByteBuf {
+        byteBuf.writeString(value, charset)
+        return this
+    }
+    override fun writeString(value: String, charset: Charset, version: Int): JByteBuf {
+        byteBuf.writeVersionedString(value, charset, version)
         return this
     }
     override fun writeBytes(value: ByteArray): JByteBuf {
