@@ -69,6 +69,8 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
     override fun release(): Boolean = byteBuf.release()
     override fun release(decrement: Int): Boolean = byteBuf.release(decrement)
 
+    override fun getBoolean(index: Int): Boolean = byteBuf.getBoolean(index)
+    override fun getChar(index: Int): Char = byteBuf.getChar(index)
     override fun getByte(index: Int): Byte = byteBuf.getByte(index)
     override fun getByteNeg(index: Int): Byte = byteBuf.getByteNeg(index)
     override fun getByteAdd(index: Int): Byte = byteBuf.getByteAdd(index)
@@ -120,6 +122,14 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
         return this
     }
 
+    override fun setBoolean(index: Int, value: Boolean): JByteBuf {
+        byteBuf.setBoolean(index, value)
+        return this
+    }
+    override fun setChar(index: Int, value: Char): JByteBuf {
+        byteBuf.setChar(index, value.code)
+        return this
+    }
     override fun setByte(index: Int, value: Int): JByteBuf {
         byteBuf.setByte(index, value)
         return this
@@ -221,6 +231,8 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
         return this
     }
 
+    override fun readBoolean(): Boolean = byteBuf.readBoolean()
+    override fun readChar(): Char = byteBuf.readChar()
     override fun readByte(): Byte = byteBuf.readByte()
     override fun readByteNeg(): Byte = byteBuf.readByteNeg()
     override fun readByteAdd(): Byte = byteBuf.readByteAdd()
@@ -282,6 +294,14 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
         return this
     }
 
+    override fun writeBoolean(value: Boolean): JByteBuf {
+        byteBuf.writeBoolean(value)
+        return this
+    }
+    override fun writeChar(value: Char): JByteBuf {
+        byteBuf.writeChar(value.code)
+        return this
+    }
     override fun writeByte(value: Int): JByteBuf {
         byteBuf.writeByte(value)
         return this

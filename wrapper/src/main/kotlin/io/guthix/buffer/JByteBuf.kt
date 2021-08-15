@@ -44,6 +44,8 @@ public interface JByteBuf : ReferenceCounted {
     public fun markWriterIndex(): JByteBuf
     public fun resetWriterIndex(): JByteBuf
 
+    public fun getBoolean(index: Int): Boolean
+    public fun getChar(index: Int): Char
     public fun getByte(index: Int): Byte
     public fun getByteNeg(index: Int): Byte
     public fun getByteAdd(index: Int): Byte
@@ -82,7 +84,9 @@ public interface JByteBuf : ReferenceCounted {
     public fun getBytesAdd(index: Int, dst: ByteArray): JByteBuf
     public fun getBytesReversed(index: Int, dst: ByteArray): JByteBuf
     public fun getBytesReversedAdd(index: Int, dst: ByteArray): JByteBuf
-    
+
+    public fun setBoolean(index: Int, value: Boolean): JByteBuf
+    public fun setChar(index: Int, value: Char): JByteBuf
     public fun setByte(index: Int, value: Int): JByteBuf
     public fun setByteNeg(index: Int, value: Int): JByteBuf
     public fun setByteAdd(index: Int, value: Int): JByteBuf
@@ -108,7 +112,9 @@ public interface JByteBuf : ReferenceCounted {
     public fun setBytesReversed(index: Int, value: JByteBuf): JByteBuf
     public fun setBytesReversedAdd(index: Int, value: ByteArray): JByteBuf
     public fun setBytesReversedAdd(index: Int, value: JByteBuf): JByteBuf
-    
+
+    public fun readBoolean(): Boolean
+    public fun readChar(): Char
     public fun readByte(): Byte
     public fun readByteNeg(): Byte
     public fun readByteAdd(): Byte
@@ -157,6 +163,8 @@ public interface JByteBuf : ReferenceCounted {
     public fun readBytesReversed(dst: ByteArray): JByteBuf
     public fun readBytesReversedAdd(dst: ByteArray): JByteBuf
 
+    public fun writeBoolean(value: Boolean): JByteBuf
+    public fun writeChar(value: Char): JByteBuf
     public fun writeByte(value: Int): JByteBuf
     public fun writeByteNeg(value: Int): JByteBuf
     public fun writeByteAdd(value: Int): JByteBuf
