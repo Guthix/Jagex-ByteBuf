@@ -6,6 +6,8 @@ description = "Netty ByteBuf wrapper"
 
 dependencies {
     api(libs.netty.buf)
+    implementation(libs.netty.codec)
+    implementation(project(":extensions"))
 }
 
 registerPublication(
