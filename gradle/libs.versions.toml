@@ -1,11 +1,11 @@
 [versions]
-kotlin = "1.5.0"
+kotlin = "1.5.21"
 
 [libraries]
 netty-buf = { group = "io.netty", name = "netty-buffer", version = "4.1.66.Final" }
 netty-codec = { group = "io.netty", name = "netty-codec", version = "4.1.66.Final" }
 logback = { group = "ch.qos.logback", name = "logback-classic", version = "1.2.3" }
-dokka = { group = "org.jetbrains.dokka", name = "kotlin-as-java-plugin", version = "1.4.32" }
+dokka = { group = "org.jetbrains.dokka", name = "kotlin-as-java-plugin", version = "1.5.0" }
 serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core-jvm", version = "1.2.0" }
 kotest-junit = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version = "5.0.0.327-SNAPSHOT" }
 kotest-assert = { group = "io.kotest", name = "kotest-assertions-core-jvm", version = "5.0.0.327-SNAPSHOT" }
