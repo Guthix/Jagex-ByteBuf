@@ -7,6 +7,7 @@ plugins {
 dependencies {
     implementation(rootProject)
     implementation(libs.serialization.core)
+    implementation(project(":wrapper"))
 }
 
 registerPublication(
