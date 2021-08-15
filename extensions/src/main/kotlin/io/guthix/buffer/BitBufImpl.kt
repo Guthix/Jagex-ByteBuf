@@ -20,35 +20,35 @@ import io.netty.util.ReferenceCounted
 import kotlin.math.ceil
 import kotlin.math.min
 
-public class BitBufImpl internal constructor(public override val buf: ByteBuf) : BitBuf {
-    public override val capacity: Long get() = buf.capacity().toLong() * Byte.SIZE_BITS
+public class BitBufImpl internal constructor(public override val byteBuf: ByteBuf) : BitBuf {
+    public override val capacity: Long get() = byteBuf.capacity().toLong() * Byte.SIZE_BITS
 
-    public override val maxCapacity: Long get() = buf.maxCapacity().toLong() * Byte.SIZE_BITS
+    public override val maxCapacity: Long get() = byteBuf.maxCapacity().toLong() * Byte.SIZE_BITS
 
-    public override var readerIndex: Long = buf.readerIndex().toLong() * Byte.SIZE_BITS
+    public override var readerIndex: Long = byteBuf.readerIndex().toLong() * Byte.SIZE_BITS
         get() {
-            if (buf.readerIndex() != ceil(field / Byte.SIZE_BITS.toDouble()).toInt()) {
-                field = buf.readerIndex().toLong() * Byte.SIZE_BITS
+            if (byteBuf.readerIndex() != ceil(field / Byte.SIZE_BITS.toDouble()).toInt()) {
+                field = byteBuf.readerIndex().toLong() * Byte.SIZE_BITS
             }
             return field
         }
         set(value) {
             field = value
-            buf.readerIndex(ceil(field / Byte.SIZE_BITS.toDouble()).toInt())
+            byteBuf.readerIndex(ceil(field / Byte.SIZE_BITS.toDouble()).toInt())
         }
 
     public override fun readableBits(): Long = writerIndex - readerIndex
 
-    public override var writerIndex: Long = buf.writerIndex().toLong() * Byte.SIZE_BITS
+    public override var writerIndex: Long = byteBuf.writerIndex().toLong() * Byte.SIZE_BITS
         get() {
-            if (buf.writerIndex() != ceil(field / Byte.SIZE_BITS.toDouble()).toInt()) {
-                field = buf.writerIndex().toLong() * Byte.SIZE_BITS
+            if (byteBuf.writerIndex() != ceil(field / Byte.SIZE_BITS.toDouble()).toInt()) {
+                field = byteBuf.writerIndex().toLong() * Byte.SIZE_BITS
             }
             return field
         }
         set(value) {
             field = value
-            buf.writerIndex(ceil(field.toDouble() / Byte.SIZE_BITS).toInt())
+            byteBuf.writerIndex(ceil(field.toDouble() / Byte.SIZE_BITS).toInt())
         }
 
     public override fun writableBits(): Long = capacity - writerIndex
@@ -68,7 +68,7 @@ public class BitBufImpl internal constructor(public override val buf: ByteBuf) :
             val bitsToGet = min(Byte.SIZE_BITS - relBitIndex, remBits)
             val shift = (Byte.SIZE_BITS - (relBitIndex + bitsToGet)) and (Byte.SIZE_BITS - 1)
             val mask = (1u shl bitsToGet) - 1u
-            value = (value shl bitsToGet) or ((buf.getUnsignedByte(byteIndex).toUInt() shr shift) and mask)
+            value = (value shl bitsToGet) or ((byteBuf.getUnsignedByte(byteIndex).toUInt() shr shift) and mask)
             remBits -= bitsToGet
             relBitIndex = 0
             byteIndex++
@@ -90,9 +90,9 @@ public class BitBufImpl internal constructor(public override val buf: ByteBuf) :
             val bitsToSet = min(Byte.SIZE_BITS - relBitIndex, remBits)
             val shift = (Byte.SIZE_BITS - (relBitIndex + bitsToSet)) and (Byte.SIZE_BITS - 1)
             val mask = (1 shl bitsToSet) - 1
-            val iValue = (buf.getUnsignedByte(byteIndex).toInt() and (mask shl shift).inv()) or
+            val iValue = (byteBuf.getUnsignedByte(byteIndex).toInt() and (mask shl shift).inv()) or
                 (((value shr (remBits - bitsToSet)) and mask) shl shift)
-            buf.setByte(byteIndex, iValue)
+            byteBuf.setByte(byteIndex, iValue)
             remBits -= bitsToSet
             relBitIndex = 0
             byteIndex++
@@ -122,17 +122,17 @@ public class BitBufImpl internal constructor(public override val buf: ByteBuf) :
         return this
     }
 
-    override fun refCnt(): Int = buf.refCnt()
+    override fun refCnt(): Int = byteBuf.refCnt()
 
-    override fun retain(): ReferenceCounted = buf.retain()
+    override fun retain(): ReferenceCounted = byteBuf.retain()
 
-    override fun retain(increment: Int): ReferenceCounted = buf.retain()
+    override fun retain(increment: Int): ReferenceCounted = byteBuf.retain()
 
-    override fun touch(): ReferenceCounted = buf.touch()
+    override fun touch(): ReferenceCounted = byteBuf.touch()
 
-    override fun touch(hint: Any): ReferenceCounted = buf.touch(hint)
+    override fun touch(hint: Any): ReferenceCounted = byteBuf.touch(hint)
 
-    override fun release(): Boolean = buf.release()
+    override fun release(): Boolean = byteBuf.release()
 
-    override fun release(decrement: Int): Boolean = buf.release(decrement)
+    override fun release(decrement: Int): Boolean = byteBuf.release(decrement)
 }

@@ -29,7 +29,7 @@ public fun ByteBuf.toBitBuf(): BitBuf = BitBufImpl(this)
  * To create a [BitBuf] use [ByteBuf.toBitBuf] factory method.
  */
 public interface BitBuf : ReferenceCounted {
-    public val buf: ByteBuf
+    public val byteBuf: ByteBuf
 
     /** The [ByteBuf.capacity] in terms of bits. */
     public val capacity: Long
