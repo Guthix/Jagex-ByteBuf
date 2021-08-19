@@ -190,7 +190,7 @@ public interface JByteBuf : ReferenceCounted {
     public fun writeNullableIntSmart(value: Int?): JByteBuf
     public fun writeVarInt(value: Int): JByteBuf
     public fun writeString(value: String, charset: Charset = windows1252): JByteBuf
-    public fun writeString(value: String, charset: Charset = windows1252, version: Int = 0): JByteBuf
+    public fun writeVersionedString(value: String, charset: Charset = windows1252, version: Int = 0): JByteBuf
     public fun writeBytes(value: ByteArray): JByteBuf
     public fun writeBytes(value: JByteBuf): JByteBuf
     public fun writeBytesAdd(value: ByteArray): JByteBuf

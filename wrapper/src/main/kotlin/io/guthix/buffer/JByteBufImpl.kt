@@ -402,7 +402,7 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
         byteBuf.writeString(value, charset)
         return this
     }
-    override fun writeString(value: String, charset: Charset, version: Int): JByteBuf {
+    override fun writeVersionedString(value: String, charset: Charset, version: Int): JByteBuf {
         byteBuf.writeVersionedString(value, charset, version)
         return this
     }
