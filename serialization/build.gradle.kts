@@ -8,6 +8,7 @@ dependencies {
     implementation(rootProject)
     implementation(libs.serialization.core)
     implementation(project(":wrapper"))
+    implementation(project(":extensions"))
 }
 
 registerPublication(
