@@ -15,16 +15,16 @@
  */
 package io.guthix.buffer
 
-internal object Medium {
-    const val SIZE_BYTES: Int = 3
-    const val SIZE_BITS: Int = SIZE_BYTES * Byte.SIZE_BITS
-    const val MAX_VALUE: Int = 8_388_607
-    const val MIN_VALUE: Int = -8_388_608
+public object Medium {
+    public const val SIZE_BYTES: Int = 3
+    public const val SIZE_BITS: Int = SIZE_BYTES * Byte.SIZE_BITS
+    public const val MAX_VALUE: Int = 8_388_607
+    public const val MIN_VALUE: Int = -8_388_608
 }
 
-internal object UMedium {
-    const val SIZE_BYTES: Int = Medium.SIZE_BYTES
-    const val SIZE_BITS: Int = Medium.SIZE_BITS
-    const val MAX_VALUE: UInt = 16_777_215u
-    const val MIN_VALUE: UInt = 0u
+public object UMedium {
+    public const val SIZE_BYTES: Int = Medium.SIZE_BYTES
+    public const val SIZE_BITS: Int = Medium.SIZE_BITS
+    public const val MAX_VALUE: UInt = 16_777_215u
+    public const val MIN_VALUE: UInt = 0u
 }

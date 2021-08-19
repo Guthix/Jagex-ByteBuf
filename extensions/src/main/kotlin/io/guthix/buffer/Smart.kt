@@ -15,23 +15,23 @@
  */
 package io.guthix.buffer
 
-internal object Smart {
-    const val MAX_BYTE_VALUE: Int = 63
-    const val MIN_BYTE_VALUE: Int = -64
-    const val BYTE_MOD: Int = MAX_BYTE_VALUE + 1
-    const val MAX_SHORT_VALUE: Int = 16383
-    const val MIN_SHORT_VALUE: Int = -16384
-    const val SHORT_MOD: Int = MAX_SHORT_VALUE + 1
-    const val MAX_INT_VALUE: Int = 1_073_741_823
-    const val MIN_INT_VALUE: Int = -1_073_741_824
-    const val INT_MOD: Int = MAX_INT_VALUE + 1
+public object Smart {
+    public const val MAX_BYTE_VALUE: Int = 63
+    public const val MIN_BYTE_VALUE: Int = -64
+    public const val BYTE_MOD: Int = MAX_BYTE_VALUE + 1
+    public const val MAX_SHORT_VALUE: Int = 16383
+    public const val MIN_SHORT_VALUE: Int = -16384
+    public const val SHORT_MOD: Int = MAX_SHORT_VALUE + 1
+    public const val MAX_INT_VALUE: Int = 1_073_741_823
+    public const val MIN_INT_VALUE: Int = -1_073_741_824
+    public const val INT_MOD: Int = MAX_INT_VALUE + 1
 }
 
-internal object USmart {
-    const val MAX_BYTE_VALUE: Int = Byte.MAX_VALUE.toInt()
-    const val MIN_BYTE_VALUE: Int = 0
-    const val MAX_SHORT_VALUE: Int = Short.MAX_VALUE.toInt()
-    const val MIN_SHORT_VALUE: Int = 0
-    const val MAX_INT_VALUE: Int = Int.MAX_VALUE
-    const val MIN_INT_VALUE: Int = 0
+public object USmart {
+    public const val MAX_BYTE_VALUE: Int = Byte.MAX_VALUE.toInt()
+    public const val MIN_BYTE_VALUE: Int = 0
+    public const val MAX_SHORT_VALUE: Int = Short.MAX_VALUE.toInt()
+    public const val MIN_SHORT_VALUE: Int = 0
+    public const val MAX_INT_VALUE: Int = Int.MAX_VALUE
+    public const val MIN_INT_VALUE: Int = 0
 }
