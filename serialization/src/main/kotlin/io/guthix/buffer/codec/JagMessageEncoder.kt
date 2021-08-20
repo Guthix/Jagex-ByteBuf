@@ -47,42 +47,21 @@ internal class JagMessageEncoder(
     override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
-            if (annotation is JBoolean) {
-                when(annotation.mod) {
-                    BByteMod.NONE -> byteBuf.writeByte(if (value) 1 else 0)
-                    BByteMod.NEG -> byteBuf.writeByteNeg(if (value) 1 else 0)
-                    BByteMod.ADD -> byteBuf.writeByteAdd(if (value) 1 else 0)
-                    BByteMod.SUB -> byteBuf.writeByteSub(if (value) 1 else 0)
-                }
-            }
+            if (annotation is JBoolean) byteBuf.writeBoolean(value)
         }
     }
 
     override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) {
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
-            if (annotation is JChar) {
-                when(annotation.mod) {
-                    BByteMod.NONE -> byteBuf.writeByte(value.code)
-                    BByteMod.NEG -> byteBuf.writeByteNeg(value.code)
-                    BByteMod.ADD -> byteBuf.writeByteAdd(value.code)
-                    BByteMod.SUB -> byteBuf.writeByteSub(value.code)
-                }
-            }
+            if (annotation is JChar) byteBuf.writeChar(value)
         }
     }
 
     override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
-            if (annotation is JByte) {
-                when(annotation.mod) {
-                    BByteMod.NONE -> byteBuf.writeByte(value.toInt())
-                    BByteMod.NEG -> byteBuf.writeByteNeg(value.toInt())
-                    BByteMod.ADD -> byteBuf.writeByteAdd(value.toInt())
-                    BByteMod.SUB -> byteBuf.writeByteSub(value.toInt())
-                }
-            }
+            if (annotation is JByte) annotation.type.writer(byteBuf, value.toInt())
         }
     }
 
@@ -90,16 +69,7 @@ internal class JagMessageEncoder(
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
             when (annotation) {
-                is JShort -> when (annotation.order) {
-                    SByteOrder.BE -> when (annotation.mod) {
-                        SByteMod.NONE -> byteBuf.writeShort(value.toInt())
-                        SByteMod.ADD -> byteBuf.writeShortAdd(value.toInt())
-                    }
-                    SByteOrder.LE -> when (annotation.mod) {
-                        SByteMod.NONE -> byteBuf.writeShortLE(value.toInt())
-                        SByteMod.ADD -> byteBuf.writeShortLEAdd(value.toInt())
-                    }
-                }
+                is JShort -> annotation.type.writer(byteBuf, value.toInt())
                 is JShortSmart -> byteBuf.writeShortSmart(value.toInt())
             }
         }
@@ -109,12 +79,7 @@ internal class JagMessageEncoder(
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
             when (annotation) {
-                is JInt -> when(annotation.order) {
-                    IByteOrder.BE -> byteBuf.writeInt(value)
-                    IByteOrder.ME -> byteBuf.writeIntME(value)
-                    IByteOrder.IME -> byteBuf.writeIntIME(value)
-                    IByteOrder.LE -> byteBuf.writeIntLE(value)
-                }
+                is JInt -> annotation.type.writer(byteBuf, value)
                 is JIntSmart -> byteBuf.writeIntSmart(value)
                 is JVarInt -> byteBuf.writeVarInt(value)
             }
@@ -175,11 +140,7 @@ internal class JagMessageEncoder(
         TODO("Not yet implemented")
     }
 
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        TODO("Not yet implemented")
-    }
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = this
 
-    override fun endStructure(descriptor: SerialDescriptor) {
-        TODO("Not yet implemented")
-    }
+    override fun endStructure(descriptor: SerialDescriptor) { /* Nothing */ }
 }

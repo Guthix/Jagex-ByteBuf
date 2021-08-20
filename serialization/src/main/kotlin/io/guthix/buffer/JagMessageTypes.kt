@@ -19,41 +19,67 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialInfo
 import java.nio.charset.Charset
 
-public enum class BByteMod { NONE, NEG, ADD, SUB }
-
-@ExperimentalSerializationApi
-public typealias JBoolean = JByte
-
-@ExperimentalSerializationApi
-public typealias JChar = JByte
-
-@SerialInfo
-@ExperimentalSerializationApi
-@Target(AnnotationTarget.PROPERTY)
-public annotation class JByte(val mod: BByteMod = BByteMod.NONE)
-
-public enum class SByteOrder { BE, LE }
-
-public enum class SByteMod { NONE, ADD }
+public enum class JByteType(
+    public val reader: JByteBuf.() -> Byte,
+    public val writer: JByteBuf.(Int) -> JByteBuf
+) {
+    DEFAULT(JByteBuf::readByte, JByteBuf::writeByte),
+    NEG(JByteBuf::readByteNeg, JByteBuf::writeByteNeg),
+    ADD(JByteBuf::readByteAdd, JByteBuf::writeByteAdd),
+    SUB(JByteBuf::readByteSub, JByteBuf::writeByteSub)
+}
 
 @SerialInfo
 @ExperimentalSerializationApi
 @Target(AnnotationTarget.PROPERTY)
-public annotation class JShort(val order: SByteOrder = SByteOrder.BE, val mod: SByteMod = SByteMod.NONE)
-
-public enum class MByteOrder { BE, LME, RME }
+public annotation class JBoolean
 
 @SerialInfo
 @ExperimentalSerializationApi
 @Target(AnnotationTarget.PROPERTY)
-public annotation class JMedium(val order: MByteOrder = MByteOrder.BE)
-
-public enum class IByteOrder { BE, ME, IME, LE }
+public annotation class JChar
 
 @SerialInfo
 @ExperimentalSerializationApi
 @Target(AnnotationTarget.PROPERTY)
-public annotation class JInt(val order: IByteOrder = IByteOrder.BE)
+public annotation class JByte(val type: JByteType = JByteType.DEFAULT)
+
+public enum class JShortType(
+    public val reader: JByteBuf.() -> Short,
+    public val writer: JByteBuf.(Int) -> JByteBuf
+) {
+    DEFAULT(JByteBuf::readShort, JByteBuf::writeShort),
+    LE(JByteBuf::readShortLE, JByteBuf::writeShortLE),
+    ADD(JByteBuf::readShortAdd, JByteBuf::writeShortAdd),
+    LE_ADD(JByteBuf::readShortLEAdd, JByteBuf::writeShortAdd)
+}
+
+@SerialInfo
+@ExperimentalSerializationApi
+@Target(AnnotationTarget.PROPERTY)
+public annotation class JShort(val type: JShortType = JShortType.DEFAULT)
+
+public enum class JMediumType { DEFAULT, LME, RME }
+
+@SerialInfo
+@ExperimentalSerializationApi
+@Target(AnnotationTarget.PROPERTY)
+public annotation class JMedium(val type: JMediumType = JMediumType.DEFAULT)
+
+public enum class JIntType(
+    public val reader: JByteBuf.() -> Int,
+    public val writer: JByteBuf.(Int) -> JByteBuf
+) {
+    DEFAULT(JByteBuf::readInt, JByteBuf::writeInt),
+    ME(JByteBuf::readIntME, JByteBuf::writeIntME),
+    IME(JByteBuf::readIntIME, JByteBuf::writeIntIME),
+    LE(JByteBuf::readIntLE, JByteBuf::writeIntLE)
+}
+
+@SerialInfo
+@ExperimentalSerializationApi
+@Target(AnnotationTarget.PROPERTY)
+public annotation class JInt(val type: JIntType = JIntType.DEFAULT)
 
 @SerialInfo
 @ExperimentalSerializationApi
@@ -97,9 +123,17 @@ public annotation class JString(val charset: JCharSet = JCharSet.WINDOWS_1252)
 @Target(AnnotationTarget.PROPERTY)
 public annotation class JVersionedString(val charset: JCharSet = JCharSet.WINDOWS_1252, val version: Int = 0)
 
-public enum class BaByteMod { NONE, ADD }
+public enum class JByteArrayType(
+    public val reader: JByteBuf.(ByteArray) -> JByteBuf,
+    public val writer: JByteBuf.(JByteBuf) -> JByteBuf
+) {
+    DEFAULT(JByteBuf::readBytes, JByteBuf::writeBytes),
+    ADD(JByteBuf::readBytesAdd, JByteBuf::writeBytesAdd),
+    REVERSED(JByteBuf::readBytesReversed, JByteBuf::writeBytesReversed),
+    REVERSED_ADD(JByteBuf::readBytesReversedAdd, JByteBuf::writeBytesReversedAdd)
+}
 
 @SerialInfo
 @ExperimentalSerializationApi
 @Target(AnnotationTarget.PROPERTY)
-public annotation class JByteArray(val mod: BaByteMod = BaByteMod.NONE, val reversed: Boolean = false)
+public annotation class JByteArray(val type: JByteArrayType = JByteArrayType.DEFAULT)

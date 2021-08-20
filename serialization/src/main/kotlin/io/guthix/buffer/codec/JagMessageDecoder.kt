@@ -52,14 +52,7 @@ public class JagMessageDecoder(
     override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
-            if (annotation is JBoolean) {
-                return when(annotation.mod) {
-                    BByteMod.NONE -> byteBuf.readBoolean()
-                    BByteMod.NEG -> byteBuf.readByteNeg().toInt() == 1
-                    BByteMod.ADD -> byteBuf.readByteAdd().toInt() == 1
-                    BByteMod.SUB -> byteBuf.readByteSub().toInt() == 1
-                }
-            }
+            if (annotation is JBoolean) return byteBuf.readBoolean()
         }
         return byteBuf.readBoolean()
     }
@@ -67,14 +60,7 @@ public class JagMessageDecoder(
     override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char {
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
-            if (annotation is JChar) {
-                return when(annotation.mod) {
-                    BByteMod.NONE -> byteBuf.readChar()
-                    BByteMod.NEG -> byteBuf.readByteNeg().toInt().toChar()
-                    BByteMod.ADD -> byteBuf.readByteAdd().toInt().toChar()
-                    BByteMod.SUB -> byteBuf.readByteSub().toInt().toChar()
-                }
-            }
+            if (annotation is JChar) return byteBuf.readChar()
         }
         return byteBuf.readChar()
     }
@@ -82,14 +68,7 @@ public class JagMessageDecoder(
     override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte {
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
-            if (annotation is JByte) {
-                return when(annotation.mod) {
-                    BByteMod.NONE -> byteBuf.readByte()
-                    BByteMod.NEG -> byteBuf.readByteNeg()
-                    BByteMod.ADD -> byteBuf.readByteAdd()
-                    BByteMod.SUB -> byteBuf.readByteSub()
-                }
-            }
+            if (annotation is JByte) return annotation.type.reader(byteBuf)
         }
         return byteBuf.readByte()
     }
@@ -98,16 +77,7 @@ public class JagMessageDecoder(
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
             when (annotation) {
-                is JShort -> return when (annotation.order) {
-                    SByteOrder.BE -> when (annotation.mod) {
-                        SByteMod.NONE -> byteBuf.readShort()
-                        SByteMod.ADD -> byteBuf.readShortAdd()
-                    }
-                    SByteOrder.LE -> when (annotation.mod) {
-                        SByteMod.NONE -> byteBuf.readShortLE()
-                        SByteMod.ADD -> byteBuf.readShortLEAdd()
-                    }
-                }
+                is JShort -> return annotation.type.reader(byteBuf)
                 is JShortSmart -> return byteBuf.readShortSmart()
             }
         }
@@ -118,12 +88,7 @@ public class JagMessageDecoder(
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
             when (annotation) {
-                is JInt -> return when(annotation.order) {
-                    IByteOrder.BE -> byteBuf.readInt()
-                    IByteOrder.ME -> byteBuf.readIntME()
-                    IByteOrder.IME -> byteBuf.readIntIME()
-                    IByteOrder.LE -> byteBuf.readIntLE()
-                }
+                is JInt -> return annotation.type.reader(byteBuf)
                 is JIntSmart -> return byteBuf.readIntSmart()
                 is JVarInt -> return byteBuf.readVarInt()
             }
@@ -161,16 +126,17 @@ public class JagMessageDecoder(
         TODO("Not yet implemented")
     }
 
+    private var iter = 0
+
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        TODO("Not yet implemented")
+        if (!byteBuf.isReadable()) return CompositeDecoder.DECODE_DONE
+        return iter++
     }
 
     @ExperimentalSerializationApi
     override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder {
         TODO("Not yet implemented")
     }
-
-
 
     @ExperimentalSerializationApi
     override fun <T : Any> decodeNullableSerializableElement(
@@ -191,12 +157,7 @@ public class JagMessageDecoder(
         TODO("Not yet implemented")
     }
 
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        TODO("Not yet implemented")
-    }
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
 
-    override fun endStructure(descriptor: SerialDescriptor) {
-        TODO("Not yet implemented")
-    }
-
+    override fun endStructure(descriptor: SerialDescriptor) { /* Nothing */ }
 }
