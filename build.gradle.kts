@@ -1,7 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     idea
     `maven-publish`
@@ -42,11 +40,6 @@ allprojects {
     tasks {
         withType<Test> {
             useJUnitPlatform()
-        }
-        withType<KotlinCompile> {
-            kotlinOptions {
-                useOldBackend = true
-            }
         }
     }
 }
