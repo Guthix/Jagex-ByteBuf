@@ -156,8 +156,8 @@ public interface JByteBuf : ReferenceCounted {
     public fun readUIntSmart(): UInt
     public fun readNullableIntSmart(): UInt?
     public fun readVarInt(): Int
-    public fun readString(charset: Charset = windows1252): String
-    public fun readVersionedString(charset: Charset = windows1252, expectedVersion: Int = 0): String
+    public fun readString(charset: Charset = Charsets.CP_1252): String
+    public fun readVersionedString(charset: Charset = Charsets.CP_1252, expectedVersion: Int = 0): String
     public fun readBytes(dst: ByteArray): JByteBuf
     public fun readBytesAdd(dst: ByteArray): JByteBuf
     public fun readBytesReversed(dst: ByteArray): JByteBuf
@@ -189,8 +189,8 @@ public interface JByteBuf : ReferenceCounted {
     public fun writeUIntSmart(value: Int): JByteBuf
     public fun writeNullableIntSmart(value: Int?): JByteBuf
     public fun writeVarInt(value: Int): JByteBuf
-    public fun writeString(value: String, charset: Charset = windows1252): JByteBuf
-    public fun writeVersionedString(value: String, charset: Charset = windows1252, version: Int = 0): JByteBuf
+    public fun writeString(value: String, charset: Charset = Charsets.CP_1252): JByteBuf
+    public fun writeVersionedString(value: String, charset: Charset = Charsets.CP_1252, version: Int = 0): JByteBuf
     public fun writeBytes(value: ByteArray): JByteBuf
     public fun writeBytes(value: JByteBuf): JByteBuf
     public fun writeBytesAdd(value: ByteArray): JByteBuf

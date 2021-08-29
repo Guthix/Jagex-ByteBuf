@@ -23,14 +23,11 @@ import kotlin.Long
 
 private const val HALF_BYTE = 128
 
-/** Cp1252 */
-public val windows1252: Charset = Charset.availableCharsets()["windows-1252"] ?: throw IllegalStateException(
-    "Could not find CP1252 character set."
-)
+public val Charsets.CP_1252: Charset get() = WINDOWS_1252
 
-public val cesu8: Charset = Charset.availableCharsets()["CESU-8"] ?: throw IllegalStateException(
-    "Could not find CESU-8 character set."
-)
+public val Charsets.WINDOWS_1252: Charset by lazy { Charset.forName("windows-1252") }
+
+public val Charsets.CESU_8: Charset by lazy { Charset.forName("CESU-8") }
 
 public fun ByteBuf.getByteNeg(index: Int): Byte = (-getByte(index)).toByte()
 
@@ -311,7 +308,7 @@ public fun ByteBuf.readVarInt(): Int {
     return prev or temp
 }
 
-public fun ByteBuf.readString(charset: Charset = windows1252): String {
+public fun ByteBuf.readString(charset: Charset = Charsets.CP_1252): String {
     val end = forEachByte(ByteProcessor.FIND_NUL)
     if (end == -1) throw IOException("String does not terminate.")
     val value = toString(readerIndex(), end - readerIndex(), charset)
@@ -319,7 +316,7 @@ public fun ByteBuf.readString(charset: Charset = windows1252): String {
     return value
 }
 
-public fun ByteBuf.readVersionedString(charset: Charset = windows1252, expectedVersion: Int = 0): String {
+public fun ByteBuf.readVersionedString(charset: Charset = Charsets.CP_1252, expectedVersion: Int = 0): String {
     val actualVersion = readUnsignedByte().toInt()
     if (actualVersion != expectedVersion) throw IOException("Expected version number did not match actual version.")
     return readString(charset)
@@ -463,13 +460,13 @@ public fun ByteBuf.writeVarInt(value: Int): ByteBuf {
     return this
 }
 
-public fun ByteBuf.writeString(value: String, charset: Charset = windows1252): ByteBuf {
+public fun ByteBuf.writeString(value: String, charset: Charset = Charsets.CP_1252): ByteBuf {
     writeCharSequence(value, charset)
     writeByte(0)
     return this
 }
 
-public fun ByteBuf.writeVersionedString(value: String, charset: Charset = windows1252, version: Int = 0): ByteBuf {
+public fun ByteBuf.writeVersionedString(value: String, charset: Charset = Charsets.CP_1252, version: Int = 0): ByteBuf {
     writeByte(version)
     writeString(value, charset)
     return this

@@ -122,7 +122,7 @@ public annotation class JIncrShortSmart
 @Target(AnnotationTarget.PROPERTY)
 public annotation class JVarInt
 
-public enum class JCharSet(public val charset: Charset) { WINDOWS_1252(windows1252), CESU8(cesu8) }
+public enum class JCharSet(public val charset: Charset) { WINDOWS_1252(Charsets.CP_1252), CESU8(Charsets.CESU_8) }
 
 @SerialInfo
 @ExperimentalSerializationApi
