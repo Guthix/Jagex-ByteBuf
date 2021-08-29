@@ -30,23 +30,24 @@ import kotlinx.serialization.modules.SerializersModule
 public sealed class JagMessage(
     internal val encodeDefaults: Boolean,
     private val serializersModule: SerializersModule
-)  {
+) {
     public companion object Default : JagMessage(false, EmptySerializersModule)
 
     private val sizeCache = mutableMapOf<SerializationStrategy<*>, Int>()
 
     public fun <T> encodeToByteBuf(
         serializer: SerializationStrategy<T>,
-        value: T
+        value: T,
+        size: Int? = null,
+        allocator: ByteBufAllocator = ByteBufAllocator.DEFAULT
     ): JByteBuf {
         val descriptor = serializer.descriptor
-        val byteBuf = ByteBufAllocator.DEFAULT.jBuffer(
-            sizeCache.getOrPut(serializer) {
-                (0 until descriptor.elementsCount).sumOf { index ->
-                    descriptor.getElementAnnotations(index).sumOf { it.byteSize() }
-                }
+        val actualSize = size ?: sizeCache.getOrPut(serializer) {
+            (0 until descriptor.elementsCount).sumOf { index ->
+                descriptor.getElementAnnotations(index).sumOf { it.byteSize() }
             }
-        )
+        }
+        val byteBuf = allocator.jBuffer(actualSize)
         val encoder = JagMessageEncoder(byteBuf, serializersModule)
         encoder.encodeSerializableValue(serializer, value)
         return byteBuf
