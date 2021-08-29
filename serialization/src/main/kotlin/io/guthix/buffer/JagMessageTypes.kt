@@ -20,13 +20,14 @@ import kotlinx.serialization.SerialInfo
 import java.nio.charset.Charset
 
 public enum class JByteType(
-    public val reader: JByteBuf.() -> Byte,
+    public val sReader: JByteBuf.() -> Byte,
+    public val uReader: JByteBuf.() -> UByte,
     public val writer: JByteBuf.(Int) -> JByteBuf
 ) {
-    DEFAULT(JByteBuf::readByte, JByteBuf::writeByte),
-    NEG(JByteBuf::readByteNeg, JByteBuf::writeByteNeg),
-    ADD(JByteBuf::readByteAdd, JByteBuf::writeByteAdd),
-    SUB(JByteBuf::readByteSub, JByteBuf::writeByteSub)
+    DEFAULT(JByteBuf::readByte, JByteBuf::readUByte, JByteBuf::writeByte),
+    NEG(JByteBuf::readByteNeg, JByteBuf::readUByteNeg, JByteBuf::writeByteNeg),
+    ADD(JByteBuf::readByteAdd, JByteBuf::readUByteAdd, JByteBuf::writeByteAdd),
+    SUB(JByteBuf::readByteSub, JByteBuf::readUByteSub, JByteBuf::writeByteSub)
 }
 
 @SerialInfo
@@ -46,12 +47,13 @@ public annotation class JByte(val type: JByteType = JByteType.DEFAULT)
 
 public enum class JShortType(
     public val reader: JByteBuf.() -> Short,
+    public val uReader: JByteBuf.() -> UShort,
     public val writer: JByteBuf.(Int) -> JByteBuf
 ) {
-    DEFAULT(JByteBuf::readShort, JByteBuf::writeShort),
-    LE(JByteBuf::readShortLE, JByteBuf::writeShortLE),
-    ADD(JByteBuf::readShortAdd, JByteBuf::writeShortAdd),
-    LE_ADD(JByteBuf::readShortLEAdd, JByteBuf::writeShortAdd)
+    DEFAULT(JByteBuf::readShort, JByteBuf::readUShort, JByteBuf::writeShort),
+    LE(JByteBuf::readShortLE, JByteBuf::readUShortLE, JByteBuf::writeShortLE),
+    ADD(JByteBuf::readShortAdd, JByteBuf::readUShortAdd, JByteBuf::writeShortAdd),
+    LE_ADD(JByteBuf::readShortLEAdd, JByteBuf::readUShortLEAdd, JByteBuf::writeShortLEAdd)
 }
 
 @SerialInfo
@@ -59,7 +61,15 @@ public enum class JShortType(
 @Target(AnnotationTarget.PROPERTY)
 public annotation class JShort(val type: JShortType = JShortType.DEFAULT)
 
-public enum class JMediumType { DEFAULT, LME, RME }
+public enum class JMediumType(
+    public val sReader: JByteBuf.() -> Int,
+    public val uReader: JByteBuf.() -> UInt,
+    public val writer: JByteBuf.(Int) -> JByteBuf
+) {
+    DEFAULT(JByteBuf::readMedium, JByteBuf::readUMedium, JByteBuf::writeMedium),
+    LME(JByteBuf::readMediumLME, JByteBuf::readUMediumLME, JByteBuf::writeMediumLME),
+    RME(JByteBuf::readMediumRME, JByteBuf::readUMediumRME, JByteBuf::writeMediumRME)
+}
 
 @SerialInfo
 @ExperimentalSerializationApi
@@ -67,13 +77,14 @@ public enum class JMediumType { DEFAULT, LME, RME }
 public annotation class JMedium(val type: JMediumType = JMediumType.DEFAULT)
 
 public enum class JIntType(
-    public val reader: JByteBuf.() -> Int,
+    public val sReader: JByteBuf.() -> Int,
+    public val uReader: JByteBuf.() -> UInt,
     public val writer: JByteBuf.(Int) -> JByteBuf
 ) {
-    DEFAULT(JByteBuf::readInt, JByteBuf::writeInt),
-    ME(JByteBuf::readIntME, JByteBuf::writeIntME),
-    IME(JByteBuf::readIntIME, JByteBuf::writeIntIME),
-    LE(JByteBuf::readIntLE, JByteBuf::writeIntLE)
+    DEFAULT(JByteBuf::readInt, JByteBuf::readUInt, JByteBuf::writeInt),
+    ME(JByteBuf::readIntME, JByteBuf::readUIntME, JByteBuf::writeIntME),
+    IME(JByteBuf::readIntIME, JByteBuf::readUIntIME, JByteBuf::writeIntIME),
+    LE(JByteBuf::readIntLE, JByteBuf::readUIntLE, JByteBuf::writeIntLE)
 }
 
 @SerialInfo

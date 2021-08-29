@@ -18,11 +18,13 @@ package io.guthix.buffer.codec
 import io.guthix.buffer.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 
+@ExperimentalUnsignedTypes
 @ExperimentalSerializationApi
 internal class JagMessageEncoder(
     private val byteBuf: JByteBuf,
@@ -36,7 +38,7 @@ internal class JagMessageEncoder(
     override fun encodeLong(value: Long) { byteBuf.writeLong(value) }
     override fun encodeString(value: String) { byteBuf.writeString(value) }
     @ExperimentalSerializationApi
-    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder { TODO("Not yet implemented") }
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder = this
     @ExperimentalSerializationApi
     override fun encodeNull() { TODO("Not yet implemented") }
     override fun encodeFloat(value: Float) { TODO("Not yet implemented") }
@@ -79,6 +81,7 @@ internal class JagMessageEncoder(
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
             when (annotation) {
+                is JMedium -> annotation.type.writer(byteBuf, value)
                 is JInt -> annotation.type.writer(byteBuf, value)
                 is JIntSmart -> byteBuf.writeIntSmart(value)
                 is JVarInt -> byteBuf.writeVarInt(value)
@@ -137,7 +140,31 @@ internal class JagMessageEncoder(
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        TODO("Not yet implemented")
+        val annotations = descriptor.getElementAnnotations(index)
+        when (serializer) {
+            UByte.serializer() -> for (annotation in annotations) {
+                if (annotation is JByte) annotation.type.writer(byteBuf, (value as UByte).toInt())
+            }
+            UShort.serializer() -> for (annotation in annotations) {
+                when (annotation) {
+                    is JShort -> annotation.type.writer(byteBuf, (value as UShort).toInt())
+                    is JShortSmart -> byteBuf.writeUShortSmart((value as UShort).toInt())
+                }
+            }
+            UInt.serializer() -> for (annotation in annotations) {
+                when (annotation) {
+                    is JMedium -> annotation.type.writer(byteBuf, (value as UInt).toInt())
+                    is JInt -> annotation.type.writer(byteBuf, (value as UInt).toInt())
+                    is JIntSmart -> byteBuf.writeUIntSmart((value as UInt).toInt())
+                }
+            }
+            ULong.serializer() -> for (annotation in annotations) {
+                when (annotation) {
+                    is JSmallLong -> byteBuf.writeSmallLong((value as ULong).toLong())
+                    is JLong -> byteBuf.writeLong((value as ULong).toLong())
+                }
+            }
+        }
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = this

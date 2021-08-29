@@ -18,16 +18,21 @@ package io.guthix.buffer.codec
 import io.guthix.buffer.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
 
+@ExperimentalUnsignedTypes
 @ExperimentalSerializationApi
 public class JagMessageDecoder(
     override val serializersModule: SerializersModule,
     private val byteBuf: JByteBuf
 ) : Decoder, CompositeDecoder {
+    private var elementIter = 0
+
     override fun decodeBoolean(): Boolean = byteBuf.readBoolean()
     override fun decodeChar(): Char = byteBuf.readChar()
     override fun decodeByte(): Byte = byteBuf.readByte()
@@ -41,7 +46,7 @@ public class JagMessageDecoder(
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int { TODO("Not yet implemented") }
 
     @ExperimentalSerializationApi
-    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder { TODO("Not yet implemented") }
+    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder = this
 
     @ExperimentalSerializationApi
     override fun decodeNotNullMark(): Boolean { TODO("Not yet implemented") }
@@ -68,7 +73,7 @@ public class JagMessageDecoder(
     override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte {
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
-            if (annotation is JByte) return annotation.type.reader(byteBuf)
+            if (annotation is JByte) return annotation.type.sReader(byteBuf)
         }
         return byteBuf.readByte()
     }
@@ -88,7 +93,8 @@ public class JagMessageDecoder(
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
             when (annotation) {
-                is JInt -> return annotation.type.reader(byteBuf)
+                is JMedium -> return annotation.type.sReader(byteBuf)
+                is JInt -> return annotation.type.sReader(byteBuf)
                 is JIntSmart -> return byteBuf.readIntSmart()
                 is JVarInt -> return byteBuf.readVarInt()
             }
@@ -126,11 +132,9 @@ public class JagMessageDecoder(
         TODO("Not yet implemented")
     }
 
-    private var iter = 0
-
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         if (!byteBuf.isReadable()) return CompositeDecoder.DECODE_DONE
-        return iter++
+        return elementIter++
     }
 
     @ExperimentalSerializationApi
@@ -148,13 +152,39 @@ public class JagMessageDecoder(
         TODO("Not yet implemented")
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T {
-        TODO("Not yet implemented")
+        val annotations = descriptor.getElementAnnotations(index)
+        when (deserializer) {
+            UByte.serializer() -> for (annotation in annotations) {
+                if (annotation is JByte) return annotation.type.uReader(byteBuf) as T
+            }
+            UShort.serializer() -> for (annotation in annotations) {
+                when (annotation) {
+                    is JShort -> return annotation.type.uReader(byteBuf) as T
+                    is JShortSmart -> return byteBuf.readUShortSmart() as T
+                }
+            }
+            UInt.serializer() -> for (annotation in annotations) {
+                when (annotation) {
+                    is JMedium -> return annotation.type.uReader(byteBuf) as T
+                    is JInt -> return annotation.type.uReader(byteBuf) as T
+                    is JIntSmart -> return byteBuf.readUIntSmart() as T
+                }
+            }
+            ULong.serializer() -> for (annotation in annotations) {
+                when (annotation) {
+                    is JSmallLong -> return byteBuf.readUSmallLong() as T
+                    is JLong -> return byteBuf.readULong() as T
+                }
+            }
+        }
+        throw SerializationException("Could not decode for ${deserializer.descriptor.serialName}.")
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this

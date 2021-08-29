@@ -20,12 +20,12 @@ import io.guthix.buffer.codec.JagMessageEncoder
 import io.netty.buffer.ByteBufAllocator
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.elementDescriptors
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
+@ExperimentalUnsignedTypes
 @ExperimentalSerializationApi
 public sealed class JagMessage(
     internal val encodeDefaults: Boolean,
@@ -33,7 +33,7 @@ public sealed class JagMessage(
 )  {
     public companion object Default : JagMessage(false, EmptySerializersModule)
 
-    private val sizeCache = mutableMapOf<String, Int>()
+    private val sizeCache = mutableMapOf<SerializationStrategy<*>, Int>()
 
     public fun <T> encodeToByteBuf(
         serializer: SerializationStrategy<T>,
@@ -41,29 +41,27 @@ public sealed class JagMessage(
     ): JByteBuf {
         val descriptor = serializer.descriptor
         val byteBuf = ByteBufAllocator.DEFAULT.jBuffer(
-            sizeCache.getOrPut(descriptor.serialName) { calculateSize(descriptor) }
+            sizeCache.getOrPut(serializer) {
+                (0 until descriptor.elementsCount).sumOf { index ->
+                    descriptor.getElementAnnotations(index).sumOf { it.byteSize() }
+                }
+            }
         )
         val encoder = JagMessageEncoder(byteBuf, serializersModule)
         encoder.encodeSerializableValue(serializer, value)
         return byteBuf
     }
 
-    private fun calculateSize(descriptor: SerialDescriptor): Int {
-        if (descriptor.elementsCount == 0) {
-            for (annotation in descriptor.annotations) {
-                when (annotation) {
-                    is JByte -> return Byte.SIZE_BYTES
-                    is JShort -> return Short.SIZE_BYTES
-                    is JShortSmart -> return Short.SIZE_BYTES
-                    is JMedium -> return Medium.SIZE_BYTES
-                    is JIntSmart -> return Int.SIZE_BYTES
-                    is JInt -> return Int.SIZE_BYTES
-                    is JSmallLong -> return SmallLong.SIZE_BYTES
-                    is JLong -> return Long.SIZE_BYTES
-                }
-            }
-        }
-        return descriptor.elementDescriptors.sumOf(::calculateSize)
+    private fun Annotation.byteSize(): Int = when (this) {
+        is JByte -> Byte.SIZE_BYTES
+        is JShort -> Short.SIZE_BYTES
+        is JShortSmart -> Short.SIZE_BYTES
+        is JMedium -> Medium.SIZE_BYTES
+        is JIntSmart -> Int.SIZE_BYTES
+        is JInt -> Int.SIZE_BYTES
+        is JSmallLong -> SmallLong.SIZE_BYTES
+        is JLong -> Long.SIZE_BYTES
+        else -> throw SerializationException("Can't calculate size")
     }
 
     public fun <T> decodeFromByteBuf(deserializer: DeserializationStrategy<T>, byteBuf: JByteBuf): T {
