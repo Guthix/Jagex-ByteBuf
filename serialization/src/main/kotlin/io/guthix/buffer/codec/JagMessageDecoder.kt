@@ -117,8 +117,8 @@ public class JagMessageDecoder(
         val annotations = descriptor.getElementAnnotations(index)
         for (annotation in annotations) {
             when (annotation) {
-                is JString -> byteBuf.readString(annotation.charset.charset)
-                is JVersionedString -> byteBuf.readVersionedString(annotation.charset.charset, annotation.version)
+                is JString -> return byteBuf.readString(annotation.charset.charset)
+                is JVersionedString -> return byteBuf.readVersionedString(annotation.charset.charset, annotation.version)
             }
         }
         return byteBuf.readString()

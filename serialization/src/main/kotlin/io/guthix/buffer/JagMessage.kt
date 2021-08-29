@@ -44,7 +44,7 @@ public sealed class JagMessage(
         val descriptor = serializer.descriptor
         val actualSize = size ?: sizeCache.getOrPut(serializer) {
             (0 until descriptor.elementsCount).sumOf { index ->
-                descriptor.getElementAnnotations(index).sumOf { it.byteSize() }
+                descriptor.getElementAnnotations(index).sumOf { it.byteSize() ?: 0 }
             }
         }
         val byteBuf = allocator.jBuffer(actualSize)
@@ -53,7 +53,7 @@ public sealed class JagMessage(
         return byteBuf
     }
 
-    private fun Annotation.byteSize(): Int = when (this) {
+    private fun Annotation.byteSize(): Int? = when (this) {
         is JByte -> Byte.SIZE_BYTES
         is JShort -> Short.SIZE_BYTES
         is JShortSmart -> Short.SIZE_BYTES
@@ -62,7 +62,7 @@ public sealed class JagMessage(
         is JInt -> Int.SIZE_BYTES
         is JSmallLong -> SmallLong.SIZE_BYTES
         is JLong -> Long.SIZE_BYTES
-        else -> throw SerializationException("Can't calculate size")
+        else -> null
     }
 
     public fun <T> decodeFromByteBuf(deserializer: DeserializationStrategy<T>, byteBuf: JByteBuf): T {

@@ -122,17 +122,17 @@ public annotation class JIncrShortSmart
 @Target(AnnotationTarget.PROPERTY)
 public annotation class JVarInt
 
-public enum class JCharSet(public val charset: Charset) { WINDOWS_1252(Charsets.CP_1252), CESU8(Charsets.CESU_8) }
+public enum class JCharSet(public val charset: Charset) { CP_1252(Charsets.CP_1252), CESU8(Charsets.CESU_8) }
 
 @SerialInfo
 @ExperimentalSerializationApi
 @Target(AnnotationTarget.PROPERTY)
-public annotation class JString(val charset: JCharSet = JCharSet.WINDOWS_1252)
+public annotation class JString(val charset: JCharSet = JCharSet.CP_1252)
 
 @SerialInfo
 @ExperimentalSerializationApi
 @Target(AnnotationTarget.PROPERTY)
-public annotation class JVersionedString(val charset: JCharSet = JCharSet.WINDOWS_1252, val version: Int = 0)
+public annotation class JVersionedString(val charset: JCharSet = JCharSet.CP_1252, val version: Int = 0)
 
 public enum class JByteArrayType(
     public val reader: JByteBuf.(ByteArray) -> JByteBuf,
