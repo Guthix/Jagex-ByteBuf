@@ -31,6 +31,9 @@ public interface JByteBuf : ReferenceCounted {
     public var readerIndex: Int
     public var writerIndex: Int
 
+    public val readableBytes: Int
+    public val writeableBytes: Int
+
     public fun isDirect(): Boolean
     public fun isReadOnly(): Boolean
     public fun asReadOnly(): JByteBuf

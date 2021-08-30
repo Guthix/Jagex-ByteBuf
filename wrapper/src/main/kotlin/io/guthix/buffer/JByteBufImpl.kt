@@ -33,6 +33,12 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
             byteBuf.writerIndex(value)
         }
 
+    override val readableBytes: Int
+        get() = byteBuf.readableBytes()
+
+    override val writeableBytes: Int
+        get() = byteBuf.writableBytes()
+
     override fun isDirect(): Boolean = byteBuf.isDirect
     override fun isReadOnly(): Boolean = byteBuf.isReadOnly
     override fun asReadOnly(): JByteBuf = JByteBufImpl(byteBuf.asReadOnly())
