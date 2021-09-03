@@ -5,7 +5,7 @@ plugins {
     `maven-publish`
     signing
     id("org.jetbrains.dokka") version "1.4.32"
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.5.30"
 }
 
 group = "io.guthix"

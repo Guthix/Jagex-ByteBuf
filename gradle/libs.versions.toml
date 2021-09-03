@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.5.21"
+kotlin = "1.5.30"
 
 [libraries]
 netty-buf = { group = "io.netty", name = "netty-buffer", version = "4.1.66.Final" }
