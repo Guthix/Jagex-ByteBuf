@@ -135,8 +135,8 @@ public annotation class JString(val charset: JCharSet = JCharSet.CP_1252)
 public annotation class JVersionedString(val charset: JCharSet = JCharSet.CP_1252, val version: Int = 0)
 
 public enum class JByteArrayType(
-    public val reader: JByteBuf.(ByteArray) -> JByteBuf,
-    public val writer: JByteBuf.(JByteBuf) -> JByteBuf
+    public val sReader: JByteBuf.(Int) -> ByteArray,
+    public val writer: JByteBuf.(ByteArray) -> JByteBuf
 ) {
     DEFAULT(JByteBuf::readBytes, JByteBuf::writeBytes),
     ADD(JByteBuf::readBytesAdd, JByteBuf::writeBytesAdd),
@@ -147,4 +147,4 @@ public enum class JByteArrayType(
 @SerialInfo
 @ExperimentalSerializationApi
 @Target(AnnotationTarget.PROPERTY)
-public annotation class JByteArray(val type: JByteArrayType = JByteArrayType.DEFAULT)
+public annotation class JByteArray(val size: Int, val type: JByteArrayType = JByteArrayType.DEFAULT)

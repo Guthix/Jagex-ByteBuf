@@ -18,6 +18,7 @@ package io.guthix.buffer.codec
 import io.guthix.buffer.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.builtins.ByteArraySerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeEncoder
@@ -40,7 +41,7 @@ internal class JagMessageEncoder(
     @ExperimentalSerializationApi
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder = this
     @ExperimentalSerializationApi
-    override fun encodeNull() { TODO("Not yet implemented") }
+    override fun encodeNull() { }
     override fun encodeFloat(value: Float) { TODO("Not yet implemented") }
     override fun encodeDouble(value: Double) { TODO("Not yet implemented") }
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) { TODO("Not yet implemented") }
@@ -143,7 +144,9 @@ internal class JagMessageEncoder(
         val annotations = descriptor.getElementAnnotations(index)
         when (serializer) {
             UByte.serializer() -> for (annotation in annotations) {
-                if (annotation is JByte) annotation.type.writer(byteBuf, (value as UByte).toInt())
+                when (annotation) {
+                    is JByte -> annotation.type.writer(byteBuf, (value as UByte).toInt())
+                }
             }
             UShort.serializer() -> for (annotation in annotations) {
                 when (annotation) {
@@ -162,6 +165,11 @@ internal class JagMessageEncoder(
                 when (annotation) {
                     is JSmallLong -> byteBuf.writeSmallLong((value as ULong).toLong())
                     is JLong -> byteBuf.writeLong((value as ULong).toLong())
+                }
+            }
+            ByteArraySerializer() -> for (annotation in annotations) {
+                when (annotation) {
+                    is JByteArray -> annotation.type.writer(byteBuf, value as ByteArray)
                 }
             }
         }

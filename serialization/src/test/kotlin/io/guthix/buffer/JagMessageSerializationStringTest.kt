@@ -35,7 +35,7 @@ private data class StringTest(
 class JagMessageSerializationStringTest : StringSpec({
     "Encode/Decode Test" {
         checkAll<String, String, String> { default, cesu8, versioned ->
-            val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(SmallLong.SIZE_BYTES).apply {
+            val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(0).apply {
                 writeString(default)
                 writeString(cesu8, Charsets.CESU_8)
                 writeVersionedString(versioned, version = 0)

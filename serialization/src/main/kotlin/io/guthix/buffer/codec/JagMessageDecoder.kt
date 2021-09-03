@@ -19,6 +19,7 @@ import io.guthix.buffer.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.ByteArraySerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
@@ -181,6 +182,13 @@ public class JagMessageDecoder(
                 when (annotation) {
                     is JSmallLong -> return byteBuf.readUSmallLong() as T
                     is JLong -> return byteBuf.readULong() as T
+                }
+            }
+            ByteArraySerializer() -> for (annotation in annotations) {
+                when (annotation) {
+                    is JByteArray -> {
+                        return annotation.type.sReader(byteBuf, annotation.size) as T
+                    }
                 }
             }
         }
