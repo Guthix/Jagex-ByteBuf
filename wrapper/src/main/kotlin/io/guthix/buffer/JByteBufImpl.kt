@@ -111,18 +111,22 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
     override fun getUSmallLong(index: Int): ULong = byteBuf.getUnsignedSmallLong(index).toULong()
     override fun getLong(index: Int): Long = byteBuf.getLong(index)
     override fun getULong(index: Int): ULong = byteBuf.getLong(index).toULong()
+    override fun getBytes(index: Int, length: Int): ByteArray = byteBuf.getBytes(index, length)
     override fun getBytes(index: Int, dst: ByteArray): JByteBuf {
         byteBuf.getBytes(index, dst)
         return this
     }
+    override fun getBytesAdd(index: Int, length: Int): ByteArray = byteBuf.getBytesAdd(index, length)
     override fun getBytesAdd(index: Int, dst: ByteArray): JByteBuf {
         byteBuf.getBytesAdd(index, dst)
         return this
     }
+    override fun getBytesReversed(index: Int, length: Int): ByteArray = byteBuf.getBytesReversed(index, length)
     override fun getBytesReversed(index: Int, dst: ByteArray): JByteBuf {
         byteBuf.getBytesReversed(index, dst)
         return this
     }
+    override fun getBytesReversedAdd(index: Int, length: Int): ByteArray = byteBuf.getBytesReversedAdd(index, length)
     override fun getBytesReversedAdd(index: Int, dst: ByteArray): JByteBuf {
         byteBuf.getBytesReversedAdd(index, dst)
         return this
@@ -283,18 +287,26 @@ public value class JByteBufImpl(override val byteBuf: ByteBuf) : JByteBuf {
     override fun readString(charset: Charset): String = byteBuf.readString(charset)
     override fun readVersionedString(charset: Charset, expectedVersion: Int): String =
         byteBuf.readVersionedString(charset, expectedVersion)
+    override fun readBytes(length: Int): ByteArray {
+        val dest = ByteArray(length)
+        byteBuf.readBytes(dest)
+        return dest
+    }
     override fun readBytes(dst: ByteArray): JByteBuf {
         byteBuf.readBytes(dst)
         return this
     }
+    override fun readBytesAdd(length: Int): ByteArray = byteBuf.readBytesAdd(length)
     override fun readBytesAdd(dst: ByteArray): JByteBuf {
         byteBuf.readBytesAdd(dst)
         return this
     }
+    override fun readBytesReversed(length: Int): ByteArray = byteBuf.readBytesReversed(length)
     override fun readBytesReversed(dst: ByteArray): JByteBuf {
         byteBuf.readBytesReversed(dst)
         return this
     }
+    override fun readBytesReversedAdd(length: Int): ByteArray = byteBuf.readBytesReversedAdd(length)
     override fun readBytesReversedAdd(dst: ByteArray): JByteBuf {
         byteBuf.readBytesReversedAdd(dst)
         return this

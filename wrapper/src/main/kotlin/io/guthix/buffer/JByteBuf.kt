@@ -83,9 +83,13 @@ public interface JByteBuf : ReferenceCounted {
     public fun getUSmallLong(index: Int): ULong
     public fun getLong(index: Int): Long
     public fun getULong(index: Int): ULong
+    public fun getBytes(index: Int, length: Int): ByteArray
     public fun getBytes(index: Int, dst: ByteArray): JByteBuf
+    public fun getBytesAdd(index: Int, length: Int): ByteArray
     public fun getBytesAdd(index: Int, dst: ByteArray): JByteBuf
+    public fun getBytesReversed(index: Int, length: Int): ByteArray
     public fun getBytesReversed(index: Int, dst: ByteArray): JByteBuf
+    public fun getBytesReversedAdd(index: Int, length: Int): ByteArray
     public fun getBytesReversedAdd(index: Int, dst: ByteArray): JByteBuf
 
     public fun setBoolean(index: Int, value: Boolean): JByteBuf
@@ -161,9 +165,13 @@ public interface JByteBuf : ReferenceCounted {
     public fun readVarInt(): Int
     public fun readString(charset: Charset = Charsets.CP_1252): String
     public fun readVersionedString(charset: Charset = Charsets.CP_1252, expectedVersion: Int = 0): String
+    public fun readBytes(length: Int): ByteArray
     public fun readBytes(dst: ByteArray): JByteBuf
+    public fun readBytesAdd(length: Int): ByteArray
     public fun readBytesAdd(dst: ByteArray): JByteBuf
+    public fun readBytesReversed(length: Int): ByteArray
     public fun readBytesReversed(dst: ByteArray): JByteBuf
+    public fun readBytesReversedAdd(length: Int): ByteArray
     public fun readBytesReversedAdd(dst: ByteArray): JByteBuf
 
     public fun writeBoolean(value: Boolean): JByteBuf
