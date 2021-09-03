@@ -83,26 +83,35 @@ public fun ByteBuf.getSmallLong(index: Int): Long = (getMedium(index).toLong() s
 public fun ByteBuf.getUnsignedSmallLong(index: Int): Long = (getUnsignedMedium(index).toLong() shl Medium.SIZE_BITS) or
     getUnsignedMedium(index + Medium.SIZE_BYTES).toLong()
 
-public fun ByteBuf.getBytesAdd(index: Int, length: Int): ByteArray =
-    getBytesAdd(index, ByteArray(length))
+public fun ByteBuf.getBytesReversed(index: Int, length: Int): ByteArray = getBytesReversed(index, ByteArray(length))
 
-public fun ByteBuf.getBytesAdd(index: Int, dest: ByteArray): ByteArray = dest.apply {
-    getBytes(index, this)
-}.map { (it - HALF_BYTE).toByte() }.toByteArray()
+public fun ByteBuf.getBytesReversed(index: Int, dest: ByteArray): ByteArray {
+    val endReaderIndex = index + dest.size - 1
+    for ((writerIndex, readerIndex) in (endReaderIndex downTo index).withIndex()) {
+        dest[writerIndex] = getByte(readerIndex)
+    }
+    return dest
+}
 
-public fun ByteBuf.getBytesReversed(index: Int, length: Int): ByteArray =
-    getBytesReversed(index, ByteArray(length))
+public fun ByteBuf.getBytesAdd(index: Int, length: Int): ByteArray = getBytesAdd(index, ByteArray(length))
 
-public fun ByteBuf.getBytesReversed(index: Int, dest: ByteArray): ByteArray = dest.apply {
-    getBytes(index, this)
-}.reversed().toByteArray()
+public fun ByteBuf.getBytesAdd(index: Int, dest: ByteArray): ByteArray {
+    for (writerIndex in dest.indices) {
+        dest[writerIndex] = getByteAdd(index + writerIndex)
+    }
+    return dest
+}
 
 public fun ByteBuf.getBytesReversedAdd(index: Int, length: Int): ByteArray =
     getBytesReversedAdd(index, ByteArray(length))
 
-public fun ByteBuf.getBytesReversedAdd(index: Int, dest: ByteArray): ByteArray = dest.apply {
-    getBytes(index, this)
-}.map { (it - HALF_BYTE).toByte() }.reversed().toByteArray()
+public fun ByteBuf.getBytesReversedAdd(index: Int, dest: ByteArray): ByteArray {
+    val endReaderIndex = index + dest.size - 1
+    for ((writerIndex, readerIndex) in (endReaderIndex downTo index).withIndex()) {
+        dest[writerIndex] = getByteAdd(readerIndex)
+    }
+    return dest
+}
 
 public fun ByteBuf.setByteNeg(index: Int, value: Int): ByteBuf = setByte(index, -value)
 
@@ -324,21 +333,34 @@ public fun ByteBuf.readVersionedString(charset: Charset = Charsets.CP_1252, expe
 
 public fun ByteBuf.readBytesReversed(length: Int): ByteArray = readBytesReversed(ByteArray(length))
 
-public fun ByteBuf.readBytesReversed(dest: ByteArray): ByteArray = dest.apply {
-    readBytes(this)
-}.reversed().toByteArray()
+public fun ByteBuf.readBytesReversed(dest: ByteArray): ByteArray {
+    val endReaderIndex = readerIndex() + dest.size - 1
+    for ((writerIndex, readerIndex) in (endReaderIndex downTo readerIndex()).withIndex()) {
+        dest[writerIndex] = getByte(readerIndex)
+    }
+    readerIndex(endReaderIndex + 1)
+    return dest
+}
 
 public fun ByteBuf.readBytesAdd(length: Int): ByteArray = readBytesAdd(ByteArray(length))
 
-public fun ByteBuf.readBytesAdd(dest: ByteArray): ByteArray = dest.apply {
-    readBytes(this)
-}.map { (it - HALF_BYTE).toByte() }.toByteArray()
+public fun ByteBuf.readBytesAdd(dest: ByteArray): ByteArray {
+    for (writerIndex in dest.indices) {
+        dest[writerIndex] = readByteAdd()
+    }
+    return dest
+}
 
 public fun ByteBuf.readBytesReversedAdd(length: Int): ByteArray = readBytesReversedAdd(ByteArray(length))
 
-public fun ByteBuf.readBytesReversedAdd(dest: ByteArray): ByteArray = dest.apply {
-    readBytes(this)
-}.map { (it - HALF_BYTE).toByte() }.reversed().toByteArray()
+public fun ByteBuf.readBytesReversedAdd(dest: ByteArray): ByteArray {
+    val endReaderIndex = readerIndex() + dest.size - 1
+    for ((writerIndex, readerIndex) in (endReaderIndex downTo readerIndex()).withIndex()) {
+        dest[writerIndex] = getByteAdd(readerIndex)
+    }
+    readerIndex(endReaderIndex + 1)
+    return dest
+}
 
 public fun ByteBuf.writeByteNeg(value: Int): ByteBuf = writeByte(-value)
 
