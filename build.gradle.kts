@@ -9,7 +9,6 @@ plugins {
 }
 
 group = "io.guthix"
-version = "0.2.0-snapshot"
 
 allprojects {
     apply(plugin = "maven-publish")

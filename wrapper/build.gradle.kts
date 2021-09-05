@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 import io.guthix.buffer.registerPublication
 
 description = "Netty ByteBuf wrapper"
@@ -10,7 +8,4 @@ dependencies {
     implementation(project(":extensions"))
 }
 
-registerPublication(
-    publicationName = "bytebufWrapper",
-    pomName = "jagex-bytebuf-wrapper"
-)
+registerPublication( "jagex-bytebuf-wrapper")

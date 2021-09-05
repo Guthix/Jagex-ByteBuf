@@ -11,7 +11,4 @@ dependencies {
     implementation(project(":extensions"))
 }
 
-registerPublication(
-    publicationName = "bytebufSerialization",
-    pomName = "jagex-bytebuf-serialization"
-)
+registerPublication("jagex-bytebuf-serialization")
