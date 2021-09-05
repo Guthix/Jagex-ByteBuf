@@ -8,13 +8,13 @@ plugins {
     kotlin("jvm") version "1.5.30"
 }
 
-group = "io.guthix"
-
 allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
     apply(plugin = "org.jetbrains.dokka")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    
+    group = "io.guthix"
 
     repositories {
         mavenCentral()
