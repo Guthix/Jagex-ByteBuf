@@ -1,4 +1,4 @@
-name: Change
+name: Publish Snapshot
 on:
   push:
     branches: [master]
