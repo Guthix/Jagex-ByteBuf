@@ -1,5 +1,7 @@
 import io.guthix.buffer.registerPublication
 
+description = "Serialization for Jagex messages"
+
 plugins {
     kotlin("plugin.serialization") version "1.5.20"
 }

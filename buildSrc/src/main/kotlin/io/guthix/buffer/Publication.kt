@@ -68,7 +68,7 @@ private fun MavenPublication.configurePom(projectName: String, desc: String?, co
     pom {
         name.set(projectName)
         artifactId = projectName
-        desc?.let { description.set(desc) }
+        description.set(desc ?: "")
         url.set("https://github.com/guthix/Jagex-ByteBuf")
         from(component)
         licenses {
