@@ -31,7 +31,7 @@ allprojects {
 
     kotlin {
         jvmToolchain {
-            (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of("8"))
+            (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(rootProject.libs.versions.jdk.get()))
         }
     }
 

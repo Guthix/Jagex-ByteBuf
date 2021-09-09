@@ -7,6 +7,7 @@ rootProject.name = "jagex-bytebuf"
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
+            version("jdk", "8")
             version("kotlin", "1.5.30")
             version("dokka", "1.5.0")
             version("serialization", "1.2.2")
