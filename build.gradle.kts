@@ -31,6 +31,12 @@ allprojects {
 
     kotlin { explicitApi() }
 
+    kotlin {
+        jvmToolchain {
+            (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of("8"))
+        }
+    }
+
     java {
         withJavadocJar()
         withSourcesJar()
