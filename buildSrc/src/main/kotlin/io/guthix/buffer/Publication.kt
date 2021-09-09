@@ -27,7 +27,7 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
 
-private const val SNAPSHOT_BASE_VERSION = "2.1.0"
+private const val SNAPSHOT_BASE_VERSION = "0.2.1"
 
 fun Project.registerPublication(name: String) {
     configure<PublishingExtension> {
