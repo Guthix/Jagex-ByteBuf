@@ -4,7 +4,7 @@ plugins {
     idea
     `maven-publish`
     signing
-    id("org.jetbrains.dokka") version "1.4.32"
+    id("org.jetbrains.dokka") version "1.5.0"
     kotlin("jvm") version "1.5.30"
 }
 
@@ -18,15 +18,13 @@ allprojects {
 
     repositories {
         mavenCentral()
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 
     dependencies {
-        testImplementation(rootProject.libs.logback)
         testImplementation(rootProject.libs.kotest.junit)
         testImplementation(rootProject.libs.kotest.assert)
         testImplementation(rootProject.libs.kotest.property)
-        dokkaHtmlPlugin(rootProject.libs.dokka)
+        dokkaHtmlPlugin(rootProject.libs.dokka.java)
     }
 
     kotlin { explicitApi() }
