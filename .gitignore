@@ -7,6 +7,10 @@
 .idea/**/dictionaries
 .idea/**/shelf
 .idea/.gitignore
+.idea/.name
+.idea/vcs.xml
+.idea/misc.xml
+.idea/kotlinScripting.xml
 
 # Generated files
 .idea/**/contentModel.xml
