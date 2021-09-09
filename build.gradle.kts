@@ -27,9 +27,8 @@ allprojects {
         dokkaHtmlPlugin(rootProject.deps.dokka.java)
     }
 
-    kotlin { explicitApi() }
-
     kotlin {
+        explicitApi()
         jvmToolchain {
             (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(rootProject.deps.versions.jdk.get()))
         }

@@ -30,4 +30,3 @@ dependencyResolutionManagement {
 include("serialization")
 include("extensions")
 include("wrapper")
-
