@@ -1,8 +1,8 @@
 import io.guthix.buffer.registerPublication
 
 dependencies {
-    api(libs.netty.buffer)
-    implementation(libs.netty.codec)
+    api(deps.netty.buffer)
+    implementation(deps.netty.codec)
     implementation(project(":extensions"))
 }
 

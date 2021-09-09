@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
     implementation(rootProject)
-    implementation(libs.serialization.core)
+    implementation(deps.serialization.core)
     implementation(project(":wrapper"))
     implementation(project(":extensions"))
 }

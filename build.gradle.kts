@@ -21,17 +21,17 @@ allprojects {
     }
 
     dependencies {
-        testImplementation(rootProject.libs.kotest.junit)
-        testImplementation(rootProject.libs.kotest.assert)
-        testImplementation(rootProject.libs.kotest.property)
-        dokkaHtmlPlugin(rootProject.libs.dokka.java)
+        testImplementation(rootProject.deps.kotest.junit)
+        testImplementation(rootProject.deps.kotest.assert)
+        testImplementation(rootProject.deps.kotest.property)
+        dokkaHtmlPlugin(rootProject.deps.dokka.java)
     }
 
     kotlin { explicitApi() }
 
     kotlin {
         jvmToolchain {
-            (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(rootProject.libs.versions.jdk.get()))
+            (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(rootProject.deps.versions.jdk.get()))
         }
     }
 
