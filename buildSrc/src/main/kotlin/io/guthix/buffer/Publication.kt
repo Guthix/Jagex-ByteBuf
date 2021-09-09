@@ -29,7 +29,8 @@ import java.net.URI
 
 private const val SNAPSHOT_BASE_VERSION = "0.2.1"
 
-fun Project.registerPublication(name: String) {
+fun Project.registerPublication(name: String, description: String) {
+    this.description = description
     configure<PublishingExtension> {
         repositories {
             mavenCentralRepository()
