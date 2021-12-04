@@ -6,4 +6,4 @@ dependencies {
     implementation(project(":extensions"))
 }
 
-registerPublication( name = "jagex-bytebuf-wrapper", description = "Netty ByteBuf wrapper")
+registerPublication(name = "jagex-bytebuf-wrapper", description = "Netty ByteBuf wrapper")
