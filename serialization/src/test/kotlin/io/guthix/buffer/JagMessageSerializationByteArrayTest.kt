@@ -67,11 +67,19 @@ class JagMessageSerializationByteArrayTest : StringSpec({
                 writeBytesAdd(add)
                 writeBytesReversedAdd(reversedAdd)
             }
-            val expectedTest = ByteArrayTest(default, reversed, add, reversedAdd)
-            val actualByteBuf = JagMessage.encodeToByteBuf(ByteArrayTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(ByteArrayTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = ByteArrayTest(default, reversed, add, reversedAdd)
+                val actualByteBuf = JagMessage.encodeToByteBuf(ByteArrayTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(ByteArrayTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
 })

@@ -45,24 +45,40 @@ class JagMessageSerializationShortSmartTest : StringSpec({
             val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(Short.SIZE_BYTES).apply {
                 writeShortSmart(default.toInt())
             }
-            val expectedTest = ShortSmartTest(default)
-            val actualByteBuf = JagMessage.encodeToByteBuf(ShortSmartTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(ShortSmartTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = ShortSmartTest(default)
+                val actualByteBuf = JagMessage.encodeToByteBuf(ShortSmartTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(ShortSmartTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
-    
+
     "Unsigned Encode/Decode Test" {
-        checkAll(Arb.uShort(USmart.MIN_SHORT_VALUE.toUShort(), USmart.MAX_SHORT_VALUE.toUShort())) { default->
+        checkAll(Arb.uShort(USmart.MIN_SHORT_VALUE.toUShort(), USmart.MAX_SHORT_VALUE.toUShort())) { default ->
             val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(UShort.SIZE_BYTES).apply {
                 writeUShortSmart(default.toInt())
             }
-            val expectedTest = UShortSmartTest(default)
-            val actualByteBuf = JagMessage.encodeToByteBuf(UShortSmartTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(UShortSmartTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = UShortSmartTest(default)
+                val actualByteBuf = JagMessage.encodeToByteBuf(UShortSmartTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(UShortSmartTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
 })

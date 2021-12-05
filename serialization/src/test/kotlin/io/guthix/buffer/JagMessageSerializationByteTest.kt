@@ -51,11 +51,19 @@ class JagMessageSerializationByteTest : StringSpec({
                 writeByteAdd(add.toInt())
                 writeByteSub(sub.toInt())
             }
-            val expectedTest = ByteTest(default, neg, add, sub)
-            val actualByteBuf = JagMessage.encodeToByteBuf(ByteTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(ByteTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = ByteTest(default, neg, add, sub)
+                val actualByteBuf = JagMessage.encodeToByteBuf(ByteTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(ByteTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
 
@@ -67,11 +75,19 @@ class JagMessageSerializationByteTest : StringSpec({
                 writeByteAdd(add.toInt())
                 writeByteSub(sub.toInt())
             }
-            val expectedTest = UByteTest(default, neg, add, sub)
-            val actualByteBuf = JagMessage.encodeToByteBuf(UByteTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(UByteTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = UByteTest(default, neg, add, sub)
+                val actualByteBuf = JagMessage.encodeToByteBuf(UByteTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(UByteTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
 })

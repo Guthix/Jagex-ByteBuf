@@ -40,11 +40,19 @@ class JagMessageSerializationStringTest : StringSpec({
                 writeString(cesu8, Charsets.CESU_8)
                 writeVersionedString(versioned, version = 0)
             }
-            val expectedTest = StringTest(default, cesu8, versioned)
-            val actualByteBuf = JagMessage.encodeToByteBuf(StringTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(StringTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = StringTest(default, cesu8, versioned)
+                val actualByteBuf = JagMessage.encodeToByteBuf(StringTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(StringTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
 })

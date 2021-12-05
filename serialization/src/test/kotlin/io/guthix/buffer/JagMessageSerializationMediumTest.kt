@@ -55,14 +55,22 @@ class JagMessageSerializationMediumTest : StringSpec({
                 writeMediumLME(lme)
                 writeMediumRME(rme)
             }
-            val expectedTest = MediumTest(default, lme, rme)
-            val actualByteBuf = JagMessage.encodeToByteBuf(MediumTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(MediumTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = MediumTest(default, lme, rme)
+                val actualByteBuf = JagMessage.encodeToByteBuf(MediumTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(MediumTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
-    
+
     "Unsigned Encode/Decode Test" {
         checkAll(Arb.uMedium(), Arb.uMedium(), Arb.uMedium()) { default, lme, rme ->
             val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(UMedium.SIZE_BYTES * 3).apply {
@@ -70,11 +78,19 @@ class JagMessageSerializationMediumTest : StringSpec({
                 writeMediumLME(lme.toInt())
                 writeMediumRME(rme.toInt())
             }
-            val expectedTest = UMediumTest(default, lme, rme)
-            val actualByteBuf = JagMessage.encodeToByteBuf(UMediumTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(UMediumTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = UMediumTest(default, lme, rme)
+                val actualByteBuf = JagMessage.encodeToByteBuf(UMediumTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(UMediumTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
 })

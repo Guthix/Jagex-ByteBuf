@@ -17,9 +17,6 @@ package io.guthix.buffer
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.property.Arb
-import io.kotest.property.arbitrary.long
-import io.kotest.property.arbitrary.uLong
 import io.kotest.property.checkAll
 import io.netty.buffer.ByteBufAllocator
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -45,24 +42,40 @@ class JagMessageSerializationLongTest : StringSpec({
             val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(Long.SIZE_BYTES).apply {
                 writeLong(default)
             }
-            val expectedTest = LongTest(default)
-            val actualByteBuf = JagMessage.encodeToByteBuf(LongTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(LongTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = LongTest(default)
+                val actualByteBuf = JagMessage.encodeToByteBuf(LongTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(LongTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
-    
+
     "Unsigned Encode/Decode Test" {
         checkAll<ULong> { default ->
             val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(ULong.SIZE_BYTES).apply {
                 writeLong(default.toLong())
             }
-            val expectedTest = ULongTest(default)
-            val actualByteBuf = JagMessage.encodeToByteBuf(ULongTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(ULongTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = ULongTest(default)
+                val actualByteBuf = JagMessage.encodeToByteBuf(ULongTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(ULongTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
 })

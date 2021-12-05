@@ -19,9 +19,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
-import io.kotest.property.arbitrary.short
 import io.kotest.property.arbitrary.uInt
-import io.kotest.property.arbitrary.uShort
 import io.kotest.property.checkAll
 import io.netty.buffer.ByteBufAllocator
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -47,24 +45,40 @@ class JagMessageSerializationIntSmartTest : StringSpec({
             val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(Int.SIZE_BYTES).apply {
                 writeIntSmart(default)
             }
-            val expectedTest = IntSmartTest(default)
-            val actualByteBuf = JagMessage.encodeToByteBuf(IntSmartTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(IntSmartTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = IntSmartTest(default)
+                val actualByteBuf = JagMessage.encodeToByteBuf(IntSmartTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(IntSmartTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
-    
+
     "Unsigned Encode/Decode Test" {
-        checkAll(Arb.uInt(USmart.MIN_INT_VALUE.toUInt(), USmart.MAX_INT_VALUE.toUInt())) { default->
+        checkAll(Arb.uInt(USmart.MIN_INT_VALUE.toUInt(), USmart.MAX_INT_VALUE.toUInt())) { default ->
             val expectedByteBuf = ByteBufAllocator.DEFAULT.jBuffer(UInt.SIZE_BYTES).apply {
                 writeUIntSmart(default.toInt())
             }
-            val expectedTest = UIntSmartTest(default)
-            val actualByteBuf = JagMessage.encodeToByteBuf(UIntSmartTest.serializer(), expectedTest)
-            actualByteBuf shouldBe expectedByteBuf
-            val actualTest = JagMessage.decodeFromByteBuf(UIntSmartTest.serializer(), expectedByteBuf)
-            actualTest shouldBe expectedTest
+            try {
+                val expectedTest = UIntSmartTest(default)
+                val actualByteBuf = JagMessage.encodeToByteBuf(UIntSmartTest.serializer(), expectedTest)
+                try {
+                    actualByteBuf shouldBe expectedByteBuf
+                    val actualTest = JagMessage.decodeFromByteBuf(UIntSmartTest.serializer(), expectedByteBuf)
+                    actualTest shouldBe expectedTest
+                } finally {
+                    actualByteBuf.release()
+                }
+            } finally {
+                expectedByteBuf.release()
+            }
         }
     }
 })
