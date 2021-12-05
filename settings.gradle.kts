@@ -11,7 +11,7 @@ dependencyResolutionManagement {
             version("kotlin", "1.6.0")
             version("dokka", "1.5.0")
             version("serialization", "1.2.2")
-            version("netty", "4.1.66.Final")
+            version("netty", "4.1.70.Final")
             version("logback", "1.2.3")
             version("kotest", "5.0.1")
             alias("dokka-java").to("org.jetbrains.dokka", "kotlin-as-java-plugin").versionRef("dokka")
