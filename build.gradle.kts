@@ -4,7 +4,7 @@ plugins {
     idea
     `maven-publish`
     signing
-    id("org.jetbrains.dokka") version "1.5.0"
+    id("org.jetbrains.dokka") version "1.6.0"
     kotlin("jvm") version "1.6.0"
 }
 

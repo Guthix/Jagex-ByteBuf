@@ -9,7 +9,7 @@ dependencyResolutionManagement {
         create("deps") {
             version("jdk", "8")
             version("kotlin", "1.6.0")
-            version("dokka", "1.5.0")
+            version("dokka", "1.6.0")
             version("serialization", "1.2.2")
             version("netty", "4.1.70.Final")
             version("logback", "1.2.3")
