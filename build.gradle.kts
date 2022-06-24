@@ -4,8 +4,8 @@ plugins {
     idea
     `maven-publish`
     signing
-    id("org.jetbrains.dokka") version "1.6.0"
-    kotlin("jvm") version "1.6.0"
+    id("org.jetbrains.dokka") version "1.7.0"
+    kotlin("jvm") version "1.7.0"
 }
 
 allprojects {
@@ -30,7 +30,7 @@ allprojects {
     kotlin {
         explicitApi()
         jvmToolchain {
-            (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(rootProject.deps.versions.jdk.get()))
+            languageVersion.set(JavaLanguageVersion.of(rootProject.deps.versions.jdk.get()))
         }
     }
 
