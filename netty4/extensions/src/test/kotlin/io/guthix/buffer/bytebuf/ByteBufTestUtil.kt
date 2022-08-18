@@ -31,5 +31,9 @@ fun Long.shouldBeNonNegative(): Long {
 }
 
 fun nonNegative() = object : Matcher<Long> {
-    override fun test(value: Long) = MatcherResult(value >= 0, "$value should be >= 0", "$value should not be >= 0")
+    override fun test(value: Long) = MatcherResult(
+        value >= 0,
+        { "$value should be >= 0" },
+        { "$value should not be >= 0" }
+    )
 }
