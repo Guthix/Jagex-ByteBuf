@@ -1,7 +1,7 @@
 import io.guthix.buffer.registerPublication
 
 dependencies {
-    api(deps.netty.buffer)
+    api(deps.netty4.buffer)
 }
 
 registerPublication(
