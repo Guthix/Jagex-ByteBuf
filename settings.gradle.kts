@@ -14,15 +14,15 @@ dependencyResolutionManagement {
             version("netty4", "4.1.70.Final")
             version("logback", "1.3.1")
             version("kotest", "5.3.1")
-            alias("dokka-java").to("org.jetbrains.dokka", "kotlin-as-java-plugin").versionRef("dokka")
-            alias("serialization-core").to("org.jetbrains.kotlinx", "kotlinx-serialization-core")
+            library("dokka-java", "org.jetbrains.dokka", "kotlin-as-java-plugin").versionRef("dokka")
+            library("serialization-core", "org.jetbrains.kotlinx", "kotlinx-serialization-core")
                 .versionRef("serialization")
-            alias("netty4-buffer").to("io.netty", "netty-buffer").versionRef("netty4")
-            alias("netty4-codec").to("io.netty", "netty-codec").versionRef("netty4")
-            alias("logback-classic").to("ch.qos.logback", "logback-classic").versionRef("logback")
-            alias("kotest-junit").to("io.kotest", "kotest-runner-junit5-jvm").versionRef("kotest")
-            alias("kotest-assert").to("io.kotest", "kotest-assertions-core-jvm").versionRef("kotest")
-            alias("kotest-property").to("io.kotest", "kotest-property").versionRef("kotest")
+            library("netty4-buffer", "io.netty", "netty-buffer").versionRef("netty4")
+            library("netty4-codec", "io.netty", "netty-codec").versionRef("netty4")
+            library("logback-classic", "ch.qos.logback", "logback-classic").versionRef("logback")
+            library("kotest-junit", "io.kotest", "kotest-runner-junit5-jvm").versionRef("kotest")
+            library("kotest-assert", "io.kotest", "kotest-assertions-core-jvm").versionRef("kotest")
+            library("kotest-property", "io.kotest", "kotest-property").versionRef("kotest")
         }
     }
 }
