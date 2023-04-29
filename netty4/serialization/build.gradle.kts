@@ -1,4 +1,4 @@
-import io.guthix.buffer.registerPublication
+import org.guthix.buffer.registerPublication
 
 plugins {
     kotlin("plugin.serialization") version "1.5.31"

@@ -1,4 +1,4 @@
-import io.guthix.buffer.registerPublication
+import org.guthix.buffer.registerPublication
 
 dependencies {
     api(deps.netty4.buffer)

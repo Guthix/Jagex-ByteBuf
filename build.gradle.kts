@@ -12,7 +12,7 @@ allprojects {
     apply(plugin = "signing")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     
-    group = "io.guthix"
+    group = "org.guthix"
 
     repositories {
         mavenCentral()
