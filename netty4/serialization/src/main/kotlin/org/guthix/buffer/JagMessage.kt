@@ -20,7 +20,6 @@ import org.guthix.buffer.codec.JagMessageEncoder
 import io.netty.buffer.ByteBufAllocator
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule

@@ -38,7 +38,9 @@ private fun bitBufArbGen(rs: RandomSource): BitBufTestCase {
 
 private val bitBufArb = arbitrary { bitBufArbGen(it) }
 
-private fun bitBufArrayArb(max: Int) = arbitrary { rs -> Array(Arb.int(1..max).next(rs)) { bitBufArbGen(rs) } }
+private fun bitBufArrayArb(@Suppress("SameParameterValue") max: Int) = arbitrary {
+    rs -> Array(Arb.int(1..max).next(rs)) { bitBufArbGen(rs) }
+}
 
 class BitBufTest : StringSpec({
     "BitBuf read/write test" {

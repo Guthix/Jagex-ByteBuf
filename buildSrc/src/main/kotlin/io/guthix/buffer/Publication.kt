@@ -26,6 +26,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.register
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
+import java.util.*
 
 private const val SNAPSHOT_BASE_VERSION = "0.2.1"
 
@@ -37,7 +38,11 @@ fun Project.registerPublication(name: String, description: String) {
             sonarSnapshotRepository()
         }
         publications {
-            val taskName = name.split("-").joinToString("") { it.capitalize() }
+            val taskName = name.split("-").joinToString("") { namePart ->
+                namePart.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                }
+            }
             val publicationProvider = register<MavenPublication>(taskName) {
                 configurePom(name, description, components.getByName("java"))
             }
