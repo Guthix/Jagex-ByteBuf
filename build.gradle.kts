@@ -4,14 +4,12 @@ plugins {
     idea
     `maven-publish`
     signing
-    id("org.jetbrains.dokka") version "1.7.0"
-    kotlin("jvm") version "1.7.0"
+    kotlin("jvm") version "1.8.21"
 }
 
 allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
-    apply(plugin = "org.jetbrains.dokka")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     
     group = "io.guthix"
@@ -24,7 +22,6 @@ allprojects {
         testImplementation(rootProject.deps.kotest.junit)
         testImplementation(rootProject.deps.kotest.assert)
         testImplementation(rootProject.deps.kotest.property)
-        dokkaHtmlPlugin(rootProject.deps.dokka.java)
     }
 
     kotlin {
