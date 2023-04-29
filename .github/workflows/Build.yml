@@ -12,6 +12,6 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Build
-        run: gradle build --stacktrace
+        run: gradlew build --stacktrace
       - name: Test
-        run: gradle test
+        run: gradlew test

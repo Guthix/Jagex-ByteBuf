@@ -12,7 +12,7 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Publish
-        run: gradle publishAllPublicationsToSonarSnapshotRepository
+        run: gradlew publishAllPublicationsToSonarSnapshotRepository
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
