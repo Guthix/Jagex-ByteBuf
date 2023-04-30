@@ -15,7 +15,6 @@
  */
 package org.guthix.buffer.bytebuf
 
-import org.guthix.buffer.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeNonNegative
 import io.kotest.matchers.shouldBe
@@ -24,6 +23,7 @@ import io.kotest.property.arbitrary.*
 import io.kotest.property.checkAll
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
+import org.guthix.buffer.*
 
 private suspend fun doShortSmartRWTest(
     writer: ByteBuf.(Int) -> ByteBuf,
