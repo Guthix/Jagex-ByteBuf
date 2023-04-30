@@ -344,7 +344,7 @@ public fun ByteBuf.readString(charset: Charset = Charsets.CP_1252): String {
 
 public fun ByteBuf.readVersionedString(charset: Charset = Charsets.CP_1252, expectedVersion: Int = 0): String {
     val actualVersion = readUnsignedByte().toInt()
-    if (actualVersion != expectedVersion) throw IOException("Expected version number did not match actual version.")
+    if (actualVersion != expectedVersion) throw IOException("Expected version $expectedVersion but was $actualVersion")
     return readString(charset)
 }
 

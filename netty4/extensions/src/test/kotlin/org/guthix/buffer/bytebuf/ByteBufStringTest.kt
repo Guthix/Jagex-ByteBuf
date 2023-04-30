@@ -48,7 +48,7 @@ private suspend fun doVersionedStringRWTest(
     reader: ByteBuf.(Charset, Int) -> String
 ) = checkAll(Arb.list(Arb.string(), collectionSizeRange)) { testData ->
     val buf = ByteBufAllocator.DEFAULT.buffer()
-    val versions = Arb.byte().take(testData.size).toList()
+    val versions = Arb.uByte().take(testData.size).toList()
     try {
         testData.forEachIndexed  { i, expected -> buf.writer(expected, charset, versions[i].toInt()) }
         testData.forEachIndexed { i, expected ->
@@ -64,9 +64,9 @@ class ByteBufStringTest : StringSpec({
     "Read/Write String windows1252" { doStringRWTest(Charsets.CP_1252, ByteBuf::writeString, ByteBuf::readString) }
     "Read/Write String cesu8" { doStringRWTest(Charsets.CESU_8, ByteBuf::writeString, ByteBuf::readString) }
     "Read/Write versioned String windows1252" {
-        doStringRWTest(Charsets.CP_1252, ByteBuf::writeVersionedString, ByteBuf::readVersionedString)
+        doVersionedStringRWTest(Charsets.CP_1252, ByteBuf::writeVersionedString, ByteBuf::readVersionedString)
     }
     "Read/Write versioned String cesu8" {
-        doStringRWTest(Charsets.CESU_8, ByteBuf::writeVersionedString, ByteBuf::readVersionedString)
+        doVersionedStringRWTest(Charsets.CESU_8, ByteBuf::writeVersionedString, ByteBuf::readVersionedString)
     }
 })
