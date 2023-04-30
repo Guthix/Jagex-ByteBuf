@@ -8,7 +8,7 @@ dependencyResolutionManagement {
             version("jdk", "17")
             version("kotlin", "1.8.21")
             version("serialization", "1.2.2")
-            version("netty4", "4.1.70.Final")
+            version("netty4", "4.1.92.Final")
             version("logback", "1.4.7")
             version("kotest", "5.3.1")
             library("serialization-core", "org.jetbrains.kotlinx", "kotlinx-serialization-core")
