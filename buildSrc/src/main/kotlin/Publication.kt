@@ -90,7 +90,7 @@ private fun MavenPublication.configurePom(projectName: String, desc: String?, co
                 id.set("Guthix")
                 name.set("Guthix Contributors")
                 organization.set("Guthix")
-                organizationUrl.set("https://www.guthix.io")
+                organizationUrl.set("https://www.guthix.org")
             }
         }
 
