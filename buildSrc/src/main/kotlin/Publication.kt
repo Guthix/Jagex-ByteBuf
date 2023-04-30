@@ -53,13 +53,13 @@ fun Project.registerPublication(name: String, description: String) {
 
 private fun RepositoryHandler.mavenCentralRepository() = maven {
     name = "MavenCentral"
-    url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+    url = URI("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
     credentials { ossrhCredentials() }
 }
 
 private fun RepositoryHandler.sonarSnapshotRepository() = maven {
     name = "SonarSnapshot"
-    url = URI("https://oss.sonatype.org/content/repositories/snapshots/")
+    url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots/")
     credentials { ossrhCredentials() }
 }
 
