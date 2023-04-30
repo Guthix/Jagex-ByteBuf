@@ -1,6 +1,6 @@
 # Jagex-ByteBuf
-[![Release](https://img.shields.io/maven-central/v/io.guthix/jagex-bytebuf-extensions)](https://search.maven.org/search?q=jagex-bytebuf)
-[![Snapshot](https://img.shields.io/nexus/s/io.guthix/jagex-bytebuf-extensions?server=https%3A%2F%2Foss.sonatype.org)](https://oss.sonatype.org/content/repositories/snapshots/io/guthix/)
+[![Release](https://img.shields.io/maven-central/v/org.guthix/jagex-bytebuf-extensions)](https://search.maven.org/search?q=jagex-bytebuf)
+[![Snapshot](https://img.shields.io/nexus/s/org.guthix/jagex-bytebuf-extensions?server=https%3A%2F%2Foss.sonatype.org)](https://oss.sonatype.org/content/repositories/snapshots/org/guthix/)
 [![License](https://img.shields.io/github/license/guthix/Jagex-ByteBuf)](https://github.com/guthix/Jagex-ByteBuf/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/538667877180637184?color=%237289da&logo=discord)](https://discord.gg/AFyGxNp)
 
@@ -33,9 +33,9 @@ class VarpLargePacket(
 Artifacts:
 ```Kotlin
 dependencies {
-    implementation(group = "io.guthix", name = "jagex-bytebuf-extensions", version = VERSION)
-    implementation(group = "io.guthix", name = "jagex-bytebuf-wrapper", version = VERSION)
-    implementation(group = "io.guthix", name = "jagex-bytebuf-serialization", version = VERSION)
+    implementation(group = "org.guthix", name = "jagex-bytebuf-extensions", version = VERSION)
+    implementation(group = "org.guthix", name = "jagex-bytebuf-wrapper", version = VERSION)
+    implementation(group = "org.guthix", name = "jagex-bytebuf-serialization", version = VERSION)
 }
 ```
 Snapshot repository:
